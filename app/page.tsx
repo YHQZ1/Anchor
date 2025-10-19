@@ -1,70 +1,16 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  Calendar,
-  Bell,
-  BarChart3,
-  BookOpen,
-  CheckCircle,
-  Users,
-  Moon,
-  Sun,
-  ArrowRight,
-  Zap,
-  Shield,
-  Sparkles,
-} from "lucide-react";
+import { Zap, Shield, Sparkles } from "lucide-react";
 import { useTheme } from "next-themes";
-
-import Image from "next/image";
-import Link from "next/link";
+import Navbar from "../components/Navbar";
 
 export default function Landing() {
-  const { theme, setTheme } = useTheme();
+  const { theme } = useTheme();
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   if (!mounted) return null;
-
-  const features = [
-    {
-      icon: <BookOpen className="w-6 h-6" />,
-      title: "Assignment Tracker",
-      description:
-        "Automatically sync with Moodle to track all assignments, deadlines, and submission status in one centralized dashboard.",
-    },
-    {
-      icon: <Bell className="w-6 h-6" />,
-      title: "Smart Notifications",
-      description:
-        "Never miss a deadline with intelligent alerts for new assignments and upcoming due dates delivered in real-time.",
-    },
-    {
-      icon: <Calendar className="w-6 h-6" />,
-      title: "Attendance Monitor",
-      description:
-        "Track attendance thresholds intelligently and receive warnings before falling below minimum requirements.",
-    },
-    {
-      icon: <BarChart3 className="w-6 h-6" />,
-      title: "Productivity Insights",
-      description:
-        "Comprehensive analytics on academic performance with detailed workload patterns and completion trends.",
-    },
-    {
-      icon: <CheckCircle className="w-6 h-6" />,
-      title: "Centralized Hub",
-      description:
-        "Access all assignment files, requirements, and submission details instantly without switching platforms.",
-    },
-    {
-      icon: <Users className="w-6 h-6" />,
-      title: "Collaboration Tools",
-      description:
-        "Manage group projects efficiently, share resources with peers, and track team progress seamlessly.",
-    },
-  ];
 
   const benefits = [
     { icon: <Zap className="w-5 h-5" />, text: "Lightning fast sync" },
@@ -78,83 +24,7 @@ export default function Landing() {
         theme === "dark" ? "bg-black text-white" : "bg-white text-slate-900"
       }`}
     >
-      {/* Navigation */}
-
-      <nav
-        className={`fixed w-full top-0 z-50 backdrop-blur-xl border-b ${
-          theme === "dark"
-            ? "bg-black/80 border-gray-800"
-            : "bg-white/80 border-slate-200"
-        }`}
-      >
-        <div className="max-w-8xl mx-auto px-6 lg:px-20 py-0">
-          <div className="flex items-center justify-between">
-            {/* Left side: Logo + Features/About */}
-            <div className="flex items-center space-x-6">
-              {/* Logo */}
-              <div className="w-20 h-15 relative">
-                <Image
-                  src="/logo.png"
-                  alt="Logo"
-                  fill
-                  className="object-contain"
-                />
-              </div>
-
-              {/* Navigation links */}
-              <a
-                href="#features"
-                className={`hidden md:block text-base font-medium ${
-                  theme === "dark"
-                    ? "text-gray-300 hover:text-purple-400"
-                    : "text-slate-700 hover:text-purple-600"
-                }`}
-              >
-                Features
-              </a>
-              <a
-                href="#about"
-                className={`hidden md:block text-base font-medium ${
-                  theme === "dark"
-                    ? "text-gray-300 hover:text-purple-400"
-                    : "text-slate-700 hover:text-purple-600"
-                }`}
-              >
-                About
-              </a>
-            </div>
-
-            {/* Right side: Sign In/Sign Up + Theme toggle */}
-            <div className="flex items-center space-x-6">
-              <Link
-                href="/signin"
-                className={`hidden md:block text-base font-medium ${
-                  theme === "dark"
-                    ? "text-gray-300 hover:text-purple-400"
-                    : "text-slate-700 hover:text-purple-600"
-                }`}
-              >
-                Sign In
-              </Link>
-              <Link
-                href="/signup"
-                className={`hidden md:block text-base font-medium ${
-                  theme === "dark"
-                    ? "text-gray-300 hover:text-purple-400"
-                    : "text-slate-700 hover:text-purple-600"
-                }`}
-              >
-                Sign Up
-              </Link>
-              <button className="cursor-pointer"
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              >
-                {theme === "dark" ? <Sun /> : <Moon />}
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Hero Section */}
       <section className="pt-32 pb-24 px-6 lg:px-8">

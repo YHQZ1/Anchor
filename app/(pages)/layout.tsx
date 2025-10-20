@@ -10,8 +10,8 @@ export default function PagesLayout({ children }: { children: ReactNode }) {
   const [isAuth, setIsAuth] = useState<boolean | null>(null);
 
   const hideSidebar = 
-    pathname?.startsWith("/pages/auth") ||
-    pathname?.startsWith("/pages/unauthorized");
+    pathname?.startsWith("/auth") ||
+    pathname?.startsWith("/unauthorized");
 
   useEffect(() => {
     // Check if we're on a page that doesn't require auth
@@ -27,14 +27,14 @@ export default function PagesLayout({ children }: { children: ReactNode }) {
         if (!token) {
           setIsAuth(false);
           // Use the correct path including /pages
-          router.replace("/pages/unauthorized");
+          router.replace("/unauthorized");
         } else {
           setIsAuth(true);
         }
       } catch (error) {
         // If localStorage access fails (SSR), treat as unauthorized
         setIsAuth(false);
-        router.replace("/pages/unauthorized");
+        router.replace("/unauthorized");
       }
     };
 

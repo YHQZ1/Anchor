@@ -66,7 +66,7 @@ export default function Header() {
           <div className="flex items-center space-x-3 sm:space-x-4 lg:space-x-6">
             {/* Desktop Auth Links */}
             <Link
-              href="/pages/auth?mode=signin"
+              href="/auth?mode=signin"
               className={`hidden md:block text-sm lg:text-base font-medium transition-colors ${
                 theme === "dark"
                   ? "text-gray-300 hover:text-purple-400"
@@ -76,7 +76,7 @@ export default function Header() {
               Sign In
             </Link>
             <Link
-              href="/pages/auth?mode=signup"
+              href="/auth?mode=signup"
               className={`hidden md:block text-sm lg:text-base font-medium transition-colors ${
                 theme === "dark"
                   ? "text-gray-300 hover:text-purple-400"
@@ -170,7 +170,7 @@ export default function Header() {
           {/* Mobile Auth Links */}
           <div className="space-y-3 md:hidden">
             <Link
-              href="/pages/auth?mode=signin"
+              href="/auth?mode=signin"
               className={`block w-full text-center text-base font-medium py-3 px-4 rounded-lg transition-colors ${
                 theme === "dark"
                   ? "text-gray-300 bg-gray-800 hover:bg-gray-700"
@@ -181,7 +181,7 @@ export default function Header() {
               Sign In
             </Link>
             <Link
-              href="/pages/auth?mode=signup"
+              href="/auth?mode=signup"
               className={`block w-full text-center text-base font-semibold py-3 px-4 rounded-lg transition-colors ${
                 theme === "dark"
                   ? "text-white bg-purple-600 hover:bg-purple-700"

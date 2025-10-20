@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import {
   BookOpen,
   Calendar,
@@ -41,20 +42,15 @@ const SidebarContext = React.createContext<SidebarContextType | undefined>(
 
 export function useSidebar() {
   const context = React.useContext(SidebarContext);
-  if (!context) {
-    throw new Error("useSidebar must be used within a SidebarProvider");
-  }
+  if (!context)
+    throw new Error("useSidebar must be used within SidebarProvider");
   return context;
 }
 
-// SidebarProvider Component
+// Sidebar Provider
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = React.useState(true);
-
-  const toggleSidebar = React.useCallback(() => {
-    setOpen((prev) => !prev);
-  }, []);
-
+  const toggleSidebar = React.useCallback(() => setOpen((prev) => !prev), []);
   return (
     <SidebarContext.Provider value={{ open, setOpen, toggleSidebar }}>
       {children}
@@ -62,14 +58,13 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// SidebarTrigger Component
+// Sidebar Trigger
 export function SidebarTrigger() {
   const { toggleSidebar } = useSidebar();
-
   return (
     <button
       onClick={toggleSidebar}
-      className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground h-9 w-9"
+      className="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 w-9 transition-colors hover:bg-accent hover:text-accent-foreground"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -90,32 +85,27 @@ export function SidebarTrigger() {
   );
 }
 
-// Main Sidebar Component
+// Sidebar Component
 export function AppSidebar() {
   const { open } = useSidebar();
   const { theme, setTheme } = useTheme();
   const pathname = usePathname();
-  const [mounted, setMounted] = React.useState(false);
   const router = useRouter();
+  const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => setMounted(true), []);
 
+  // Clean URLs here
   const menuItems = [
-    { title: "Dashboard", url: "/pages/dashboard", icon: Home },
-    { title: "Assignments", url: "/pages/assignments", icon: CheckSquare },
-    { title: "Attendance", url: "/pages/attendance", icon: Calendar },
-    { title: "Courses", url: "/pages/courses", icon: BookOpen },
-    { title: "Analytics", url: "/pages/analytics", icon: BarChart3 },
-    { title: "Settings", url: "/pages/settings", icon: Settings },
+    { title: "Dashboard", url: "/dashboard", icon: Home },
+    { title: "Assignments", url: "/assignments", icon: CheckSquare },
+    { title: "Attendance", url: "/attendance", icon: Calendar },
+    { title: "Courses", url: "/courses", icon: BookOpen },
+    { title: "Analytics", url: "/analytics", icon: BarChart3 },
+    { title: "Settings", url: "/settings", icon: Settings },
   ];
 
-  const isActive = (url: string) => pathname === url;
-
-  const handleLogout = () => {
-    localStorage.removeItem("jwtToken");
-    router.push("/");
-    alert("You have been logged out.");
-  };
+  const isActive = (url: string) => pathname.startsWith(url);
 
   return (
     <aside
@@ -148,24 +138,22 @@ export function AppSidebar() {
         )}
       </div>
 
-      {/* Content */}
+      {/* Navigation */}
       <div className="flex flex-col h-[calc(100vh-8rem)] overflow-y-auto px-3 py-4">
         <nav className="space-y-1">
           {menuItems.map((item) => (
-            <a
+            <Link
               key={item.title}
               href={item.url}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                 isActive(item.url)
-                  ? theme === "dark"
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                    : "bg-sidebar-accent text-sidebar-accent-foreground"
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
                   : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               }`}
             >
               <item.icon className="h-5 w-5 shrink-0" />
               {open && <span className="truncate">{item.title}</span>}
-            </a>
+            </Link>
           ))}
         </nav>
       </div>
@@ -176,11 +164,7 @@ export function AppSidebar() {
         {mounted && (
           <button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className={`flex w-full items-center cursor-pointer gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors mb-2 ${
-              theme === "dark"
-                ? "text-sidebar-foreground hover:bg-sidebar-accent"
-                : "text-sidebar-foreground hover:bg-sidebar-accent"
-            }`}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors mb-2 text-sidebar-foreground hover:bg-sidebar-accent"
           >
             {theme === "dark" ? (
               <Sun className="h-5 w-5 shrink-0" />
@@ -192,13 +176,7 @@ export function AppSidebar() {
         )}
 
         {/* User Menu */}
-        <div
-          className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium cursor-pointer ${
-            theme === "dark"
-              ? "text-sidebar-foreground hover:bg-sidebar-accent"
-              : "text-sidebar-foreground hover:bg-sidebar-accent"
-          }`}
-        >
+        <div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium cursor-pointer text-sidebar-foreground hover:bg-sidebar-accent">
           <User2 className="h-5 w-5 shrink-0" />
           {open && (
             <>
@@ -212,16 +190,11 @@ export function AppSidebar() {
             </>
           )}
         </div>
-        {/* Logout Confirmation Dialog */}
+
+        {/* Logout Dialog */}
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <button
-              className={`flex w-full items-center gap-3 cursor-pointer rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-                theme === "dark"
-                  ? "text-sidebar-foreground hover:bg-sidebar-accent"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent"
-              }`}
-            >
+            <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent">
               <LogOut className="h-5 w-5 shrink-0" />
               {open && <span>Logout</span>}
             </button>
@@ -237,11 +210,8 @@ export function AppSidebar() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel className="cursor-pointer">
-                Cancel
-              </AlertDialogCancel>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
-              className="cursor-pointer"
                 onClick={() => {
                   localStorage.removeItem("jwtToken");
                   router.replace("/");

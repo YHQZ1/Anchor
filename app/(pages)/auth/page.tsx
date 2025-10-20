@@ -162,7 +162,7 @@ export default function Auth() {
         });
         
         // Redirect to dashboard after successful signup
-        setTimeout(() => router.push("/pages/dashboard"), 1000);
+        setTimeout(() => router.push("/dashboard"), 1000);
       } else {
         setAlert({
           type: "error",
@@ -209,7 +209,7 @@ export default function Auth() {
         });
         
         // Redirect to dashboard after successful login
-        setTimeout(() => router.push("/pages/dashboard"), 1000);
+        setTimeout(() => router.push("/dashboard"), 1000);
       } else {
         setAlert({
           type: "error",

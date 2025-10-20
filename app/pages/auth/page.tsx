@@ -12,7 +12,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 type AuthMode = "signup" | "signin";
@@ -48,6 +48,7 @@ export default function Auth() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const searchParams = useSearchParams();
+  const router = useRouter();
   const initialMode = searchParams.get("mode") as AuthMode;
   const [authMode, setAuthMode] = useState<AuthMode>(
     initialMode === "signin" ? "signin" : "signup"
@@ -70,6 +71,8 @@ export default function Auth() {
     title: string;
     description: string;
   } | null>(null);
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const numberOfShapes = 20;
   const shapeColor = theme === "dark" ? "bg-white/20" : "bg-black/20";
@@ -123,6 +126,7 @@ export default function Auth() {
 
   const handleSignUpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
 
     if (signUpData.password !== signUpData.confirmPassword) {
       setAlert({
@@ -130,6 +134,7 @@ export default function Auth() {
         title: "Passwords do not match",
         description: "Please make sure both passwords are identical.",
       });
+      setIsLoading(false);
       return;
     }
 
@@ -147,12 +152,17 @@ export default function Auth() {
       const data = await res.json();
 
       if (res.ok) {
+        // Store JWT token in localStorage
+        localStorage.setItem("jwtToken", data.token);
+        
         setAlert({
           type: "success",
           title: "Account created!",
           description: `Welcome, ${signUpData.username}! Your account has been successfully created.`,
         });
-        setTimeout(() => (window.location.href = "/Dashboard"), 1500);
+        
+        // Redirect to dashboard after successful signup
+        setTimeout(() => router.push("/pages/dashboard"), 1000);
       } else {
         setAlert({
           type: "error",
@@ -167,11 +177,14 @@ export default function Auth() {
         title: "Network error",
         description: "Please try again.",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleSignInSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
 
     try {
       const res = await fetch("/api/auth/login", {
@@ -186,12 +199,17 @@ export default function Auth() {
       const data = await res.json();
 
       if (res.ok) {
+        // Store JWT token in localStorage (same as React version)
+        localStorage.setItem("jwtToken", data.token);
+        
         setAlert({
           type: "success",
           title: "Login successful!",
           description: `Welcome back!`,
         });
-        setTimeout(() => (window.location.href = "/Dashboard"), 1500);
+        
+        // Redirect to dashboard after successful login
+        setTimeout(() => router.push("/pages/dashboard"), 1000);
       } else {
         setAlert({
           type: "error",
@@ -206,6 +224,8 @@ export default function Auth() {
         title: "Network error",
         description: "Please try again.",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -364,7 +384,7 @@ export default function Auth() {
                 <XCircle className="w-5 h-5 flex-shrink-0" />
               )}
               <div className="flex-1">
-                <AlertTitle className="mb-1">{alert.title}</AlertTitle>
+                <AlertTitle className="mb-1 mt-1">{alert.title}</AlertTitle>
                 <AlertDescription>{alert.description}</AlertDescription>
               </div>
             </Alert>
@@ -446,30 +466,59 @@ export default function Auth() {
                 theme={theme === "dark" ? "dark" : "light"}
               />
             )}
-
-            <button
-              type="submit"
-              className={`w-full py-3 px-4 rounded-lg font-semibold transition-colors cursor-pointer duration-200 ${
-                theme === "dark"
-                  ? "bg-white text-black hover:bg-gray-200"
-                  : "bg-black text-white hover:bg-gray-800"
-              }`}
+            <form
+              onSubmit={
+                authMode === "signup" ? handleSignUpSubmit : handleSignInSubmit
+              }
             >
-              {authMode === "signup" ? "Create Account" : "Sign In"}
-            </button>
+              <div className="space-y-4">
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className={`w-full py-3 px-4 rounded-lg font-semibold transition-colors cursor-pointer duration-200 flex items-center justify-center gap-2 ${
+                    theme === "dark"
+                      ? "bg-white text-black hover:bg-gray-200 disabled:bg-gray-400"
+                      : "bg-black text-white hover:bg-gray-800 disabled:bg-gray-400"
+                  }`}
+                >
+                  {isLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                      {authMode === "signup" ? "Creating Account..." : "Signing In..."}
+                    </>
+                  ) : (
+                    authMode === "signup" ? "Create Account" : "Sign In"
+                  )}
+                </button>
+              </div>
+            </form>
 
             <div className="relative flex items-center justify-center mt-0 mb-2">
-              <div className={`flex-1 border-t ${theme === "dark" ? "border-gray-800" : "border-gray-300"}`}></div>
-              <span className={`px-4 text-sm ${theme === "dark" ? "text-gray-500" : "text-gray-600"}`}>
+              <div
+                className={`flex-1 border-t ${
+                  theme === "dark" ? "border-gray-800" : "border-gray-300"
+                }`}
+              ></div>
+              <span
+                className={`px-4 text-sm ${
+                  theme === "dark" ? "text-gray-500" : "text-gray-600"
+                }`}
+              >
                 or continue with
               </span>
-              <div className={`flex-1 border-t ${theme === "dark" ? "border-gray-800" : "border-gray-300"}`}></div>
+              <div
+                className={`flex-1 border-t ${
+                  theme === "dark" ? "border-gray-800" : "border-gray-300"
+                }`}
+              ></div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
-                onClick={() => {/* Add Google OAuth logic */}}
+                onClick={() => {
+                  /* Add Google OAuth logic */
+                }}
                 className={`flex cursor-pointer items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all duration-200 border ${
                   theme === "dark"
                     ? "bg-gray-1000 border-gray-800 text-white hover:bg-gray-800 hover:border-gray-700"
@@ -499,21 +548,26 @@ export default function Auth() {
 
               <button
                 type="button"
-                onClick={() => {/* Add Apple OAuth logic */}}
+                onClick={() => {
+                  /* Add Apple OAuth logic */
+                }}
                 className={`flex cursor-pointer items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all duration-200 border ${
                   theme === "dark"
                     ? "bg-gray-1000 border-gray-800 text-white hover:bg-gray-800 hover:border-gray-700"
                     : "bg-white border-gray-300 text-gray-900 hover:bg-gray-50 hover:border-gray-400"
                 }`}
               >
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+                <svg
+                  className="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
                 </svg>
                 Apple
               </button>
             </div>
           </div>
-          
         </CardContent>
 
         <CardFooter className="text-center">

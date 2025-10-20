@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Zap, Shield, Sparkles } from "lucide-react";
 import { useTheme } from "next-themes";
-import Navbar from "../components/Navbar";
+import Header from "../components/Header";
 
 export default function Landing() {
   const { theme } = useTheme();
@@ -24,7 +24,7 @@ export default function Landing() {
         theme === "dark" ? "bg-black text-white" : "bg-white text-slate-900"
       }`}
     >
-      <Navbar />
+      <Header />
 
       {/* Hero Section */}
       <section className="pt-32 pb-24 px-6 lg:px-8">

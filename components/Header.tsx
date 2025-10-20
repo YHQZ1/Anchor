@@ -14,7 +14,7 @@ import {
   NavigationMenuViewport,
 } from "@/components/ui/navigation-menu";
 
-export default function Navbar() {
+export default function Header() {
   const { theme, setTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -29,11 +29,11 @@ export default function Navbar() {
             : "bg-white/80 border-slate-200"
         }`}
       >
-        <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-20 py-3 sm:py-0 flex items-center justify-between">
+        <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-10 py-3 sm:py-0 flex items-center justify-between">
           {/* Left: Logo + Desktop Navigation */}
           <div className="flex items-center space-x-4 lg:space-x-6">
             {/* Logo */}
-            <Link href="/" className="w-16 sm:w-20 h-12 sm:h-15 relative cursor-pointer flex-shrink-0">
+            <Link href="/" className="w-12 sm:w-20 h-12 sm:h-12 relative cursor-pointer flex-shrink-0 my-2">
               <Image src="/logo.png" alt="Logo" fill className="object-contain" />
             </Link>
 
@@ -66,7 +66,7 @@ export default function Navbar() {
           <div className="flex items-center space-x-3 sm:space-x-4 lg:space-x-6">
             {/* Desktop Auth Links */}
             <Link
-              href="/Auth?mode=signin"
+              href="/pages/auth?mode=signin"
               className={`hidden md:block text-sm lg:text-base font-medium transition-colors ${
                 theme === "dark"
                   ? "text-gray-300 hover:text-purple-400"
@@ -76,7 +76,7 @@ export default function Navbar() {
               Sign In
             </Link>
             <Link
-              href="/Auth?mode=signup"
+              href="/pages/auth?mode=signup"
               className={`hidden md:block text-sm lg:text-base font-medium transition-colors ${
                 theme === "dark"
                   ? "text-gray-300 hover:text-purple-400"
@@ -88,7 +88,7 @@ export default function Navbar() {
 
             {/* Theme Toggle */}
             <button
-              className="cursor-pointer p-2 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="cursor-pointer p-2 rounded-lg transition-colors"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               aria-label="Toggle theme"
             >
@@ -170,7 +170,7 @@ export default function Navbar() {
           {/* Mobile Auth Links */}
           <div className="space-y-3 md:hidden">
             <Link
-              href="/Auth?mode=signin"
+              href="/pages/auth?mode=signin"
               className={`block w-full text-center text-base font-medium py-3 px-4 rounded-lg transition-colors ${
                 theme === "dark"
                   ? "text-gray-300 bg-gray-800 hover:bg-gray-700"
@@ -181,7 +181,7 @@ export default function Navbar() {
               Sign In
             </Link>
             <Link
-              href="/Auth?mode=signup"
+              href="/pages/auth?mode=signup"
               className={`block w-full text-center text-base font-semibold py-3 px-4 rounded-lg transition-colors ${
                 theme === "dark"
                   ? "text-white bg-purple-600 hover:bg-purple-700"

@@ -1,53 +1,87 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseClient'
 import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
+
+const JWT_SECRET = process.env.JWT_SECRET!
 
 export async function POST(request: NextRequest) {
   try {
     const { username, email, password } = await request.json()
 
-    // Validate input
-    if (!username || !email || !password) {
+    // Basic validation
+    if (!email || !password || !username) {
       return NextResponse.json(
-        { error: 'All fields are required' },
+        { error: 'Username, email and password are required' },
         { status: 400 }
       )
     }
 
-    // Hash password
+    // Check if email already exists
+    const { data: existingUser, error: existingError } = await supabaseAdmin
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .single()
+
+    if (existingError && existingError.code !== 'PGRST116') {
+      return NextResponse.json(
+        { error: existingError.message },
+        { status: 500 }
+      )
+    }
+
+    if (existingUser) {
+      return NextResponse.json(
+        { error: 'Email already in use' },
+        { status: 400 }
+      )
+    }
+
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 12)
 
-    // Insert user into database using admin client (bypasses RLS)
-    const { data: user, error } = await supabaseAdmin
+    // Insert new user into Supabase
+    const { data: userData, error: userError } = await supabaseAdmin
       .from('users')
-      .insert([
-        {
-          username,
-          email,
-          password: hashedPassword,
-        },
-      ])
+      .insert([{
+        email,
+        password: hashedPassword,
+        username,
+      }])
       .select()
       .single()
 
-    if (error) {
-      if (error.code === '23505') {
-        return NextResponse.json(
-          { error: 'User already exists' },
-          { status: 400 }
-        )
-      }
-      throw error
+    if (userError) {
+      return NextResponse.json(
+        { error: userError.message },
+        { status: 400 }
+      )
     }
+
+    const user = userData
+
+    // Generate JWT
+    const token = jwt.sign(
+      { 
+        id: user.id, 
+        email: user.email
+      },
+      JWT_SECRET,
+      { expiresIn: '1h' }
+    )
 
     // Return user without password
     const { password: _, ...userWithoutPassword } = user
-    return NextResponse.json(
-      { message: 'User created successfully', user: userWithoutPassword },
-      { status: 201 }
-    )
-  } catch (error) {
-    console.error('Registration error:', error)
+
+    return NextResponse.json({
+      message: 'User created successfully',
+      user: userWithoutPassword,
+      token,
+    }, { status: 201 })
+
+  } catch (err) {
+    console.error(err)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

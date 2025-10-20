@@ -9,14 +9,15 @@ export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json()
 
+    // Basic validation
     if (!email || !password) {
       return NextResponse.json(
-        { error: 'Email and password are required' },
+        { error: 'Email and password required' },
         { status: 400 }
       )
     }
 
-    // Get user from database
+    // Fetch user from Supabase
     const { data: user, error } = await supabaseAdmin
       .from('users')
       .select('*')
@@ -26,36 +27,40 @@ export async function POST(request: NextRequest) {
     if (error || !user) {
       return NextResponse.json(
         { error: 'Invalid credentials' },
-        { status: 401 }
+        { status: 400 }
       )
     }
 
-    // Verify password
-    const isValidPassword = await bcrypt.compare(password, user.password)
-    if (!isValidPassword) {
+    // Compare password
+    const validPassword = await bcrypt.compare(password, user.password)
+    if (!validPassword) {
       return NextResponse.json(
         { error: 'Invalid credentials' },
-        { status: 401 }
+        { status: 400 }
       )
     }
 
-    // Create JWT token
+    // Generate JWT
     const token = jwt.sign(
-      { userId: user.id, email: user.email },
+      { 
+        id: user.id, 
+        email: user.email
+      },
       JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: '1h' }
     )
 
-    // Return user and token without password
+    // Return user without password
     const { password: _, ...userWithoutPassword } = user
-    
-    return NextResponse.json({
-      message: 'Login successful',
-      user: userWithoutPassword,
-      token,
+
+    return NextResponse.json({ 
+      message: 'Login successful', 
+      token, 
+      user: userWithoutPassword 
     })
-  } catch (error) {
-    console.error('Login error:', error)
+
+  } catch (err) {
+    console.error(err)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -1,5 +1,5 @@
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "../components/ThemeProvider";
 
 export const metadata = {
   title: "Anchor",

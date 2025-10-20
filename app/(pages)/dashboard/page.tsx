@@ -195,7 +195,7 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold">Upcoming Assignments</h2>
               <a
-                href="/pages/assignments"
+                href="/assignments"
                 className={`text-sm font-medium ${
                   theme === "dark"
                     ? "text-purple-400 hover:text-purple-300"

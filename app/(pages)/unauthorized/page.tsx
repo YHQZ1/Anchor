@@ -186,7 +186,7 @@ export default function Unauthorized() {
   };
 
   const handleLogin = () => {
-    router.push("/pages/auth");
+    router.push("/auth");
   };
 
   const handleGoBack = () => {

@@ -33,12 +33,39 @@ export default function Header() {
           {/* Left: Logo + Desktop Navigation */}
           <div className="flex items-center space-x-4 lg:space-x-6">
             {/* Logo */}
-            <Link href="/" className="w-12 sm:w-20 h-12 sm:h-12 relative cursor-pointer flex-shrink-0 my-2">
-              <Image src="/logo.png" alt="Logo" fill className="object-contain" />
+            <Link
+              href="/"
+              className="flex items-center gap-2 sm:gap-3 cursor-pointer flex-shrink-0 my-2"
+            >
+              {/* Logo */}
+              <div className="relative w-12 sm:w-20 h-12 sm:h-12">
+                {theme && (
+                  <Image
+                    src={
+                      theme === "dark" ? "/logo-dark.png" : "/logo-light.png"
+                    }
+                    alt="Logo"
+                    fill
+                    className="object-contain transition-opacity duration-300"
+                    priority
+                  />
+                )}
+              </div>
+
+              {/* Name */}
+              <span
+                className={`text-2xl sm:text-3xl font-semibold tracking-wide transition-colors duration-300 ${
+                  theme === "dark"
+                    ? "text-gray-300 hover:text-purple-400"
+                    : "text-slate-700 hover:text-purple-600"
+                }`}
+              >
+                Anchor
+              </span>
             </Link>
 
             {/* Desktop Navigation Menu - Hidden on mobile/tablet */}
-            <div className="hidden lg:block">
+            {/* <div className="hidden lg:block">
               <NavigationMenu>
                 <NavigationMenuList className="flex gap-2 xl:gap-4">
                   <NavigationMenuItem>
@@ -59,7 +86,7 @@ export default function Header() {
                 </NavigationMenuList>
                 <NavigationMenuViewport />
               </NavigationMenu>
-            </div>
+            </div> */}
           </div>
 
           {/* Right: Sign In/Sign Up + Theme Toggle + Mobile Menu */}
@@ -92,7 +119,11 @@ export default function Header() {
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               aria-label="Toggle theme"
             >
-              {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              {theme === "dark" ? (
+                <Sun className="w-5 h-5" />
+              ) : (
+                <Moon className="w-5 h-5" />
+              )}
             </button>
 
             {/* Mobile Menu Button */}
@@ -165,7 +196,11 @@ export default function Header() {
           </div>
 
           {/* Divider */}
-          <div className={`border-t ${theme === "dark" ? "border-gray-800" : "border-slate-200"}`} />
+          <div
+            className={`border-t ${
+              theme === "dark" ? "border-gray-800" : "border-slate-200"
+            }`}
+          />
 
           {/* Mobile Auth Links */}
           <div className="space-y-3 md:hidden">

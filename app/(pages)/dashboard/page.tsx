@@ -10,6 +10,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import { SidebarTrigger } from "@/components/Sidebar";
+import { Badge } from "@/components/ui/badge";
 
 export default function DashboardPage() {
   const { theme } = useTheme();
@@ -99,16 +100,20 @@ export default function DashboardPage() {
     },
   ];
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityBadge = (priority: string) => {
     switch (priority) {
       case "high":
-        return "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400";
+        return (
+          <Badge variant="destructive" className="text-white dark:text-white">
+            High Priority
+          </Badge>
+        );
       case "medium":
-        return "bg-yellow-100 text-yellow-700 dark:bg-yellow-500/10 dark:text-yellow-400";
+        return <Badge variant="secondary">Medium Priority</Badge>;
       case "low":
-        return "bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-400";
+        return <Badge variant="outline">Low Priority</Badge>;
       default:
-        return "bg-gray-100 text-gray-700 dark:bg-white/5 dark:text-gray-400";
+        return <Badge variant="outline">Normal</Badge>;
     }
   };
 
@@ -226,13 +231,7 @@ export default function DashboardPage() {
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${getPriorityColor(
-                        assignment.priority
-                      )}`}
-                    >
-                      {assignment.priority}
-                    </span>
+                    {getPriorityBadge(assignment.priority)}
                     <div className="flex items-center gap-1 text-sm">
                       <Clock className="h-4 w-4" />
                       <span>{assignment.dueDate}</span>

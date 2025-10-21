@@ -7,13 +7,14 @@ import {
   Calendar,
   CheckSquare,
   Home,
-  BarChart3,
   Settings,
-  ChevronDown,
   Moon,
   Sun,
+  User,
   User2,
   LogOut,
+  Bell,
+  Shield,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { usePathname, useRouter } from "next/navigation";
@@ -28,6 +29,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -103,7 +112,7 @@ export function AppSidebar() {
     { title: "Assignments", url: "/assignments", icon: CheckSquare },
     { title: "Attendance", url: "/attendance", icon: Calendar },
     { title: "Courses", url: "/courses", icon: BookOpen },
-    { title: "Analytics", url: "/analytics", icon: BarChart3 },
+    // { title: "Analytics", url: "/analytics", icon: BarChart3 },
     { title: "Settings", url: "/settings", icon: Settings },
   ];
 
@@ -178,20 +187,60 @@ export function AppSidebar() {
       {/* Footer */}
       <div className="absolute bottom-0 left-0 right-0 border-t border-sidebar-border p-3">
         {/* User Menu */}
-        <div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium cursor-pointer text-sidebar-foreground hover:bg-sidebar-accent">
-          <User2 className="h-5 w-5 shrink-0" />
-          {open && (
-            <>
-              <div className="flex-1 truncate">
-                <div className="font-medium">Student</div>
-                <div className="text-xs text-sidebar-foreground/60">
-                  student@example.com
-                </div>
-              </div>
-              <ChevronDown className="h-4 w-4 shrink-0" />
-            </>
-          )}
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium cursor-pointer text-sidebar-foreground hover:bg-sidebar-accent">
+              <User2 className="h-5 w-5 shrink-0" />
+              {open && (
+                <>
+                  <div className="flex-1 truncate">
+                    <div className="font-medium">Student</div>
+                    <div className="text-xs text-sidebar-foreground/60">
+                      student@example.com
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56" align="end">
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => {
+                // Handle view profile
+                console.log("View Profile clicked");
+                // router.push('/profile');
+              }}
+            >
+              <User className="h-4 w-4 mr-2" />
+              View Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => router.push("/settings?section=account")}
+            >
+              <Settings className="h-4 w-4 mr-2" />
+              Profile Settings
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => router.push("/settings?section=notifications")}
+            >
+              <Bell className="h-4 w-4 mr-2" />
+              Notifications
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => router.push("/settings?section=privacy")}
+            >
+              <Shield className="h-4 w-4 mr-2" />
+              Privacy & Security
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
         {/* Theme Toggle */}
         {mounted && (
           <button

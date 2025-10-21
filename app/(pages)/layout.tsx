@@ -31,6 +31,7 @@ export default function PagesLayout({ children }: { children: ReactNode }) {
         } else {
           setIsAuth(true);
         }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         // If localStorage access fails (SSR), treat as unauthorized
         setIsAuth(false);

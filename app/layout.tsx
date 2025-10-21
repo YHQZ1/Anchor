@@ -1,5 +1,5 @@
 import "./globals.css";
-import { ThemeProvider } from "../components/ThemeProvider";
+import ClientLayout from './clientLayout';
 
 export const metadata = {
   title: "Anchor",
@@ -13,14 +13,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <ClientLayout>
           {children}
-        </ThemeProvider>
+        </ClientLayout>
       </body>
     </html>
   );

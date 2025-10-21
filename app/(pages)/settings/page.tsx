@@ -15,6 +15,7 @@ import {
   Save,
   ChevronRight,
 } from "lucide-react";
+import type { LucideProps } from "lucide-react";
 import { SidebarTrigger } from "@/components/Sidebar";
 import {
   Breadcrumb,
@@ -35,12 +36,13 @@ interface Setting {
   title: string;
   description: string;
   type: "toggle" | "select" | "theme" | "button";
-  value?: unknown;
+  value?: boolean | string;
   options?: string[];
   action?: string;
-  icon?: unknown;
+  icon?: React.ComponentType<LucideProps>;
   destructive?: boolean;
 }
+
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
@@ -72,18 +74,38 @@ export default function SettingsPage() {
 
   React.useEffect(() => {
     setMounted(true);
-    
+
     // Handle URL parameter when component mounts
-    const section = searchParams.get('section');
-    if (section && ['general', 'account', 'notifications', 'appearance', 'privacy', 'data'].includes(section)) {
+    const section = searchParams.get("section");
+    if (
+      section &&
+      [
+        "general",
+        "account",
+        "notifications",
+        "appearance",
+        "privacy",
+        "data",
+      ].includes(section)
+    ) {
       setActiveSection(section);
     }
   }, [searchParams]); // Add searchParams as dependency
 
   // Also add this useEffect to handle URL changes while component is mounted
   React.useEffect(() => {
-    const section = searchParams.get('section');
-    if (section && ['general', 'account', 'notifications', 'appearance', 'privacy', 'data'].includes(section)) {
+    const section = searchParams.get("section");
+    if (
+      section &&
+      [
+        "general",
+        "account",
+        "notifications",
+        "appearance",
+        "privacy",
+        "data",
+      ].includes(section)
+    ) {
       setActiveSection(section);
     }
   }, [searchParams]);
@@ -335,9 +357,7 @@ export default function SettingsPage() {
               onClick={() => setTheme("light")}
               className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
                 theme === "light"
-                  ? theme === "dark"
-                    ? "bg-purple-600 border-purple-600 text-white"
-                    : "bg-purple-600 border-purple-600 text-white"
+                  ? "bg-purple-600 border-purple-600 text-white"
                   : theme === "dark"
                   ? "bg-white/5 border-white/10 text-white hover:bg-white/10"
                   : "bg-white border-slate-300 text-slate-700 hover:bg-slate-50"
@@ -349,9 +369,7 @@ export default function SettingsPage() {
               onClick={() => setTheme("dark")}
               className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
                 theme === "dark"
-                  ? theme === "dark"
-                    ? "bg-purple-600 border-purple-600 text-white"
-                    : "bg-purple-600 border-purple-600 text-white"
+                  ? "bg-purple-600 border-purple-600 text-white"
                   : theme === "dark"
                   ? "bg-white/5 border-white/10 text-white hover:bg-white/10"
                   : "bg-white border-slate-300 text-slate-700 hover:bg-slate-50"

@@ -43,12 +43,11 @@ interface Setting {
   destructive?: boolean;
 }
 
-
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
   const [activeSection, setActiveSection] = React.useState("general");
-  const searchParams = useSearchParams(); // Add this hook
+  const searchParams = useSearchParams();
 
   const [settings, setSettings] = React.useState({
     general: {
@@ -75,7 +74,6 @@ export default function SettingsPage() {
   React.useEffect(() => {
     setMounted(true);
 
-    // Handle URL parameter when component mounts
     const section = searchParams.get("section");
     if (
       section &&
@@ -90,9 +88,8 @@ export default function SettingsPage() {
     ) {
       setActiveSection(section);
     }
-  }, [searchParams]); // Add searchParams as dependency
+  }, [searchParams]);
 
-  // Also add this useEffect to handle URL changes while component is mounted
   React.useEffect(() => {
     const section = searchParams.get("section");
     if (
@@ -110,7 +107,23 @@ export default function SettingsPage() {
     }
   }, [searchParams]);
 
-  if (!mounted) return null;
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="flex h-16 items-center gap-4 px-6">
+            <div className="w-8 h-8 bg-muted rounded animate-pulse"></div>
+            <div className="flex-1">
+              <div className="h-6 w-32 bg-muted rounded animate-pulse"></div>
+            </div>
+          </div>
+        </header>
+        <main className="p-6">
+          <div className="h-96 bg-muted/20 rounded-xl animate-pulse"></div>
+        </main>
+      </div>
+    );
+  }
 
   const settingsSections = [
     {
@@ -292,9 +305,7 @@ export default function SettingsPage() {
   };
 
   const handleSaveChanges = () => {
-    // Here you would typically send the settings to your backend
     console.log("Saving settings:", settings);
-    // Add your save logic here (API call, etc.)
   };
 
   const renderSetting = (setting: Setting, index: number) => {
@@ -307,18 +318,12 @@ export default function SettingsPage() {
           <div className="flex items-center">
             <button
               onClick={() => handleToggleChange(activeSection, toggleKey)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full ${
-                setting.value
-                  ? theme === "dark"
-                    ? "bg-purple-600"
-                    : "bg-purple-600"
-                  : theme === "dark"
-                  ? "bg-gray-600"
-                  : "bg-gray-300"
-              } transition-colors`}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-none ${
+                setting.value ? "bg-purple-600" : "bg-muted"
+              }`}
             >
               <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform transition-none ${
                   setting.value ? "translate-x-6" : "translate-x-1"
                 }`}
               />
@@ -336,11 +341,7 @@ export default function SettingsPage() {
             onChange={(e) =>
               handleSelectChange(activeSection, selectKey, e.target.value)
             }
-            className={`px-3 py-2 rounded-lg border text-sm ${
-              theme === "dark"
-                ? "bg-white/5 border-white/10 text-white"
-                : "bg-white border-slate-300 text-slate-900"
-            }`}
+            className="px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm transition-none"
           >
             {setting.options?.map((option: string) => (
               <option key={option} value={option}>
@@ -355,24 +356,20 @@ export default function SettingsPage() {
           <div className="flex gap-2">
             <button
               onClick={() => setTheme("light")}
-              className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
+              className={`px-4 py-2 rounded-lg border text-sm font-medium transition-none ${
                 theme === "light"
                   ? "bg-purple-600 border-purple-600 text-white"
-                  : theme === "dark"
-                  ? "bg-white/5 border-white/10 text-white hover:bg-white/10"
-                  : "bg-white border-slate-300 text-slate-700 hover:bg-slate-50"
+                  : "border-input bg-background text-foreground hover:bg-accent cursor-pointer"
               }`}
             >
               Light
             </button>
             <button
               onClick={() => setTheme("dark")}
-              className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
+              className={`px-4 py-2 rounded-lg border text-sm font-medium transition-none ${
                 theme === "dark"
                   ? "bg-purple-600 border-purple-600 text-white"
-                  : theme === "dark"
-                  ? "bg-white/5 border-white/10 text-white hover:bg-white/10"
-                  : "bg-white border-slate-300 text-slate-700 hover:bg-slate-50"
+                  : "border-input bg-background text-foreground hover:bg-accent cursor-pointer"
               }`}
             >
               Dark
@@ -384,17 +381,12 @@ export default function SettingsPage() {
         return (
           <button
             onClick={() => {
-              // Handle button actions
               console.log(`Action: ${setting.action}`);
             }}
-            className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
+            className={`px-4 py-2 rounded-lg border text-sm font-medium transition-none ${
               setting.destructive
-                ? theme === "dark"
-                  ? "bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20"
-                  : "bg-red-50 border-red-200 text-red-700 hover:bg-red-100"
-                : theme === "dark"
-                ? "bg-white/5 border-white/10 text-white hover:bg-white/10"
-                : "bg-white border-slate-300 text-slate-700 hover:bg-slate-50"
+                ? "bg-red-50 border-red-200 text-red-700 hover:bg-red-100 dark:bg-red-500/10 dark:border-red-500/20 dark:text-red-400 dark:hover:bg-red-500/20"
+                : "border-input bg-background text-foreground hover:bg-accent"
             }`}
           >
             {setting.icon && <setting.icon className="h-4 w-4 inline mr-2" />}
@@ -423,19 +415,11 @@ export default function SettingsPage() {
         {currentSettings.map((setting: Setting, index: number) => (
           <div
             key={index}
-            className={`flex items-center justify-between p-4 rounded-lg border ${
-              theme === "dark"
-                ? "border-white/10 bg-white/5"
-                : "border-slate-200 bg-white"
-            }`}
+            className="flex items-center justify-between p-4 rounded-lg border border-border bg-card transition-none"
           >
             <div className="flex-1">
               <h3 className="font-medium mb-1">{setting.title}</h3>
-              <p
-                className={`text-sm ${
-                  theme === "dark" ? "text-gray-400" : "text-slate-600"
-                }`}
-              >
+              <p className="text-sm text-muted-foreground">
                 {setting.description}
               </p>
             </div>
@@ -453,19 +437,9 @@ export default function SettingsPage() {
   };
 
   return (
-    <div
-      className={`min-h-screen ${
-        theme === "dark" ? "bg-black text-white" : "bg-white text-slate-900"
-      }`}
-    >
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <header
-        className={`sticky top-0 z-30 border-b ${
-          theme === "dark"
-            ? "bg-black/95 border-white/10"
-            : "bg-white/95 border-slate-200"
-        } backdrop-blur supports-[backdrop-filter]:bg-background/60`}
-      >
+      <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex h-16 items-center gap-4 px-6">
           <SidebarTrigger />
           <div className="flex-1">
@@ -474,11 +448,7 @@ export default function SettingsPage() {
           <div className="flex items-center gap-4">
             <button
               onClick={handleSaveChanges}
-              className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
-                theme === "dark"
-                  ? "bg-purple-600 border-purple-600 text-white hover:bg-purple-700"
-                  : "bg-purple-600 border-purple-600 text-white hover:bg-purple-700"
-              }`}
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white transition-none"
             >
               <Save className="h-4 w-4 inline mr-2" />
               Save Changes
@@ -508,25 +478,17 @@ export default function SettingsPage() {
         </Breadcrumb>
 
         {/* Navigation Menu */}
-        <div
-          className={`rounded-xl border p-6 ${
-            theme === "dark"
-              ? "bg-white/5 border-white/10"
-              : "bg-white border-slate-200"
-          }`}
-        >
+        <div className="rounded-xl border border-border p-6 transition-none">
           <NavigationMenu>
             <NavigationMenuList className="flex-wrap justify-start">
               {settingsSections.map((section) => (
                 <NavigationMenuItem key={section.id}>
                   <NavigationMenuTrigger
                     onClick={() => setActiveSection(section.id)}
-                    className={`cursor-pointer ${
+                    className={`cursor-pointer transition-none hover:bg-accent ${
                       activeSection === section.id
-                        ? theme === "dark"
-                          ? "bg-purple-500/20 text-purple-400"
-                          : "bg-purple-100 text-purple-700"
-                        : ""
+                        ? "font-medium"
+                        : "text-muted-foreground"
                     }`}
                   >
                     <section.icon className="h-4 w-4 mr-2" />
@@ -539,23 +501,13 @@ export default function SettingsPage() {
         </div>
 
         {/* Settings Content */}
-        <div
-          className={`rounded-xl border p-6 ${
-            theme === "dark"
-              ? "bg-white/5 border-white/10"
-              : "bg-white border-slate-200"
-          }`}
-        >
+        <div className="rounded-xl border border-border bg-card p-6 transition-none">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-xl font-semibold">
                 {getActiveSectionTitle()}
               </h2>
-              <p
-                className={`text-sm mt-1 ${
-                  theme === "dark" ? "text-gray-400" : "text-slate-600"
-                }`}
-              >
+              <p className="text-sm mt-1 text-muted-foreground">
                 {
                   settingsSections.find((s) => s.id === activeSection)
                     ?.description

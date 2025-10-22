@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { useTheme } from "next-themes";
 import {
   BookOpen,
   Users,
@@ -29,13 +28,28 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export default function CoursesPage() {
-  const { theme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
 
   React.useEffect(() => setMounted(true), []);
 
-  if (!mounted) return null;
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="flex h-16 items-center gap-4 px-6">
+            <div className="w-8 h-8 bg-muted rounded animate-pulse"></div>
+            <div className="flex-1">
+              <div className="h-6 w-32 bg-muted rounded animate-pulse"></div>
+            </div>
+          </div>
+        </header>
+        <main className="p-6">
+          <div className="h-96 bg-muted/20 rounded-xl animate-pulse"></div>
+        </main>
+      </div>
+    );
+  }
 
   const stats = [
     {
@@ -196,38 +210,22 @@ export default function CoursesPage() {
   ];
 
   const getAttendanceBadge = (attendance: number) => {
-    if (attendance >= 90) return <Badge variant="default">Excellent</Badge>;
-    if (attendance >= 75) return <Badge variant="secondary">Good</Badge>;
-    return <Badge variant="destructive" className="text-white dark:text-white">At Risk</Badge>;
+    if (attendance >= 90) return <Badge variant="default" className="transition-none">Excellent</Badge>;
+    if (attendance >= 75) return <Badge variant="secondary" className="transition-none">Good</Badge>;
+    return <Badge variant="destructive" className="text-white dark:text-white transition-none">At Risk</Badge>;
   };
 
   return (
-    <div
-      className={`min-h-screen ${
-        theme === "dark" ? "bg-black text-white" : "bg-white text-slate-900"
-      }`}
-    >
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <header
-        className={`sticky top-0 z-30 border-b ${
-          theme === "dark"
-            ? "bg-black/95 border-white/10"
-            : "bg-white/95 border-slate-200"
-        } backdrop-blur supports-[backdrop-filter]:bg-background/60`}
-      >
+      <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex h-16 items-center gap-4 px-6">
           <SidebarTrigger />
           <div className="flex-1">
             <h1 className="text-xl font-semibold">Courses</h1>
           </div>
           <div className="flex items-center gap-3">
-            <button
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                theme === "dark"
-                  ? "bg-purple-600 hover:bg-purple-700"
-                  : "bg-purple-600 hover:bg-purple-700 text-white"
-              }`}
-            >
+            <button className="flex cursor-pointer items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white">
               <Plus className="h-4 w-4" />
               Add Course
             </button>
@@ -242,11 +240,7 @@ export default function CoursesPage() {
           {stats.map((stat, index) => (
             <div
               key={index}
-              className={`rounded-xl border p-6 ${
-                theme === "dark"
-                  ? "bg-white/5 border-white/10"
-                  : "bg-white border-slate-200"
-              }`}
+              className="rounded-xl border border-border bg-card p-6"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className={`p-3 rounded-lg ${stat.bgColor}`}>
@@ -254,19 +248,11 @@ export default function CoursesPage() {
                 </div>
               </div>
               <div className="space-y-1">
-                <p
-                  className={`text-sm font-medium ${
-                    theme === "dark" ? "text-gray-400" : "text-slate-600"
-                  }`}
-                >
+                <p className="text-sm font-medium text-muted-foreground">
                   {stat.title}
                 </p>
                 <p className="text-3xl font-bold">{stat.value}</p>
-                <p
-                  className={`text-xs ${
-                    theme === "dark" ? "text-gray-500" : "text-slate-500"
-                  }`}
-                >
+                <p className="text-xs text-muted-foreground">
                   {stat.trend}
                 </p>
               </div>
@@ -276,22 +262,14 @@ export default function CoursesPage() {
 
         {/* Search */}
         <div className="flex flex-col sm:flex-row gap-4">
-          <div
-            className={`flex-1 flex items-center gap-2 px-4 py-2 rounded-lg border ${
-              theme === "dark"
-                ? "bg-white/5 border-white/10"
-                : "bg-white border-slate-200"
-            }`}
-          >
-            <Search className="h-4 w-4 text-gray-400" />
+          <div className="flex-1 flex items-center gap-2 px-4 py-2 rounded-lg border border-input bg-background">
+            <Search className="h-4 w-4 text-muted-foreground" />
             <input
               type="text"
               placeholder="Search courses by name, code, or instructor..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className={`flex-1 bg-transparent outline-none ${
-                theme === "dark" ? "text-white placeholder-gray-400" : "text-slate-900 placeholder-slate-400"
-              }`}
+              className="flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground"
             />
           </div>
         </div>
@@ -303,11 +281,7 @@ export default function CoursesPage() {
             {courses.map((course, index) => (
               <div
                 key={index}
-                className={`rounded-xl border p-6 ${
-                  theme === "dark"
-                    ? "bg-white/5 border-white/10 hover:bg-white/10"
-                    : "bg-white border-slate-200 hover:border-purple-200"
-                } transition-all cursor-pointer`}
+                className="rounded-xl border border-border bg-card p-6 hover:bg-accent/50 cursor-pointer"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-start gap-4">
@@ -318,11 +292,7 @@ export default function CoursesPage() {
                       <h3 className="font-semibold text-lg mb-1">
                         {course.name}
                       </h3>
-                      <p
-                        className={`text-sm ${
-                          theme === "dark" ? "text-gray-400" : "text-slate-600"
-                        }`}
-                      >
+                      <p className="text-sm text-muted-foreground">
                         {course.code} • {course.credits} Credits • Grade: {course.grade}
                       </p>
                     </div>
@@ -331,13 +301,7 @@ export default function CoursesPage() {
                   {/* Three-dots Menu */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <button
-                        className={`p-2 rounded-lg transition-colors ${
-                          theme === "dark"
-                            ? "hover:bg-white/10"
-                            : "hover:bg-slate-100"
-                        }`}
-                      >
+                      <button className="p-2 rounded-lg hover:bg-accent">
                         <MoreVertical className="h-4 w-4" />
                       </button>
                     </DropdownMenuTrigger>
@@ -363,43 +327,25 @@ export default function CoursesPage() {
                   </DropdownMenu>
                 </div>
 
-                <p className={`text-sm mb-4 ${
-                  theme === "dark" ? "text-gray-300" : "text-slate-700"
-                }`}>
+                <p className="text-sm mb-4 text-muted-foreground">
                   {course.description}
                 </p>
 
                 <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div
-                    className={`p-3 rounded-lg ${
-                      theme === "dark" ? "bg-white/5" : "bg-slate-50"
-                    }`}
-                  >
+                  <div className="p-3 rounded-lg bg-accent">
                     <div className="flex items-center gap-2 mb-1">
-                      <Users className="h-4 w-4 text-gray-400" />
-                      <span
-                        className={`text-xs ${
-                          theme === "dark" ? "text-gray-400" : "text-slate-600"
-                        }`}
-                      >
+                      <Users className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">
                         Instructor
                       </span>
                     </div>
                     <p className="text-sm font-medium">{course.instructor}</p>
                   </div>
 
-                  <div
-                    className={`p-3 rounded-lg ${
-                      theme === "dark" ? "bg-white/5" : "bg-slate-50"
-                    }`}
-                  >
+                  <div className="p-3 rounded-lg bg-accent">
                     <div className="flex items-center gap-2 mb-1">
-                      <Clock className="h-4 w-4 text-gray-400" />
-                      <span
-                        className={`text-xs ${
-                          theme === "dark" ? "text-gray-400" : "text-slate-600"
-                        }`}
-                      >
+                      <Clock className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">
                         Next Class
                       </span>
                     </div>
@@ -409,11 +355,7 @@ export default function CoursesPage() {
 
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span
-                      className={`text-sm ${
-                        theme === "dark" ? "text-gray-400" : "text-slate-600"
-                      }`}
-                    >
+                    <span className="text-sm text-muted-foreground">
                       Attendance
                     </span>
                     <div className="flex items-center gap-2">
@@ -426,48 +368,30 @@ export default function CoursesPage() {
 
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
-                      <span
-                        className={
-                          theme === "dark" ? "text-gray-400" : "text-slate-600"
-                        }
-                      >
+                      <span className="text-muted-foreground">
                         Performance
                       </span>
                       <span className="font-medium">{course.performance}%</span>
                     </div>
-                    <Progress value={course.performance} className="h-2" />
+                    <Progress value={course.performance} className="h-2 transition-none" />
                   </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                  <div className="flex items-center justify-between pt-2 border-t border-border">
                     <div className="flex items-center gap-4 text-sm">
                       <div className="flex items-center gap-2">
-                        <CheckSquare className="h-4 w-4 text-gray-400" />
-                        <span
-                          className={`${
-                            theme === "dark" ? "text-gray-400" : "text-slate-600"
-                          }`}
-                        >
+                        <CheckSquare className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-muted-foreground">
                           {course.assignments} pending
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <BookOpen className="h-4 w-4 text-gray-400" />
-                        <span
-                          className={`${
-                            theme === "dark" ? "text-gray-400" : "text-slate-600"
-                          }`}
-                        >
+                        <BookOpen className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-muted-foreground">
                           {course.resources} resources
                         </span>
                       </div>
                     </div>
-                    <button
-                      className={`text-sm font-medium ${
-                        theme === "dark"
-                          ? "text-purple-400 hover:text-purple-300"
-                          : "text-purple-600 hover:text-purple-700"
-                      }`}
-                    >
+                    <button className="text-sm font-medium text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300">
                       View Details →
                     </button>
                   </div>
@@ -479,35 +403,21 @@ export default function CoursesPage() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Upcoming Classes */}
-            <div
-              className={`rounded-xl border p-6 ${
-                theme === "dark"
-                  ? "bg-white/5 border-white/10"
-                  : "bg-white border-slate-200"
-              }`}
-            >
+            <div className="rounded-xl border border-border bg-card p-6">
               <h2 className="text-xl font-semibold mb-6">Today&apos;s Schedule</h2>
               <div className="space-y-4">
                 {upcomingClasses.map((cls, index) => (
                   <div
                     key={index}
-                    className={`p-4 rounded-lg border ${
-                      theme === "dark"
-                        ? "border-white/10 bg-white/5"
-                        : "border-slate-200 bg-slate-50"
-                    }`}
+                    className="p-4 rounded-lg border border-border bg-accent"
                   >
                     <div className="flex items-start justify-between mb-2">
                       <h3 className="font-medium">{cls.course}</h3>
-                      <Badge variant="secondary">
+                      <Badge variant="secondary" className="transition-none">
                         {cls.type}
                       </Badge>
                     </div>
-                    <div
-                      className={`space-y-1 text-sm ${
-                        theme === "dark" ? "text-gray-400" : "text-slate-600"
-                      }`}
-                    >
+                    <div className="space-y-1 text-sm text-muted-foreground">
                       <div className="flex items-center gap-2">
                         <Clock className="h-3 w-3" />
                         <span>{cls.time}</span>
@@ -517,13 +427,7 @@ export default function CoursesPage() {
                         <span>{cls.room}</span>
                       </div>
                     </div>
-                    <div
-                      className={`mt-3 pt-3 border-t text-xs font-medium ${
-                        theme === "dark"
-                          ? "border-white/10 text-purple-400"
-                          : "border-slate-200 text-purple-600"
-                      }`}
-                    >
+                    <div className="mt-3 pt-3 border-t border-border text-xs font-medium text-purple-600 dark:text-purple-400">
                       Starts in {cls.in}
                     </div>
                   </div>
@@ -532,77 +436,39 @@ export default function CoursesPage() {
             </div>
 
             {/* Quick Stats */}
-            <div
-              className={`rounded-xl border p-6 ${
-                theme === "dark"
-                  ? "bg-white/5 border-white/10"
-                  : "bg-white border-slate-200"
-              }`}
-            >
+            <div className="rounded-xl border border-border bg-card p-6">
               <h2 className="text-xl font-semibold mb-6">Quick Stats</h2>
               <div className="space-y-4">
-                <div
-                  className={`p-4 rounded-lg ${
-                    theme === "dark" ? "bg-white/5" : "bg-slate-50"
-                  }`}
-                >
+                <div className="p-4 rounded-lg bg-accent">
                   <div className="flex items-center justify-between mb-2">
-                    <span
-                      className={`text-sm ${
-                        theme === "dark" ? "text-gray-400" : "text-slate-600"
-                      }`}
-                    >
+                    <span className="text-sm text-muted-foreground">
                       Classes This Week
                     </span>
                     <span className="font-semibold">18/20</span>
                   </div>
-                  <Progress value={90} className="h-2" />
+                  <Progress value={90} className="h-2 transition-none" />
                 </div>
 
-                <div
-                  className={`p-4 rounded-lg ${
-                    theme === "dark" ? "bg-white/5" : "bg-slate-50"
-                  }`}
-                >
+                <div className="p-4 rounded-lg bg-accent">
                   <div className="flex items-center justify-between">
-                    <span
-                      className={`text-sm ${
-                        theme === "dark" ? "text-gray-400" : "text-slate-600"
-                      }`}
-                    >
+                    <span className="text-sm text-muted-foreground">
                       Assignments Due
                     </span>
-                    <span className="font-semibold text-red-500">5</span>
+                    <span className="font-semibold text-purple-600 dark:text-purple-400">5</span>
                   </div>
-                  <p
-                    className={`text-xs mt-1 ${
-                      theme === "dark" ? "text-gray-500" : "text-slate-500"
-                    }`}
-                  >
+                  <p className="text-xs mt-1 text-muted-foreground">
                     This week
                   </p>
                 </div>
 
-                <div
-                  className={`p-4 rounded-lg ${
-                    theme === "dark" ? "bg-white/5" : "bg-slate-50"
-                  }`}
-                >
+                <div className="p-4 rounded-lg bg-accent">
                   <div className="flex items-center justify-between">
-                    <span
-                      className={`text-sm ${
-                        theme === "dark" ? "text-gray-400" : "text-slate-600"
-                      }`}
-                    >
+                    <span className="text-sm text-muted-foreground">
                       Study Hours
                     </span>
                     <span className="font-semibold">24.5</span>
                   </div>
-                  <p
-                    className={`text-xs mt-1 ${
-                      theme === "dark" ? "text-gray-500" : "text-slate-500"
-                    }`}
-                  >
+                  <p className="text-xs mt-1 text-muted-foreground">
                     This week
                   </p>
                 </div>

@@ -2,7 +2,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useTheme } from "next-themes";
 import {
   GraduationCap,
   BookOpen,
@@ -55,7 +54,6 @@ interface ClassSchedule {
 }
 
 export default function OnboardingWizard() {
-  const { theme } = useTheme();
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [mounted, setMounted] = useState(false);
@@ -135,7 +133,6 @@ export default function OnboardingWizard() {
   ) => {
     const updatedSchedule = [...classSchedule];
 
-    // Convert day field from string to number when it comes from Select
     if (field === "day" && typeof value === "string") {
       updatedSchedule[index] = {
         ...updatedSchedule[index],
@@ -156,7 +153,7 @@ export default function OnboardingWizard() {
     setClassSchedule((prev) => [
       ...prev,
       {
-        day: 1, // Monday = 1 (number instead of string "monday")
+        day: 1,
         startTime: "09:00",
         endTime: "10:00",
         course: defaultCourse,
@@ -182,7 +179,7 @@ export default function OnboardingWizard() {
     }
   };
 
-  // Add this helper function outside your component
+  // Helper function for course colors
   const getRandomColor = () => {
     const colors = [
       "purple",
@@ -293,7 +290,7 @@ export default function OnboardingWizard() {
           expected_graduation: academicInfo.expectedGraduation
             .toISOString()
             .split("T")[0],
-          onboarding_completed: true, // Mark as completed
+          onboarding_completed: true,
         }),
       });
 
@@ -321,7 +318,7 @@ export default function OnboardingWizard() {
             course_name: course.name.trim(),
             instructor: course.instructor.trim(),
             credits: course.credits || 3,
-            color: getRandomColor(), // Helper function for course colors
+            color: getRandomColor(),
           }),
         });
 
@@ -343,7 +340,6 @@ export default function OnboardingWizard() {
       );
       if (failedCourses.length > 0) {
         console.error("Some courses failed to save:", failedCourses);
-        // Continue anyway, but log the error
       }
 
       // Get successful course saves to map course codes to IDs
@@ -361,7 +357,6 @@ export default function OnboardingWizard() {
       });
 
       // 3. Save classes
-      // 3. Save classes
       const classPromises = classSchedule.map(async (classItem) => {
         const courseId = courseCodeToIdMap[classItem.course];
         if (!courseId) {
@@ -376,7 +371,7 @@ export default function OnboardingWizard() {
           },
           body: JSON.stringify({
             course_id: courseId,
-            day_of_week: classItem.day, // Already a number (0-6)
+            day_of_week: classItem.day,
             start_time: classItem.startTime,
             end_time: classItem.endTime,
             room: classItem.room.trim(),
@@ -400,7 +395,6 @@ export default function OnboardingWizard() {
       );
       if (failedClasses.length > 0) {
         console.error("Some classes failed to save:", failedClasses);
-        // Continue anyway, but log the error
       }
 
       toast.dismiss(loadingToast);
@@ -452,11 +446,7 @@ export default function OnboardingWizard() {
           <div className="space-y-6">
             <div>
               <h2 className="text-2xl font-bold mb-2">Academic Profile</h2>
-              <p
-                className={`text-sm ${
-                  theme === "dark" ? "text-gray-400" : "text-slate-600"
-                }`}
-              >
+              <p className="text-sm text-muted-foreground">
                 Tell us about your academic background
               </p>
             </div>
@@ -570,7 +560,7 @@ export default function OnboardingWizard() {
                               date
                             );
                         }}
-                        captionLayout="dropdown" // month/year dropdown
+                        captionLayout="dropdown"
                         fromYear={new Date().getFullYear() - 10}
                         toYear={new Date().getFullYear() + 10}
                         initialFocus
@@ -589,11 +579,7 @@ export default function OnboardingWizard() {
           <div className="space-y-6">
             <div>
               <h2 className="text-2xl font-bold mb-2">Your Courses</h2>
-              <p
-                className={`text-sm ${
-                  theme === "dark" ? "text-gray-400" : "text-slate-600"
-                }`}
-              >
+              <p className="text-sm text-muted-foreground">
                 Add the courses you&apos;re taking this semester
               </p>
             </div>
@@ -602,11 +588,7 @@ export default function OnboardingWizard() {
               {courses.map((course, index) => (
                 <div
                   key={index}
-                  className={`p-4 rounded-lg border ${
-                    theme === "dark"
-                      ? "border-white/10 bg-white/5"
-                      : "border-slate-200 bg-slate-50"
-                  }`}
+                  className="p-4 rounded-lg border border-border bg-card"
                 >
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="font-medium">Course {index + 1}</h3>
@@ -615,7 +597,7 @@ export default function OnboardingWizard() {
                         variant="ghost"
                         size="sm"
                         onClick={() => removeCourse(index)}
-                        className="h-8 w-8 p-0 text-red-500 hover:text-red-600"
+                        className="h-8 w-8 p-0 text-destructive hover:text-destructive/90"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -705,33 +687,19 @@ export default function OnboardingWizard() {
           <div className="space-y-6">
             <div>
               <h2 className="text-2xl font-bold mb-2">Class Schedule</h2>
-              <p
-                className={`text-sm ${
-                  theme === "dark" ? "text-gray-400" : "text-slate-600"
-                }`}
-              >
+              <p className="text-sm text-muted-foreground">
                 Set up your weekly class schedule for attendance tracking
               </p>
             </div>
 
             {/* Upload Timetable Section */}
-            <div
-              className={`p-6 rounded-lg border ${
-                theme === "dark"
-                  ? "border-white/10 bg-white/5"
-                  : "border-slate-200 bg-slate-50"
-              }`}
-            >
+            <div className="p-6 rounded-lg border border-border bg-card">
               <div className="text-center">
-                <Upload className="h-12 w-12 mx-auto mb-4 text-purple-600" />
+                <Upload className="h-12 w-12 mx-auto mb-4 text-primary" />
                 <h3 className="text-lg font-semibold mb-2">
                   Upload Your Timetable
                 </h3>
-                <p
-                  className={`text-sm mb-4 ${
-                    theme === "dark" ? "text-gray-400" : "text-slate-600"
-                  }`}
-                >
+                <p className="text-sm mb-4 text-muted-foreground">
                   Upload your Excel or PDF timetable to automatically import
                   your schedule
                 </p>
@@ -756,20 +724,10 @@ export default function OnboardingWizard() {
             {/* Divider */}
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div
-                  className={`w-full border-t ${
-                    theme === "dark" ? "border-white/10" : "border-slate-200"
-                  }`}
-                />
+                <div className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span
-                  className={`px-2 ${
-                    theme === "dark"
-                      ? "bg-black text-white/60"
-                      : "bg-white text-slate-500"
-                  }`}
-                >
+                <span className="px-2 bg-background text-muted-foreground">
                   OR
                 </span>
               </div>
@@ -784,11 +742,7 @@ export default function OnboardingWizard() {
                 {classSchedule.map((classItem, index) => (
                   <div
                     key={index}
-                    className={`p-4 rounded-lg border ${
-                      theme === "dark"
-                        ? "border-white/10 bg-white/5"
-                        : "border-slate-200 bg-slate-50"
-                    }`}
+                    className="p-4 rounded-lg border border-border bg-card"
                   >
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="font-medium">Class {index + 1}</h3>
@@ -797,7 +751,7 @@ export default function OnboardingWizard() {
                           variant="ghost"
                           size="sm"
                           onClick={() => removeClass(index)}
-                          className="h-8 w-8 p-0 text-red-500 hover:text-red-600"
+                          className="h-8 w-8 p-0 text-destructive hover:text-destructive/90"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -808,9 +762,9 @@ export default function OnboardingWizard() {
                       <div className="space-y-2">
                         <Label>Day</Label>
                         <Select
-                          value={classItem.day.toString()} // Convert number to string for Select
-                          onValueChange={
-                            (value) => handleClassChange(index, "day", value) // Pass string, function converts to number
+                          value={classItem.day.toString()}
+                          onValueChange={(value) =>
+                            handleClassChange(index, "day", value)
                           }
                         >
                           <SelectTrigger>
@@ -947,33 +901,19 @@ export default function OnboardingWizard() {
               <h2 className="text-2xl font-bold mb-2">
                 Attendance Preferences
               </h2>
-              <p
-                className={`text-sm ${
-                  theme === "dark" ? "text-gray-400" : "text-slate-600"
-                }`}
-              >
+              <p className="text-sm text-muted-foreground">
                 Set your attendance goals and preferences
               </p>
             </div>
 
             <div className="space-y-4">
-              <div
-                className={`p-6 rounded-lg border ${
-                  theme === "dark"
-                    ? "border-white/10 bg-white/5"
-                    : "border-slate-200 bg-slate-50"
-                }`}
-              >
+              <div className="p-6 rounded-lg border border-border bg-card">
                 <div className="space-y-4">
                   <div>
                     <Label htmlFor="minAttendance" className="text-base">
                       Minimum Attendance Percentage
                     </Label>
-                    <p
-                      className={`text-sm mt-1 ${
-                        theme === "dark" ? "text-gray-400" : "text-slate-600"
-                      }`}
-                    >
+                    <p className="text-sm mt-1 text-muted-foreground">
                       Set the minimum attendance percentage you want to maintain
                       for each course
                     </p>
@@ -981,11 +921,7 @@ export default function OnboardingWizard() {
 
                   <div className="space-y-6">
                     <div className="flex items-center justify-between">
-                      <span
-                        className={`text-lg font-semibold ${
-                          theme === "dark" ? "text-white" : "text-slate-900"
-                        }`}
-                      >
+                      <span className="text-lg font-semibold text-foreground">
                         {attendancePrefs.minAttendance}%
                       </span>
                     </div>
@@ -1002,7 +938,7 @@ export default function OnboardingWizard() {
                       step={1}
                       className="w-full cursor-pointer"
                     />
-                    <div className="flex justify-between text-sm text-gray-500">
+                    <div className="flex justify-between text-sm text-muted-foreground">
                       <span>50%</span>
                       <span>75%</span>
                       <span>100%</span>
@@ -1011,21 +947,11 @@ export default function OnboardingWizard() {
                 </div>
               </div>
 
-              <div
-                className={`p-6 rounded-lg border ${
-                  theme === "dark"
-                    ? "border-white/10 bg-white/5"
-                    : "border-slate-200 bg-slate-50"
-                }`}
-              >
+              <div className="p-6 rounded-lg border border-border bg-card">
                 <div className="flex items-center justify-between">
                   <div>
                     <Label className="text-base">Attendance Warnings</Label>
-                    <p
-                      className={`text-sm mt-1 ${
-                        theme === "dark" ? "text-gray-400" : "text-slate-600"
-                      }`}
-                    >
+                    <p className="text-sm mt-1 text-muted-foreground">
                       Receive notifications when your attendance drops below
                       your target
                     </p>
@@ -1056,31 +982,13 @@ export default function OnboardingWizard() {
   };
 
   return (
-    <div
-      className={`fixed inset-0 z-50 flex items-center justify-center ${
-        theme === "dark" ? "bg-black/80" : "bg-white/80"
-      } backdrop-blur-sm`}
-    >
-      <div
-        className={`relative w-full max-w-4xl h-[80vh] max-h-[80vh] overflow-hidden rounded-xl border ${
-          theme === "dark"
-            ? "bg-black border-white/10"
-            : "bg-white border-slate-200"
-        } shadow-2xl flex flex-col`}
-      >
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+      <div className="relative w-full max-w-4xl h-[80vh] max-h-[80vh] overflow-hidden rounded-xl border border-border bg-background shadow-2xl flex flex-col">
         {/* Header - FIXED */}
-        <div
-          className={`flex items-center justify-between p-6 border-b ${
-            theme === "dark" ? "border-white/10" : "border-slate-200"
-          } flex-shrink-0`}
-        >
+        <div className="flex items-center justify-between p-6 border-b border-border flex-shrink-0">
           <div>
-            <h1 className="text-2xl font-bold">Welcome to Anchor!</h1>
-            <p
-              className={`mt-1 ${
-                theme === "dark" ? "text-gray-400" : "text-slate-600"
-              }`}
-            >
+            <h1 className="text-2xl font-bold text-foreground">Welcome to Anchor!</h1>
+            <p className="mt-1 text-muted-foreground">
               Let&apos;s set up your academic profile to get started
             </p>
           </div>
@@ -1104,10 +1012,8 @@ export default function OnboardingWizard() {
                 <div
                   className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
                     currentStep >= step.number
-                      ? "bg-purple-600 border-purple-600 text-white"
-                      : theme === "dark"
-                      ? "border-white/20 text-white/40"
-                      : "border-slate-300 text-slate-400"
+                      ? "bg-primary border-primary text-primary-foreground"
+                      : "border-muted text-muted-foreground"
                   }`}
                 >
                   {currentStep > step.number ? (
@@ -1119,10 +1025,8 @@ export default function OnboardingWizard() {
                 <span
                   className={`text-sm font-medium ${
                     currentStep >= step.number
-                      ? "text-purple-600"
-                      : theme === "dark"
-                      ? "text-white/40"
-                      : "text-slate-400"
+                      ? "text-primary"
+                      : "text-muted-foreground"
                   }`}
                 >
                   {step.title}
@@ -1131,10 +1035,8 @@ export default function OnboardingWizard() {
                   <div
                     className={`w-12 h-0.5 ${
                       currentStep > step.number
-                        ? "bg-purple-600"
-                        : theme === "dark"
-                        ? "bg-white/20"
-                        : "bg-slate-300"
+                        ? "bg-primary"
+                        : "bg-muted"
                     }`}
                   />
                 )}
@@ -1147,11 +1049,7 @@ export default function OnboardingWizard() {
         <div className="flex-1 overflow-y-auto px-6 py-4">{renderStep()}</div>
 
         {/* Footer - FIXED */}
-        <div
-          className={`flex items-center justify-between p-6 border-t ${
-            theme === "dark" ? "bg-black text-white" : "bg-white text-slate-900"
-          } flex-shrink-0`}
-        >
+        <div className="flex items-center justify-between p-6 border-t border-border bg-background flex-shrink-0">
           <Button
             variant="outline"
             className="cursor-pointer"
@@ -1165,7 +1063,7 @@ export default function OnboardingWizard() {
           {currentStep < totalSteps ? (
             <Button
               onClick={() => setCurrentStep(currentStep + 1)}
-              className="bg-purple-600 hover:bg-purple-700 cursor-pointer"
+              className="cursor-pointer"
             >
               Continue
               <ArrowRight className="h-4 w-4 ml-2" />
@@ -1174,7 +1072,7 @@ export default function OnboardingWizard() {
             <Button
               onClick={handleSubmit}
               disabled={loading}
-              className="bg-purple-600 hover:bg-purple-700 cursor-pointer"
+              className="cursor-pointer"
             >
               {loading ? "Completing Setup..." : "Complete Setup"}
               <CheckCircle2 className="h-4 w-4 ml-2" />

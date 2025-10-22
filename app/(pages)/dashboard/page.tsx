@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { useTheme } from "next-themes";
 import {
   CheckSquare,
   Calendar,
@@ -13,12 +12,28 @@ import { SidebarTrigger } from "@/components/Sidebar";
 import { Badge } from "@/components/ui/badge";
 
 export default function DashboardPage() {
-  const { theme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => setMounted(true), []);
 
-  if (!mounted) return null;
+  // Don't return null during SSR - this causes hydration mismatches
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="flex h-16 items-center gap-4 px-6">
+            <div className="w-8 h-8 bg-muted rounded animate-pulse"></div>
+            <div className="flex-1">
+              <div className="h-6 w-32 bg-muted rounded animate-pulse"></div>
+            </div>
+          </div>
+        </header>
+        <main className="p-6">
+          <div className="h-96 bg-muted/20 rounded-xl animate-pulse"></div>
+        </main>
+      </div>
+    );
+  }
 
   const stats = [
     {
@@ -104,44 +119,45 @@ export default function DashboardPage() {
     switch (priority) {
       case "high":
         return (
-          <Badge variant="destructive" className="text-white dark:text-white">
+          <Badge
+            variant="destructive"
+            className="text-white dark:text-white transition-none"
+          >
             High Priority
           </Badge>
         );
       case "medium":
-        return <Badge variant="secondary">Medium Priority</Badge>;
+        return (
+          <Badge variant="secondary" className="transition-none">
+            Medium Priority
+          </Badge>
+        );
       case "low":
-        return <Badge variant="outline">Low Priority</Badge>;
+        return (
+          <Badge variant="outline" className="transition-none">
+            Low Priority
+          </Badge>
+        );
       default:
-        return <Badge variant="outline">Normal</Badge>;
+        return (
+          <Badge variant="outline" className="transition-none">
+            Normal
+          </Badge>
+        );
     }
   };
 
   return (
-    <div
-      className={`min-h-screen ${
-        theme === "dark" ? "bg-black text-white" : "bg-white text-slate-900"
-      }`}
-    >
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <header
-        className={`sticky top-0 z-30 border-b ${
-          theme === "dark"
-            ? "bg-black/95 border-white/10"
-            : "bg-white/95 border-slate-200"
-        } backdrop-blur supports-[backdrop-filter]:bg-background/60`}
-      >
+      <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex h-16 items-center gap-4 px-6">
           <SidebarTrigger />
           <div className="flex-1">
             <h1 className="text-xl font-semibold">Dashboard</h1>
           </div>
           <div className="flex items-center gap-4">
-            <span
-              className={`text-sm ${
-                theme === "dark" ? "text-gray-400" : "text-slate-600"
-              }`}
-            >
+            <span className="text-sm text-muted-foreground">
               Welcome back, Student
             </span>
           </div>
@@ -155,11 +171,7 @@ export default function DashboardPage() {
           {stats.map((stat, index) => (
             <div
               key={index}
-              className={`rounded-xl border p-6 ${
-                theme === "dark"
-                  ? "bg-white/5 border-white/10"
-                  : "bg-white border-slate-200"
-              }`}
+              className="rounded-xl border border-border bg-card p-6"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className={`p-3 rounded-lg ${stat.bgColor}`}>
@@ -167,21 +179,11 @@ export default function DashboardPage() {
                 </div>
               </div>
               <div className="space-y-1">
-                <p
-                  className={`text-sm font-medium ${
-                    theme === "dark" ? "text-gray-400" : "text-slate-600"
-                  }`}
-                >
+                <p className="text-sm font-medium text-muted-foreground">
                   {stat.title}
                 </p>
                 <p className="text-3xl font-bold">{stat.value}</p>
-                <p
-                  className={`text-xs ${
-                    theme === "dark" ? "text-gray-500" : "text-slate-500"
-                  }`}
-                >
-                  {stat.trend}
-                </p>
+                <p className="text-xs text-muted-foreground">{stat.trend}</p>
               </div>
             </div>
           ))}
@@ -190,22 +192,12 @@ export default function DashboardPage() {
         {/* Two Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Upcoming Assignments */}
-          <div
-            className={`lg:col-span-2 rounded-xl border p-6 ${
-              theme === "dark"
-                ? "bg-white/5 border-white/10"
-                : "bg-white border-slate-200"
-            }`}
-          >
+          <div className="lg:col-span-2 rounded-xl border border-border bg-card p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold">Upcoming Assignments</h2>
               <a
                 href="/assignments"
-                className={`text-sm font-medium ${
-                  theme === "dark"
-                    ? "text-purple-400 hover:text-purple-300"
-                    : "text-purple-600 hover:text-purple-700"
-                }`}
+                className="text-sm font-medium text-primary hover:text-primary/80"
               >
                 View all →
               </a>
@@ -214,25 +206,17 @@ export default function DashboardPage() {
               {upcomingAssignments.map((assignment, index) => (
                 <div
                   key={index}
-                  className={`flex items-center justify-between p-4 rounded-lg border ${
-                    theme === "dark"
-                      ? "border-white/10 hover:bg-white/5"
-                      : "border-slate-200 hover:bg-slate-50"
-                  } transition-colors cursor-pointer`}
+                  className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-accent/50 cursor-pointer"
                 >
                   <div className="flex-1">
                     <h3 className="font-medium mb-1">{assignment.title}</h3>
-                    <p
-                      className={`text-sm ${
-                        theme === "dark" ? "text-gray-400" : "text-slate-600"
-                      }`}
-                    >
+                    <p className="text-sm text-muted-foreground">
                       {assignment.course}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
                     {getPriorityBadge(assignment.priority)}
-                    <div className="flex items-center gap-1 text-sm">
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
                       <Clock className="h-4 w-4" />
                       <span>{assignment.dueDate}</span>
                     </div>
@@ -243,29 +227,15 @@ export default function DashboardPage() {
           </div>
 
           {/* Recent Activity */}
-          <div
-            className={`rounded-xl border p-6 ${
-              theme === "dark"
-                ? "bg-white/5 border-white/10"
-                : "bg-white border-slate-200"
-            }`}
-          >
+          <div className="rounded-xl border border-border bg-card p-6">
             <h2 className="text-xl font-semibold mb-6">Recent Activity</h2>
             <div className="space-y-4">
               {recentActivity.map((activity, index) => (
                 <div key={index} className="flex gap-3">
-                  <div
-                    className={`flex-shrink-0 w-2 h-2 rounded-full mt-2 ${
-                      theme === "dark" ? "bg-purple-400" : "bg-purple-600"
-                    }`}
-                  />
+                  <div className="flex-shrink-0 w-2 h-2 rounded-full mt-2 bg-primary" />
                   <div>
                     <p className="font-medium text-sm">{activity.title}</p>
-                    <p
-                      className={`text-xs mt-1 ${
-                        theme === "dark" ? "text-gray-500" : "text-slate-500"
-                      }`}
-                    >
+                    <p className="text-xs mt-1 text-muted-foreground">
                       {activity.time}
                     </p>
                   </div>
@@ -276,75 +246,27 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Actions */}
-        <div
-          className={`rounded-xl border p-6 ${
-            theme === "dark"
-              ? "bg-white/5 border-white/10"
-              : "bg-white border-slate-200"
-          }`}
-        >
+        <div className="rounded-xl border border-border bg-card p-6">
           <h2 className="text-xl font-semibold mb-6">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button
-              className={`p-4 rounded-lg border text-left transition-colors ${
-                theme === "dark"
-                  ? "border-white/10 hover:bg-white/5"
-                  : "border-slate-200 hover:bg-slate-50"
-              }`}
-            >
-              <CheckSquare
-                className={`h-6 w-6 mb-2 ${
-                  theme === "dark" ? "text-purple-400" : "text-purple-600"
-                }`}
-              />
+            <button className="p-4 rounded-lg border border-border hover:bg-accent/50 text-left">
+              <CheckSquare className="h-6 w-6 mb-2 text-primary" />
               <h3 className="font-medium mb-1">Add Assignment</h3>
-              <p
-                className={`text-sm ${
-                  theme === "dark" ? "text-gray-400" : "text-slate-600"
-                }`}
-              >
+              <p className="text-sm text-muted-foreground">
                 Track a new assignment
               </p>
             </button>
-            <button
-              className={`p-4 rounded-lg border text-left transition-colors ${
-                theme === "dark"
-                  ? "border-white/10 hover:bg-white/5"
-                  : "border-slate-200 hover:bg-slate-50"
-              }`}
-            >
-              <Calendar
-                className={`h-6 w-6 mb-2 ${
-                  theme === "dark" ? "text-purple-400" : "text-purple-600"
-                }`}
-              />
+            <button className="p-4 rounded-lg border border-border hover:bg-accent/50 text-left">
+              <Calendar className="h-6 w-6 mb-2 text-primary" />
               <h3 className="font-medium mb-1">Mark Attendance</h3>
-              <p
-                className={`text-sm ${
-                  theme === "dark" ? "text-gray-400" : "text-slate-600"
-                }`}
-              >
+              <p className="text-sm text-muted-foreground">
                 Update the attendance for today
               </p>
             </button>
-            <button
-              className={`p-4 rounded-lg border text-left transition-colors ${
-                theme === "dark"
-                  ? "border-white/10 hover:bg-white/5"
-                  : "border-slate-200 hover:bg-slate-50"
-              }`}
-            >
-              <TrendingUp
-                className={`h-6 w-6 mb-2 ${
-                  theme === "dark" ? "text-purple-400" : "text-purple-600"
-                }`}
-              />
+            <button className="p-4 rounded-lg border border-border hover:bg-accent/50 text-left">
+              <TrendingUp className="h-6 w-6 mb-2 text-primary" />
               <h3 className="font-medium mb-1">View Analytics</h3>
-              <p
-                className={`text-sm ${
-                  theme === "dark" ? "text-gray-400" : "text-slate-600"
-                }`}
-              >
+              <p className="text-sm text-muted-foreground">
                 Check your progress
               </p>
             </button>

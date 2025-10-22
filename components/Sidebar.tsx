@@ -38,7 +38,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
 
 // Sidebar Context
 interface SidebarContextType {
@@ -75,7 +74,7 @@ export function SidebarTrigger() {
   return (
     <button
       onClick={toggleSidebar}
-      className="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 w-9 transition-colors hover:bg-accent hover:text-accent-foreground"
+      className="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 w-9 hover:text-accent-foreground cursor-pointer"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -118,50 +117,43 @@ export function AppSidebar() {
 
   const isActive = (url: string) => pathname.startsWith(url);
 
+  if (!mounted) {
+    return (
+      <aside className="fixed left-0 top-0 z-40 h-screen w-16 bg-sidebar border-sidebar-border border-r">
+        <div className="flex h-16 items-center border-b border-sidebar-border px-4 justify-center">
+          <div className="w-10 h-10 bg-muted rounded-lg animate-pulse"></div>
+        </div>
+      </aside>
+    );
+  }
+
   return (
     <aside
-      className={`fixed left-0 top-0 z-40 h-screen transition-all duration-300 ${
+      className={`fixed left-0 top-0 z-40 h-screen bg-sidebar border-sidebar-border border-r transition-[width] duration-300 ${
         open ? "w-64" : "w-16"
-      } ${
-        theme === "dark"
-          ? "bg-sidebar border-sidebar-border"
-          : "bg-sidebar border-sidebar-border"
-      } border-r`}
+      }`}
     >
       {/* Header */}
       <div className="flex h-16 items-center border-b border-sidebar-border px-4">
-        {mounted && (
-          <div
-            className={`flex items-center transition-all duration-300 ${
-              open ? "justify-start gap-2 w-full" : "justify-center"
-            }`}
-          >
-            <div className="relative w-10 h-10 flex-shrink-0">
-              <Image
-                src={theme === "dark" ? "/logo-dark.png" : "/logo-light.png"}
-                alt="Logo"
-                fill
-                className="object-contain transition-opacity duration-300"
-                priority
-              />
-            </div>
-
-            <AnimatePresence mode="wait">
-              {open && (
-                <motion.span
-                  key="anchor-text"
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -10 }}
-                  transition={{ duration: 0.25 }}
-                  className="text-3xl font-semibold tracking-wide"
-                >
-                  Anchor
-                </motion.span>
-              )}
-            </AnimatePresence>
+        <div
+          className={`flex items-center ${
+            open ? "justify-start gap-2 w-full" : "justify-center"
+          }`}
+        >
+          <div className="relative w-10 h-10 flex-shrink-0">
+            <Image
+              src={theme === "dark" ? "/logo-dark.png" : "/logo-light.png"}
+              alt="Logo"
+              fill
+              className="object-contain"
+              priority
+            />
           </div>
-        )}
+
+          {open && (
+            <span className="text-3xl font-semibold tracking-wide">Anchor</span>
+          )}
+        </div>
       </div>
 
       {/* Navigation */}
@@ -171,7 +163,7 @@ export function AppSidebar() {
             <Link
               key={item.title}
               href={item.url}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium ${
                 isActive(item.url)
                   ? "bg-sidebar-accent text-sidebar-accent-foreground"
                   : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
@@ -241,20 +233,19 @@ export function AppSidebar() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+
         {/* Theme Toggle */}
-        {mounted && (
-          <button
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="flex w-full items-center gap-3 cursor-pointer rounded-lg px-3 py-2.5 text-sm font-medium transition-colors mb-2 text-sidebar-foreground hover:bg-sidebar-accent"
-          >
-            {theme === "dark" ? (
-              <Sun className="h-5 w-5 shrink-0" />
-            ) : (
-              <Moon className="h-5 w-5 shrink-0" />
-            )}
-            {open && <span>Toggle Theme</span>}
-          </button>
-        )}
+        <button
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          className="flex w-full items-center gap-3 cursor-pointer rounded-lg px-3 py-2.5 text-sm font-medium mb-2 text-sidebar-foreground hover:bg-sidebar-accent"
+        >
+          {theme === "dark" ? (
+            <Sun className="h-5 w-5 shrink-0" />
+          ) : (
+            <Moon className="h-5 w-5 shrink-0" />
+          )}
+          {open && <span>Toggle Theme</span>}
+        </button>
 
         {/* Logout Dialog */}
         <AlertDialog>
@@ -270,7 +261,7 @@ export function AppSidebar() {
                 Are you sure you want to log out?
               </AlertDialogTitle>
               <AlertDialogDescription>
-                You’ll be signed out of your account, and your session data will
+                You&apos;ll be signed out of your account, and your session data will
                 be cleared.
               </AlertDialogDescription>
             </AlertDialogHeader>
@@ -300,7 +291,7 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
     <div className="flex h-screen overflow-hidden">
       <AppSidebar />
       <div
-        className={`flex-1 overflow-auto transition-all duration-300 ${
+        className={`flex-1 overflow-auto transition-[margin] duration-300 ${
           open ? "ml-64" : "ml-16"
         }`}
       >

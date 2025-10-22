@@ -1,8 +1,11 @@
+// app/layout.tsx
 import "./globals.css";
-import ClientLayout from './clientLayout';
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata = {
   title: "Anchor",
+  description: "Your academic companion",
 };
 
 export default function RootLayout({
@@ -12,10 +15,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>
-        <ClientLayout>
+      <body className="bg-background text-foreground">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange={false}
+        >
           {children}
-        </ClientLayout>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -2,13 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { Zap, Shield, Sparkles } from "lucide-react";
-import { useTheme } from "next-themes";
-import Header from "../components/Header";
+import Header from "@/components/Header";
 
 export default function Landing() {
-  const { theme } = useTheme();
-
   const [mounted, setMounted] = useState(false);
+
   useEffect(() => setMounted(true), []);
   if (!mounted) return null;
 
@@ -18,12 +16,41 @@ export default function Landing() {
     { icon: <Sparkles className="w-5 h-5" />, text: "Always up to date" },
   ];
 
+  const stats = [
+    { 
+      value: "100%", 
+      title: "Automated Tracking", 
+      description: "Zero manual entry required" 
+    },
+    { 
+      value: "Universal", 
+      title: "Works Everywhere", 
+      description: "Any college, any course" 
+    },
+    { 
+      value: "Real-time", 
+      title: "Instant Updates", 
+      description: "Always synchronized" 
+    },
+  ];
+
+  const features = [
+    { 
+      title: "Smart", 
+      description: "Intelligent automation that learns your patterns" 
+    },
+    { 
+      title: "Simple", 
+      description: "Clean interface, zero learning curve" 
+    },
+    { 
+      title: "Secure", 
+      description: "Your data stays private and protected" 
+    },
+  ];
+
   return (
-    <div
-      className={`min-h-screen ${
-        theme === "dark" ? "bg-black text-white" : "bg-white text-slate-900"
-      }`}
-    >
+    <div className="min-h-screen bg-background text-foreground">
       <Header />
 
       {/* Hero Section */}
@@ -32,19 +59,11 @@ export default function Landing() {
           <div className="text-center max-w-4xl mx-auto">
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
               Master Your
-              <span
-                className={`block ${
-                  theme === "dark" ? "text-purple-400" : "text-purple-600"
-                }`}
-              >
+              <span className="block text-purple-600 dark:text-purple-400">
                 Academic Journey
               </span>
             </h1>
-            <p
-              className={`text-xl md:text-2xl mb-10 leading-relaxed ${
-                theme === "dark" ? "text-gray-400" : "text-slate-600"
-              }`}
-            >
+            <p className="text-xl md:text-2xl mb-10 leading-relaxed text-muted-foreground">
               Unified assignment tracking, attendance monitoring, and
               productivity insights.
               <span className="block mt-2">
@@ -52,18 +71,12 @@ export default function Landing() {
               </span>
             </p>
             <div className="flex flex-wrap justify-center gap-6 mt-12">
-              {benefits.map((benefit, i) => (
+              {benefits.map((benefit, index) => (
                 <div
-                  key={i}
-                  className={`flex items-center space-x-2 ${
-                    theme === "dark" ? "text-gray-400" : "text-slate-600"
-                  }`}
+                  key={index}
+                  className="flex items-center space-x-2 text-muted-foreground"
                 >
-                  <div
-                    className={
-                      theme === "dark" ? "text-purple-400" : "text-purple-600"
-                    }
-                  >
+                  <div className="text-purple-600 dark:text-purple-400">
                     {benefit.icon}
                   </div>
                   <span className="text-sm font-medium">{benefit.text}</span>
@@ -75,82 +88,22 @@ export default function Landing() {
       </section>
 
       {/* Stats Section */}
-      <section
-        className={`py-24 px-6 lg:px-8 border-y ${
-          theme === "dark" ? "border-gray-800" : "border-slate-200"
-        }`}
-      >
+      <section className="py-24 px-6 lg:px-8 border-y border-border">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-3 gap-16 text-center">
-            <div>
-              <div
-                className={`text-5xl md:text-6xl font-bold mb-3 ${
-                  theme === "dark" ? "text-purple-400" : "text-purple-600"
-                }`}
-              >
-                100%
+            {stats.map((stat, index) => (
+              <div key={index}>
+                <div className="text-5xl md:text-6xl font-bold mb-3 text-purple-600 dark:text-purple-400">
+                  {stat.value}
+                </div>
+                <div className="text-lg font-medium text-muted-foreground">
+                  {stat.title}
+                </div>
+                <p className="text-sm mt-2 text-muted-foreground/70">
+                  {stat.description}
+                </p>
               </div>
-              <div
-                className={`text-lg font-medium ${
-                  theme === "dark" ? "text-gray-400" : "text-slate-600"
-                }`}
-              >
-                Automated Tracking
-              </div>
-              <p
-                className={`text-sm mt-2 ${
-                  theme === "dark" ? "text-gray-500" : "text-slate-500"
-                }`}
-              >
-                Zero manual entry required
-              </p>
-            </div>
-            <div>
-              <div
-                className={`text-5xl md:text-6xl font-bold mb-3 ${
-                  theme === "dark" ? "text-purple-400" : "text-purple-600"
-                }`}
-              >
-                Universal
-              </div>
-              <div
-                className={`text-lg font-medium ${
-                  theme === "dark" ? "text-gray-400" : "text-slate-600"
-                }`}
-              >
-                Works Everywhere
-              </div>
-              <p
-                className={`text-sm mt-2 ${
-                  theme === "dark" ? "text-gray-500" : "text-slate-500"
-                }`}
-              >
-                Any college, any course
-              </p>
-            </div>
-            <div>
-              <div
-                className={`text-5xl md:text-6xl font-bold mb-3 ${
-                  theme === "dark" ? "text-purple-400" : "text-purple-600"
-                }`}
-              >
-                Real-time
-              </div>
-              <div
-                className={`text-lg font-medium ${
-                  theme === "dark" ? "text-gray-400" : "text-slate-600"
-                }`}
-              >
-                Instant Updates
-              </div>
-              <p
-                className={`text-sm mt-2 ${
-                  theme === "dark" ? "text-gray-500" : "text-slate-500"
-                }`}
-              >
-                Always synchronized
-              </p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -163,83 +116,37 @@ export default function Landing() {
               Built for the Students
             </h2>
           </div>
-          <div
-            className={`space-y-6 text-lg leading-relaxed ${
-              theme === "dark" ? "text-gray-400" : "text-slate-600"
-            }`}
-          >
-            <p className="text-center">
+          <div className="space-y-6 text-lg leading-relaxed text-muted-foreground text-center">
+            <p>
               Anchor integrates seamlessly with your college management system
               to automate assignment tracking, monitor attendance, and provide
               actionable insights to optimize your academic performance.
             </p>
-            <p className="text-center">
+            <p>
               Stop juggling multiple platforms and spreadsheets. Centralize your
               entire academic life in one intuitive, powerful interface that
               works the way you do.
             </p>
           </div>
           <div className="mt-16 grid md:grid-cols-3 gap-8 text-center">
-            <div className="p-6">
-              <div
-                className={`text-3xl font-bold mb-2 ${
-                  theme === "dark" ? "text-purple-400" : "text-purple-600"
-                }`}
-              >
-                Smart
+            {features.map((feature, index) => (
+              <div key={index} className="p-6">
+                <div className="text-3xl font-bold mb-2 text-purple-600 dark:text-purple-400">
+                  {feature.title}
+                </div>
+                <p className="text-muted-foreground">
+                  {feature.description}
+                </p>
               </div>
-              <p
-                className={
-                  theme === "dark" ? "text-gray-400" : "text-slate-600"
-                }
-              >
-                Intelligent automation that learns your patterns
-              </p>
-            </div>
-            <div className="p-6">
-              <div
-                className={`text-3xl font-bold mb-2 ${
-                  theme === "dark" ? "text-purple-400" : "text-purple-600"
-                }`}
-              >
-                Simple
-              </div>
-              <p
-                className={
-                  theme === "dark" ? "text-gray-400" : "text-slate-600"
-                }
-              >
-                Clean interface, zero learning curve
-              </p>
-            </div>
-            <div className="p-6">
-              <div
-                className={`text-3xl font-bold mb-2 ${
-                  theme === "dark" ? "text-purple-400" : "text-purple-600"
-                }`}
-              >
-                Secure
-              </div>
-              <p
-                className={
-                  theme === "dark" ? "text-gray-400" : "text-slate-600"
-                }
-              >
-                Your data stays private and protected
-              </p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer
-        className={`py-4 px-6 lg:px-8 border-t ${
-          theme === "dark" ? "border-gray-800" : "border-slate-200"
-        }`}
-      >
+      <footer className="py-4 px-6 lg:px-8 border-t border-border">
         <div className="max-w-7xl mx-auto text-center">
-          <p className={theme === "dark" ? "text-gray-400" : "text-slate-600"}>
+          <p className="text-muted-foreground">
             © 2025 Anchor. All rights reserved.
           </p>
         </div>

@@ -40,7 +40,6 @@ interface InputProps {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
-  theme: "light" | "dark";
 }
 
 export default function Auth() {
@@ -75,7 +74,7 @@ export default function Auth() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const numberOfShapes = 20;
+  const numberOfShapes = 30;
   const shapeColor = theme === "dark" ? "bg-white/20" : "bg-black/20";
 
   const [shapes, setShapes] = useState<Shape[]>([]);
@@ -109,7 +108,15 @@ export default function Auth() {
     }
   }, [alert]);
 
-  if (!mounted) return null;
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-full max-w-md p-6">
+          <div className="h-96 bg-muted/20 rounded-xl animate-pulse"></div>
+        </div>
+      </div>
+    );
+  }
 
   const toggleAuthMode = () => {
     setAuthMode((prev) => (prev === "signup" ? "signin" : "signup"));
@@ -153,7 +160,6 @@ export default function Auth() {
       const data = await res.json();
 
       if (res.ok) {
-        // Store JWT token in localStorage
         localStorage.setItem("jwtToken", data.token);
 
         setAlert({
@@ -162,7 +168,6 @@ export default function Auth() {
           description: `Welcome, ${signUpData.username}! Your account has been successfully created.`,
         });
 
-        // Redirect to dashboard after successful signup
         setTimeout(() => router.push("/onboarding"), 1000);
       } else {
         setAlert({
@@ -200,7 +205,6 @@ export default function Auth() {
       const data = await res.json();
 
       if (res.ok) {
-        // Store JWT token in localStorage (same as React version)
         localStorage.setItem("jwtToken", data.token);
 
         setAlert({
@@ -209,7 +213,6 @@ export default function Auth() {
           description: `Welcome back!`,
         });
 
-        // Redirect based on onboarding status from database
         setTimeout(() => {
           if (data.onboarding_completed) {
             router.push("/dashboard");
@@ -363,11 +366,7 @@ export default function Auth() {
   };
 
   return (
-    <div
-      className={`relative min-h-screen flex items-center justify-center overflow-hidden ${
-        theme === "dark" ? "bg-black" : "bg-white"
-      }`}
-    >
+    <div className="relative min-h-screen bg-background flex items-center justify-center overflow-hidden">
       <AnimatePresence>
         {alert && (
           <motion.div
@@ -379,11 +378,7 @@ export default function Auth() {
           >
             <Alert
               variant={alert.type === "success" ? "default" : "destructive"}
-              className={`flex items-center gap-3 shadow-lg border-2 ${
-                alert.type === "success"
-                  ? "border-green-500 text-green-600 dark:border-green-600 dark:text-green-500"
-                  : ""
-              }`}
+              className="flex items-center gap-3 shadow-lg"
             >
               {alert.type === "success" ? (
                 <CheckCircle className="w-5 h-5 flex-shrink-0" />
@@ -401,16 +396,12 @@ export default function Auth() {
 
       {shapes.map((shape, idx) => renderShape(shape, idx))}
 
-      <Card
-        className={`relative w-full max-w-md z-10 ${
-          theme === "dark" ? "bg-black text-white" : "bg-white text-black"
-        }`}
-      >
+      <Card className="relative w-full max-w-md z-10 bg-card text-card-foreground">
         <CardHeader>
           <CardTitle>
             {authMode === "signup" ? "Create Account" : "Sign In"}
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-muted-foreground">
             {authMode === "signup"
               ? "Enter your details to create your account."
               : "Enter your credentials to sign in."}
@@ -431,7 +422,6 @@ export default function Auth() {
                   value={signUpData.username}
                   onChange={handleSignUpChange}
                   placeholder="Username"
-                  theme={theme === "dark" ? "dark" : "light"}
                 />
               )}
 
@@ -448,7 +438,6 @@ export default function Auth() {
                     : handleSignInChange
                 }
                 placeholder="Email"
-                theme={theme === "dark" ? "dark" : "light"}
               />
 
               <PasswordInput
@@ -467,7 +456,6 @@ export default function Auth() {
                 showPassword={showPassword}
                 setShowPassword={setShowPassword}
                 placeholder="Password"
-                theme={theme === "dark" ? "dark" : "light"}
               />
 
               {authMode === "signup" && (
@@ -479,18 +467,13 @@ export default function Auth() {
                   showPassword={showConfirmPassword}
                   setShowPassword={setShowConfirmPassword}
                   placeholder="Confirm Password"
-                  theme={theme === "dark" ? "dark" : "light"}
                 />
               )}
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className={`w-full py-3 px-4 rounded-lg font-semibold transition-colors cursor-pointer duration-200 flex items-center justify-center gap-2 ${
-                  theme === "dark"
-                    ? "bg-white text-black hover:bg-gray-200 disabled:bg-gray-400"
-                    : "bg-black text-white hover:bg-gray-800 disabled:bg-gray-400"
-                }`}
+                className="w-full py-3 px-4 rounded-lg font-semibold bg-purple-600 hover:bg-purple-700 text-white disabled:bg-muted disabled:text-muted-foreground transition-colors cursor-pointer duration-200 flex items-center justify-center gap-2"
               >
                 {isLoading ? (
                   <>
@@ -509,35 +492,18 @@ export default function Auth() {
           </form>
 
           <div className="relative flex items-center justify-center mt-6 mb-4">
-            <div
-              className={`flex-1 border-t ${
-                theme === "dark" ? "border-gray-800" : "border-gray-300"
-              }`}
-            ></div>
-            <span
-              className={`px-4 text-sm ${
-                theme === "dark" ? "text-gray-500" : "text-gray-600"
-              }`}
-            >
+            <div className="flex-1 border-t border-border"></div>
+            <span className="px-4 text-sm text-muted-foreground">
               or continue with
             </span>
-            <div
-              className={`flex-1 border-t ${
-                theme === "dark" ? "border-gray-800" : "border-gray-300"
-              }`}
-            ></div>
+            <div className="flex-1 border-t border-border"></div>
           </div>
 
-          {/* Single centered Google button */}
           <div className="flex justify-center">
             <button
               type="button"
               onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
-              className={`flex cursor-pointer items-center justify-center gap-3 py-3 px-6 rounded-lg font-medium transition-all duration-200 border w-full max-w-xs ${
-                theme === "dark"
-                  ? "bg-gray-1000 border-gray-700 text-white hover:bg-gray-800 hover:border-gray-600 hover:shadow-lg"
-                  : "bg-white border-gray-300 text-gray-900 hover:bg-gray-50 hover:border-gray-400 hover:shadow-md"
-              }`}
+              className="flex cursor-pointer items-center justify-center gap-3 py-3 px-6 rounded-lg font-medium transition-all duration-200 border border-input bg-background hover:bg-accent text-foreground w-full max-w-xs"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path
@@ -564,21 +530,21 @@ export default function Auth() {
 
         <CardFooter className="text-center">
           {authMode === "signup" ? (
-            <p>
+            <p className="text-muted-foreground">
               Already have an account?{" "}
               <button
                 onClick={toggleAuthMode}
-                className="underline cursor-pointer"
+                className="text-purple-600 hover:text-purple-700 underline cursor-pointer"
               >
                 Sign In
               </button>
             </p>
           ) : (
-            <p>
-              Dont have an account?{" "}
+            <p className="text-muted-foreground">
+              Don&apos;t have an account?{" "}
               <button
                 onClick={toggleAuthMode}
-                className="underline cursor-pointer"
+                className="text-purple-600 hover:text-purple-700 underline cursor-pointer"
               >
                 Sign Up
               </button>
@@ -597,14 +563,9 @@ const FormInput = ({
   value,
   onChange,
   placeholder,
-  theme,
 }: InputProps) => (
   <div>
-    <label
-      className={`block text-sm font-medium mb-1 ${
-        theme === "dark" ? "text-gray-300" : "text-gray-700"
-      }`}
-    >
+    <label className="block text-sm font-medium mb-1 text-foreground">
       {label}
     </label>
     <input
@@ -613,11 +574,7 @@ const FormInput = ({
       value={value}
       onChange={onChange}
       placeholder={placeholder}
-      className={`w-full px-4 py-2 rounded-lg transition-all duration-200 border ${
-        theme === "dark"
-          ? "bg-gray-1000 border-gray-800 text-white placeholder-gray-500 focus:border-purple-500 focus:ring-purple-500/20"
-          : "bg-gray-100 border-gray-300 text-black placeholder-gray-500 focus:border-purple-500 focus:ring-purple-500/20"
-      }`}
+      className="w-full px-4 py-2 rounded-lg transition-all duration-200 border border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-purple-500 focus:ring-purple-500/20"
     />
   </div>
 );
@@ -630,17 +587,12 @@ const PasswordInput = ({
   showPassword,
   setShowPassword,
   placeholder,
-  theme,
 }: InputProps & {
   showPassword: boolean;
   setShowPassword: (val: boolean) => void;
 }) => (
   <div>
-    <label
-      className={`block text-sm font-medium mb-1 ${
-        theme === "dark" ? "text-gray-300" : "text-gray-700"
-      }`}
-    >
+    <label className="block text-sm font-medium mb-1 text-foreground">
       {label}
     </label>
     <div className="relative">
@@ -650,21 +602,17 @@ const PasswordInput = ({
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        className={`w-full px-4 py-2 rounded-lg transition-all duration-200 border ${
-          theme === "dark"
-            ? "bg-gray-1000 border-gray-800 text-white placeholder-gray-500 focus:border-purple-500 focus:ring-purple-500/20"
-            : "bg-gray-100 border-gray-300 text-black placeholder-gray-500 focus:border-purple-500 focus:ring-purple-500/20"
-        }`}
+        className="w-full px-4 py-2 rounded-lg transition-all duration-200 border border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-purple-500 focus:ring-purple-500/20"
       />
       <button
         type="button"
         onClick={() => setShowPassword(!showPassword)}
-        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
+        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
       >
         {showPassword ? (
-          <EyeOff className="w-5 h-5 cursor-pointer" />
+          <EyeOff className="w-5 h-5" />
         ) : (
-          <Eye className="w-5 h-5 cursor-pointer" />
+          <Eye className="w-5 h-5" />
         )}
       </button>
     </div>

@@ -4,98 +4,169 @@ import { ReactNode, useEffect, useState } from "react";
 import { SidebarProvider, SidebarLayout } from "@/components/Sidebar";
 import { usePathname, useRouter } from "next/navigation";
 
+// Cache onboarding status globally
+let cachedOnboardingStatus: boolean | null = null;
+
 export default function PagesLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [authChecked, setAuthChecked] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const publicPaths = ["/auth", "/unauthorized", "/onboarding"];
 
-  const isPublicPath = publicPaths.some((path) => pathname?.startsWith(path));
-
   useEffect(() => {
-    const checkAuth = async () => {
-      const token = localStorage.getItem("jwtToken");
+    let isMounted = true;
 
-      console.log("Auth Check:", { pathname, token, isPublicPath });
+    const checkAuth = async () => {
+      if (!isMounted) return;
+
+      const token = localStorage.getItem("jwtToken");
+      const isPublicPath = publicPaths.some((path) =>
+        pathname?.startsWith(path)
+      );
+
+      console.log("🔄 Auth Check:", { pathname, token, isPublicPath });
 
       // If no token and trying to access protected path → redirect to auth
       if (!token && !isPublicPath) {
-        console.log("No token, redirecting to auth");
+        console.log("❌ No token, redirecting to unauthorized");
         router.replace("/unauthorized");
         return;
       }
 
-      // If has token, check onboarding status from DATABASE
+      // If has token, check onboarding status
       if (token) {
+        setIsAuthenticated(true);
+        // If we already know user is onboarded, skip API call
+        if (cachedOnboardingStatus === true) {
+          console.log("✅ Using cached onboarding status: true");
+
+          // Handle redirect cases with cached data
+          if (pathname?.startsWith("/onboarding")) {
+            console.log(
+              "🔄 Already onboarded, redirecting from onboarding to dashboard"
+            );
+            router.replace("/dashboard");
+            return;
+          }
+
+          if (pathname?.startsWith("/auth") || pathname === "/") {
+            router.replace("/dashboard");
+            return;
+          }
+
+          // Show content immediately
+          if (isMounted) {
+            setIsLoading(false);
+          }
+          return;
+        }
+
         try {
-          // Check database for onboarding status
-          const response = await fetch('/api/onboarding', {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
+          const response = await fetch("/api/profile", {
+            headers: { Authorization: `Bearer ${token}` },
+            cache: "no-store",
           });
 
           if (response.ok) {
             const dbData = await response.json();
-            
-            console.log("Onboarding status:", dbData.onboarding_completed);
-            
-            // 🔥 GENERIC PROTECTION: If NOT onboarded and trying to access ANY protected page → redirect to onboarding
-            if (!dbData.onboarding_completed && !isPublicPath) {
-              console.log("Not onboarded, redirecting from protected page to onboarding");
+            const onboardingCompleted = dbData.profile?.onboarding_completed;
+
+            // Cache the onboarding status
+            cachedOnboardingStatus = onboardingCompleted;
+
+            console.log("✅ Onboarding status:", onboardingCompleted);
+
+            // Handle all redirect cases
+            if (onboardingCompleted && pathname?.startsWith("/onboarding")) {
+              console.log(
+                "🔄 Already onboarded, redirecting from onboarding to dashboard"
+              );
+              router.replace("/dashboard");
+              return;
+            }
+
+            if (!onboardingCompleted && !isPublicPath) {
+              console.log(
+                "🔄 Not onboarded, redirecting from protected page to onboarding"
+              );
               router.replace("/onboarding");
               return;
             }
 
-            // If user has completed onboarding but is on onboarding page → redirect to dashboard
-            if (dbData.onboarding_completed && pathname?.startsWith("/onboarding")) {
-              console.log("Already onboarded, redirecting from onboarding to dashboard");
+            if (
+              (pathname?.startsWith("/auth") || pathname === "/") &&
+              onboardingCompleted
+            ) {
               router.replace("/dashboard");
               return;
             }
 
-            // If user is on auth/landing but has token, redirect to appropriate page
-            if ((pathname?.startsWith("/auth") || pathname === "/") && dbData.onboarding_completed) {
-              router.replace("/dashboard");
-              return;
-            }
-            if ((pathname?.startsWith("/auth") || pathname === "/") && !dbData.onboarding_completed) {
+            if (
+              (pathname?.startsWith("/auth") || pathname === "/") &&
+              !onboardingCompleted
+            ) {
               router.replace("/onboarding");
               return;
             }
           }
         } catch (error) {
-          console.error("Database onboarding check failed:", error);
+          console.error("❌ Database onboarding check failed:", error);
         }
       }
 
-      // Mark auth as checked
-      setAuthChecked(true);
+      // If we get here, no redirect is needed - show content
+      if (isMounted) {
+        console.log("✅ All checks passed, showing content");
+        setIsLoading(false);
+      }
     };
 
-    // Small delay to ensure router is ready
-    const timer = setTimeout(checkAuth, 100);
-    return () => clearTimeout(timer);
-  }, [pathname, router, isPublicPath]);
+    setIsLoading(true);
 
-  // Show loading until auth check completes
-  if (!authChecked) {
+    const timer = setTimeout(checkAuth, 10);
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+    };
+  }, [pathname, router]);
+
+  const isPublicPath = publicPaths.some((path) => pathname?.startsWith(path));
+  const hideSidebar = isPublicPath;
+
+  // For public paths, show full loading screen
+  if (hideSidebar && isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div>Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <p className="text-foreground">Loading...</p>
+        </div>
       </div>
     );
   }
 
-  const hideSidebar = isPublicPath;
-
+  // For protected paths, show sidebar with loading in content area
+  // For protected paths, show sidebar with loading in content area
   return (
     <SidebarProvider>
       {hideSidebar ? (
-        <>{children}</>
+        <div className="min-h-screen bg-background text-foreground">
+          {children}
+        </div>
       ) : (
-        <SidebarLayout>{children}</SidebarLayout>
+        <SidebarLayout>
+          {isLoading ? (
+            <div className="flex-1 flex items-center justify-center h-full">
+              <div className="flex flex-col items-center gap-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                <p className="text-foreground">Loading page...</p>
+              </div>
+            </div>
+          ) : (
+            children
+          )}
+        </SidebarLayout>
       )}
     </SidebarProvider>
   );

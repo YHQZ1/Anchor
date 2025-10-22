@@ -34,8 +34,8 @@ export default function Unauthorized() {
 
     const newShapes: Shape[] = Array.from({ length: numberOfShapes }).map(
       () => ({
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * window.innerHeight,
+        x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1200),
+        y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800),
         size: Math.random() * 80 + 30,
         rotate: Math.random() * 360,
         type: ["square", "circle", "triangle", "line"][
@@ -53,8 +53,8 @@ export default function Unauthorized() {
 
   if (!mounted) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="text-white">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-foreground">Loading...</div>
       </div>
     );
   }
@@ -65,6 +65,7 @@ export default function Unauthorized() {
       left: shape.x,
       position: "absolute",
       opacity: 0.6,
+      pointerEvents: "none",
     };
 
     const commonClasses = `${shapeColor}`;
@@ -190,15 +191,11 @@ export default function Unauthorized() {
   };
 
   const handleGoBack = () => {
-    window.history.back();
+    router.push("/");
   };
 
   return (
-    <div
-      className={`relative min-h-screen flex items-center justify-center overflow-hidden px-6 ${
-        theme === "dark" ? "bg-black text-white" : "bg-white text-slate-900"
-      }`}
-    >
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden px-6 bg-background text-foreground">
       {/* Animated Shapes Background */}
       {shapes.map((shape, idx) => renderShape(shape, idx))}
 
@@ -208,11 +205,7 @@ export default function Unauthorized() {
         <h1 className="text-8xl md:text-9xl font-bold">401</h1>
 
         {/* Message */}
-        <p
-          className={`text-lg ${
-            theme === "dark" ? "text-gray-400" : "text-slate-600"
-          }`}
-        >
+        <p className="text-lg text-muted-foreground">
           You must be logged in to view this page. Please log in to continue or
           return to the previous page.
         </p>
@@ -221,22 +214,14 @@ export default function Unauthorized() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <button
             onClick={handleLogin}
-            className={`inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border font-medium transition-colors ${
-              theme === "dark"
-                ? "border-white/10 hover:bg-white/5"
-                : "border-slate-200 hover:bg-slate-50"
-            }`}
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-input bg-background hover:bg-accent font-medium cursor-pointer"
           >
             Login / Sign Up
           </button>
 
           <button
             onClick={handleGoBack}
-            className={`inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border font-medium transition-colors ${
-              theme === "dark"
-                ? "border-white/10 hover:bg-white/5"
-                : "border-slate-200 hover:bg-slate-50"
-            }`}
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-input bg-background hover:bg-accent font-medium cursor-pointer"
           >
             <ArrowLeft className="h-5 w-5" />
             Go Back

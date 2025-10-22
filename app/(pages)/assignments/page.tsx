@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { useTheme } from "next-themes";
 import {
   CheckSquare,
   Clock,
@@ -11,7 +10,7 @@ import {
   FileText,
   Download,
   ExternalLink,
-  CheckCircle2
+  CheckCircle2,
 } from "lucide-react";
 import { SidebarTrigger } from "@/components/Sidebar";
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +23,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export default function AssignmentsPage() {
-  const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterPriority, setFilterPriority] = useState("all");
@@ -32,7 +30,23 @@ export default function AssignmentsPage() {
 
   React.useEffect(() => setMounted(true), []);
 
-  if (!mounted) return null;
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="flex h-16 items-center gap-4 px-6">
+            <div className="w-8 h-8 bg-muted rounded animate-pulse"></div>
+            <div className="flex-1">
+              <div className="h-6 w-32 bg-muted rounded animate-pulse"></div>
+            </div>
+          </div>
+        </header>
+        <main className="p-6">
+          <div className="h-96 bg-muted/20 rounded-xl animate-pulse"></div>
+        </main>
+      </div>
+    );
+  }
 
   const assignments = [
     {
@@ -129,13 +143,29 @@ export default function AssignmentsPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "submitted":
-        return <Badge variant="default">Submitted</Badge>;
+        return (
+          <Badge variant="default" className="transition-none">
+            Submitted
+          </Badge>
+        );
       case "pending":
-        return <Badge variant="secondary">Pending</Badge>;
+        return (
+          <Badge variant="secondary" className="transition-none">
+            Pending
+          </Badge>
+        );
       case "not-started":
-        return <Badge variant="outline">Not Started</Badge>;
+        return (
+          <Badge variant="outline" className="transition-none">
+            Not Started
+          </Badge>
+        );
       default:
-        return <Badge variant="outline">Unknown</Badge>;
+        return (
+          <Badge variant="outline" className="transition-none">
+            Unknown
+          </Badge>
+        );
     }
   };
 
@@ -194,19 +224,9 @@ export default function AssignmentsPage() {
   ];
 
   return (
-    <div
-      className={`min-h-screen ${
-        theme === "dark" ? "bg-black text-white" : "bg-white text-slate-900"
-      }`}
-    >
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <header
-        className={`sticky top-0 z-30 border-b ${
-          theme === "dark"
-            ? "bg-black/95 border-white/10"
-            : "bg-white/95 border-slate-200"
-        } backdrop-blur supports-[backdrop-filter]:bg-background/60`}
-      >
+      <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex h-16 items-center gap-4 px-6">
           <SidebarTrigger />
           <div className="flex-1">
@@ -222,32 +242,14 @@ export default function AssignmentsPage() {
           {stats.map((stat, index) => (
             <div
               key={index}
-              className={`rounded-xl border p-4 ${
-                theme === "dark"
-                  ? "bg-white/5 border-white/10"
-                  : "bg-white border-slate-200"
-              }`}
+              className="rounded-xl border border-border bg-card p-4"
             >
               <div className="flex items-center gap-3">
-                <div
-                  className={`p-2 rounded-lg ${
-                    theme === "dark" ? "bg-purple-500/10" : "bg-purple-100"
-                  }`}
-                >
-                  <stat.icon
-                    className={`h-5 w-5 ${
-                      theme === "dark" ? "text-purple-400" : "text-purple-600"
-                    }`}
-                  />
+                <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-500/10">
+                  <stat.icon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div>
-                  <p
-                    className={`text-sm ${
-                      theme === "dark" ? "text-gray-400" : "text-slate-600"
-                    }`}
-                  >
-                    {stat.label}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{stat.label}</p>
                   <p className="text-2xl font-bold">{stat.value}</p>
                 </div>
               </div>
@@ -256,44 +258,24 @@ export default function AssignmentsPage() {
         </div>
 
         {/* Filters and Search */}
-        <div
-          className={`rounded-xl border p-4 ${
-            theme === "dark"
-              ? "bg-white/5 border-white/10"
-              : "bg-white border-slate-200"
-          }`}
-        >
+        <div className="rounded-xl border border-border bg-card p-4">
           <div className="flex flex-col md:flex-row gap-4">
             {/* Search */}
             <div className="flex-1 relative">
-              <Search
-                className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 ${
-                  theme === "dark" ? "text-gray-400" : "text-slate-400"
-                }`}
-              />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="Search assignments..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
-                  theme === "dark"
-                    ? "bg-white/5 border-white/10 text-white placeholder-gray-400"
-                    : "bg-white border-slate-200 text-slate-900 placeholder-slate-400"
-                } focus:outline-none focus:ring-2 focus:ring-purple-500`}
+                className="w-full pl-10 pr-4 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
 
             {/* Status Filter Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border ${
-                    theme === "dark"
-                      ? "bg-white/5 border-white/10 text-white hover:bg-white/10"
-                      : "bg-white border-slate-200 text-slate-900 hover:bg-slate-50"
-                  } focus:outline-none focus:ring-2 focus:ring-purple-500`}
-                >
+                <button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-input bg-background text-foreground hover:bg-accent">
                   <Filter className="h-4 w-4" />
                   {filterStatus === "all"
                     ? "All Status"
@@ -321,13 +303,7 @@ export default function AssignmentsPage() {
             {/* Priority Filter Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border ${
-                    theme === "dark"
-                      ? "bg-white/5 border-white/10 text-white hover:bg-white/10"
-                      : "bg-white border-slate-200 text-slate-900 hover:bg-slate-50"
-                  } focus:outline-none focus:ring-2 focus:ring-purple-500`}
-                >
+                <button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-input bg-background text-foreground hover:bg-accent">
                   <Filter className="h-4 w-4" />
                   {filterPriority === "all" ? "All Priority" : filterPriority}
                 </button>
@@ -353,24 +329,10 @@ export default function AssignmentsPage() {
         {/* Assignments List */}
         <div className="space-y-4">
           {filteredAssignments.length === 0 ? (
-            <div
-              className={`rounded-xl border p-12 text-center ${
-                theme === "dark"
-                  ? "bg-white/5 border-white/10"
-                  : "bg-white border-slate-200"
-              }`}
-            >
-              <FileText
-                className={`h-12 w-12 mx-auto mb-4 ${
-                  theme === "dark" ? "text-gray-600" : "text-slate-300"
-                }`}
-              />
+            <div className="rounded-xl border border-border bg-card p-12 text-center">
+              <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
               <h3 className="text-lg font-medium mb-2">No assignments found</h3>
-              <p
-                className={`text-sm ${
-                  theme === "dark" ? "text-gray-400" : "text-slate-600"
-                }`}
-              >
+              <p className="text-sm text-muted-foreground">
                 Try adjusting your filters or search query
               </p>
             </div>
@@ -378,34 +340,18 @@ export default function AssignmentsPage() {
             filteredAssignments.map((assignment) => (
               <div
                 key={assignment.id}
-                className={`rounded-xl border p-6 ${
-                  theme === "dark"
-                    ? "bg-white/5 border-white/10 hover:bg-white/10"
-                    : "bg-white border-slate-200 hover:bg-slate-50"
-                } transition-colors cursor-pointer`}
+                className="rounded-xl border border-border bg-card p-6 hover:bg-accent/50 cursor-pointer"
               >
                 {/* Assignment Header */}
                 <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
                   <div className="flex-1">
                     <div className="flex items-start gap-3 mb-2">
-                      <CheckSquare
-                        className={`h-5 w-5 mt-0.5 flex-shrink-0 ${
-                          theme === "dark"
-                            ? "text-purple-400"
-                            : "text-purple-600"
-                        }`}
-                      />
+                      <CheckSquare className="h-5 w-5 mt-0.5 flex-shrink-0 text-purple-600 dark:text-purple-400" />
                       <div>
                         <h3 className="text-lg font-semibold mb-1">
                           {assignment.title}
                         </h3>
-                        <p
-                          className={`text-sm ${
-                            theme === "dark"
-                              ? "text-gray-400"
-                              : "text-slate-600"
-                          }`}
-                        >
+                        <p className="text-sm text-muted-foreground">
                           {assignment.course} • {assignment.courseName}
                         </p>
                       </div>
@@ -418,11 +364,7 @@ export default function AssignmentsPage() {
                 </div>
 
                 {/* Assignment Description */}
-                <p
-                  className={`text-sm mb-4 ${
-                    theme === "dark" ? "text-gray-300" : "text-slate-700"
-                  }`}
-                >
+                <p className="text-sm mb-4 text-muted-foreground">
                   {assignment.description}
                 </p>
 
@@ -430,44 +372,26 @@ export default function AssignmentsPage() {
                 {!assignment.submitted && (
                   <div className="mb-4">
                     <div className="flex justify-between text-xs mb-2">
-                      <span
-                        className={
-                          theme === "dark" ? "text-gray-400" : "text-slate-600"
-                        }
-                      >
-                        Progress
-                      </span>
-                      <span
-                        className={
-                          theme === "dark" ? "text-gray-400" : "text-slate-600"
-                        }
-                      >
+                      <span className="text-muted-foreground">Progress</span>
+                      <span className="text-muted-foreground">
                         {assignment.progress}%
                       </span>
                     </div>
-                    <Progress value={assignment.progress} className="h-2" />
+                    <Progress value={assignment.progress} className="h-2 transition-none" />
                   </div>
                 )}
 
                 {/* Files */}
                 {assignment.files.length > 0 && (
                   <div className="mb-4">
-                    <p
-                      className={`text-xs font-medium mb-2 ${
-                        theme === "dark" ? "text-gray-400" : "text-slate-600"
-                      }`}
-                    >
+                    <p className="text-xs font-medium mb-2 text-muted-foreground">
                       Attached Files:
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {assignment.files.map((file, index) => (
                         <button
                           key={index}
-                          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs ${
-                            theme === "dark"
-                              ? "border-white/10 hover:bg-white/5"
-                              : "border-slate-200 hover:bg-slate-50"
-                          }`}
+                          className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border text-xs hover:bg-accent"
                         >
                           <FileText className="h-3 w-3" />
                           {file}
@@ -479,7 +403,7 @@ export default function AssignmentsPage() {
                 )}
 
                 {/* Footer */}
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pt-4 border-t border-white/10">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pt-4 border-t border-border">
                   <div className="flex items-center gap-4 text-sm">
                     <div className="flex items-center gap-1">
                       <Calendar className="h-4 w-4" />
@@ -499,9 +423,7 @@ export default function AssignmentsPage() {
                               "tomorrow"
                             )
                           ? "text-orange-500"
-                          : theme === "dark"
-                          ? "text-gray-400"
-                          : "text-slate-600"
+                          : "text-muted-foreground"
                       }`}
                     >
                       {getDaysUntilDue(assignment.dueDate)}
@@ -509,24 +431,12 @@ export default function AssignmentsPage() {
                   </div>
 
                   <div className="flex gap-2">
-                    <button
-                      className={`px-4 py-2 rounded-lg border text-sm font-medium ${
-                        theme === "dark"
-                          ? "border-white/10 hover:bg-white/5"
-                          : "border-slate-200 hover:bg-slate-50"
-                      }`}
-                    >
+                    <button className="px-4 py-2 rounded-lg border border-border text-sm font-medium hover:bg-accent">
                       View Details
                       <ExternalLink className="inline h-3 w-3 ml-1" />
                     </button>
                     {!assignment.submitted && (
-                      <button
-                        className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                          theme === "dark"
-                            ? "bg-purple-600 hover:bg-purple-700"
-                            : "bg-purple-600 hover:bg-purple-700"
-                        } text-white`}
-                      >
+                      <button className="px-4 py-2 rounded-lg text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white">
                         Submit Assignment
                       </button>
                     )}

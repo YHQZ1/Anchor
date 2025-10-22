@@ -61,6 +61,21 @@ export async function POST(request: NextRequest) {
 
     const user = userData
 
+    // Create initial profile with onboarding_completed = false
+    const { error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .insert([{
+        id: user.id,
+        onboarding_completed: false, // ← New users start with false
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }])
+
+    if (profileError) {
+      console.error('Profile creation error:', profileError)
+      // Continue anyway - profile can be created during onboarding
+    }
+
     // Generate JWT
     const token = jwt.sign(
       { 
@@ -78,6 +93,7 @@ export async function POST(request: NextRequest) {
       message: 'User created successfully',
       user: userWithoutPassword,
       token,
+      onboarding_completed: false, // ← Always false for new signups
     }, { status: 201 })
 
   } catch (err) {

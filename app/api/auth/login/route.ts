@@ -40,6 +40,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Get onboarding status from profiles table
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .select('onboarding_completed, student_id')
+      .eq('id', user.id)
+      .single()
+
     // Generate JWT
     const token = jwt.sign(
       { 
@@ -56,7 +63,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ 
       message: 'Login successful', 
       token, 
-      user: userWithoutPassword 
+      user: userWithoutPassword,
+      onboarding_completed: profile?.onboarding_completed || false, // ← ADD THIS
+      student_id: profile?.student_id || null // ← ADD THIS
     })
 
   } catch (err) {

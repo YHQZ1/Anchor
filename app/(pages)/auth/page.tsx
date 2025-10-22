@@ -163,7 +163,7 @@ export default function Auth() {
         });
 
         // Redirect to dashboard after successful signup
-        setTimeout(() => router.push("/dashboard"), 1000);
+        setTimeout(() => router.push("/onboarding"), 1000);
       } else {
         setAlert({
           type: "error",
@@ -209,8 +209,14 @@ export default function Auth() {
           description: `Welcome back!`,
         });
 
-        // Redirect to dashboard after successful login
-        setTimeout(() => router.push("/dashboard"), 1000);
+        // Redirect based on onboarding status from database
+        setTimeout(() => {
+          if (data.onboarding_completed) {
+            router.push("/dashboard");
+          } else {
+            router.push("/onboarding");
+          }
+        }, 1000);
       } else {
         setAlert({
           type: "error",

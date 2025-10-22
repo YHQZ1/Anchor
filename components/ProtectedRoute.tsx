@@ -16,13 +16,21 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
     if (!token) {
       router.replace("/unauthorized");
-      setIsAuth(false);
+      // DON'T set isAuth to false here - just redirect
     } else {
       setIsAuth(true);
     }
   }, [router]);
 
-  if (isAuth === null) return null; // prevents flash
+  // Only return children if isAuth is EXPLICITLY true
+  // If isAuth is null or false, return loading or nothing
+  if (isAuth !== true) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div>Checking authentication...</div>
+      </div>
+    );
+  }
 
   return <>{children}</>;
 }

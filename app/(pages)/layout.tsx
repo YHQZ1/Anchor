@@ -3,66 +3,84 @@
 import { ReactNode, useEffect, useState } from "react";
 import { SidebarProvider, SidebarLayout } from "@/components/Sidebar";
 import { usePathname, useRouter } from "next/navigation";
-import { useSession } from "next-auth/react"; // Add this import
 
 export default function PagesLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { data: session, status } = useSession(); // Add session hook
-  const [isAuth, setIsAuth] = useState<boolean | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
 
-  const hideSidebar = 
-    pathname?.startsWith("/auth") ||
-    pathname?.startsWith("/unauthorized");
+  const publicPaths = ["/auth", "/unauthorized", "/onboarding"];
+
+  const isPublicPath = publicPaths.some((path) => pathname?.startsWith(path));
 
   useEffect(() => {
-    // Check if we're on a page that doesn't require auth
-    if (hideSidebar) {
-      setIsAuth(true);
-      return;
-    }
+    const checkAuth = async () => {
+      const token = localStorage.getItem("jwtToken");
 
-    const checkAuth = () => {
-      try {
-        // Check BOTH localStorage AND NextAuth session
-        const localToken = localStorage.getItem("jwtToken");
-        const sessionToken = session?.yourJWT; // Check NextAuth session
-        
-        console.log("Auth Debug:", { 
-          localToken: !!localToken, 
-          sessionToken: !!sessionToken,
-          session: session 
-        }); // Debug logging
+      console.log("Auth Check:", { pathname, token, isPublicPath });
 
-        // User is authenticated if they have EITHER token
-        if (!localToken && !sessionToken) {
-          setIsAuth(false);
-          router.replace("/unauthorized");
-        } else {
-          setIsAuth(true);
-          
-          // If we have a session token but no local token, sync them
-          if (sessionToken && !localToken) {
-            console.log("Syncing JWT from session to localStorage");
-            localStorage.setItem("jwtToken", sessionToken);
-          }
-        }
-      } catch (error) {
-        console.error("Auth check error:", error);
-        setIsAuth(false);
+      // If no token and trying to access protected path → redirect to auth
+      if (!token && !isPublicPath) {
+        console.log("No token, redirecting to auth");
         router.replace("/unauthorized");
+        return;
       }
+
+      // If has token, check onboarding status from DATABASE
+      if (token) {
+        try {
+          // Check database for onboarding status
+          const response = await fetch('/api/onboarding', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+
+          if (response.ok) {
+            const dbData = await response.json();
+            
+            console.log("Onboarding status:", dbData.onboarding_completed);
+            
+            // 🔥 GENERIC PROTECTION: If NOT onboarded and trying to access ANY protected page → redirect to onboarding
+            if (!dbData.onboarding_completed && !isPublicPath) {
+              console.log("Not onboarded, redirecting from protected page to onboarding");
+              router.replace("/onboarding");
+              return;
+            }
+
+            // If user has completed onboarding but is on onboarding page → redirect to dashboard
+            if (dbData.onboarding_completed && pathname?.startsWith("/onboarding")) {
+              console.log("Already onboarded, redirecting from onboarding to dashboard");
+              router.replace("/dashboard");
+              return;
+            }
+
+            // If user is on auth/landing but has token, redirect to appropriate page
+            if ((pathname?.startsWith("/auth") || pathname === "/") && dbData.onboarding_completed) {
+              router.replace("/dashboard");
+              return;
+            }
+            if ((pathname?.startsWith("/auth") || pathname === "/") && !dbData.onboarding_completed) {
+              router.replace("/onboarding");
+              return;
+            }
+          }
+        } catch (error) {
+          console.error("Database onboarding check failed:", error);
+        }
+      }
+
+      // Mark auth as checked
+      setAuthChecked(true);
     };
 
-    // Wait for session to load before checking auth
-    if (status !== 'loading') {
-      const timer = setTimeout(checkAuth, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [pathname, hideSidebar, router, session, status]); // Add session and status to dependencies
+    // Small delay to ensure router is ready
+    const timer = setTimeout(checkAuth, 100);
+    return () => clearTimeout(timer);
+  }, [pathname, router, isPublicPath]);
 
-  // Show loading state while checking auth or session is loading
-  if (isAuth === null || status === 'loading') {
+  // Show loading until auth check completes
+  if (!authChecked) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div>Loading...</div>
@@ -70,10 +88,7 @@ export default function PagesLayout({ children }: { children: ReactNode }) {
     );
   }
 
-  // Don't render layout if not authenticated (redirect will happen)
-  if (isAuth === false) {
-    return null;
-  }
+  const hideSidebar = isPublicPath;
 
   return (
     <SidebarProvider>

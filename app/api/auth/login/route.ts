@@ -12,7 +12,16 @@ export async function POST(request: NextRequest) {
     // Basic validation
     if (!email || !password) {
       return NextResponse.json(
-        { error: 'Email and password required' },
+        { error: 'Email and password are required' },
+        { status: 400 }
+      )
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: 'Invalid email format' },
         { status: 400 }
       )
     }
@@ -21,13 +30,13 @@ export async function POST(request: NextRequest) {
     const { data: user, error } = await supabaseAdmin
       .from('users')
       .select('*')
-      .eq('email', email)
+      .eq('email', email.toLowerCase().trim())
       .single()
 
     if (error || !user) {
       return NextResponse.json(
         { error: 'Invalid credentials' },
-        { status: 400 }
+        { status: 401 }
       )
     }
 
@@ -36,25 +45,26 @@ export async function POST(request: NextRequest) {
     if (!validPassword) {
       return NextResponse.json(
         { error: 'Invalid credentials' },
-        { status: 400 }
+        { status: 401 }
       )
     }
 
-    // Get onboarding status from profiles table
+    // Get profile data including onboarding status
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
-      .select('onboarding_completed, student_id')
+      .select('onboarding_completed, student_id, full_name, avatar_url')
       .eq('id', user.id)
       .single()
 
-    // Generate JWT
+    // Generate JWT with more user info
     const token = jwt.sign(
       { 
         id: user.id, 
-        email: user.email
+        email: user.email,
+        username: user.username
       },
       JWT_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: '7d' } // Longer expiry for better UX
     )
 
     // Return user without password
@@ -64,12 +74,16 @@ export async function POST(request: NextRequest) {
       message: 'Login successful', 
       token, 
       user: userWithoutPassword,
-      onboarding_completed: profile?.onboarding_completed || false, // ← ADD THIS
-      student_id: profile?.student_id || null // ← ADD THIS
+      profile: {
+        onboarding_completed: profile?.onboarding_completed || false,
+        student_id: profile?.student_id || null,
+        full_name: profile?.full_name || null,
+        avatar_url: profile?.avatar_url || null
+      }
     })
 
   } catch (err) {
-    console.error(err)
+    console.error('Login error:', err)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

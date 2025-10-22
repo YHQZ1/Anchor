@@ -1,21 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseClient'
-import jwt from 'jsonwebtoken'
-
-const JWT_SECRET = process.env.JWT_SECRET!
-
-// Helper to verify JWT token (same as profile API)
-const verifyToken = (request: NextRequest) => {
-  try {
-    const token = request.headers.get('authorization')?.replace('Bearer ', '')
-    if (!token) return null
-    const decoded = jwt.verify(token, JWT_SECRET) as any
-    return decoded
-  } catch (error) {
-    return null
-  }
-}
+import { verifyToken, requireAuth } from '@/lib/auth'
 
 // GET - Fetch all courses for user
 export async function GET(request: NextRequest) {
@@ -59,13 +45,21 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Validate credits range
+    if (credits && (credits < 1 || credits > 10)) {
+      return NextResponse.json(
+        { error: 'Credits must be between 1 and 10' },
+        { status: 400 }
+      )
+    }
+
     const { data: course, error } = await supabaseAdmin
       .from('courses')
       .insert({
         user_id: user.id,
-        course_code,
-        course_name,
-        instructor: instructor || '',
+        course_code: course_code.trim().toUpperCase(),
+        course_name: course_name.trim(),
+        instructor: instructor?.trim() || null,
         credits: credits || 3,
         color: color || 'purple'
       })
@@ -81,6 +75,61 @@ export async function POST(request: NextRequest) {
       course
     })
   } catch (error) {
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
+// PATCH - Update course
+export async function PATCH(request: NextRequest) {
+  try {
+    const user = requireAuth(request)
+    
+    const { id, course_code, course_name, instructor, credits, color } = await request.json()
+
+    if (!id) {
+      return NextResponse.json({ error: 'Course ID is required' }, { status: 400 })
+    }
+
+    // Validate credits range
+    if (credits && (credits < 1 || credits > 10)) {
+      return NextResponse.json(
+        { error: 'Credits must be between 1 and 10' },
+        { status: 400 }
+      )
+    }
+
+    const updates: any = {}
+    if (course_code) updates.course_code = course_code.trim().toUpperCase()
+    if (course_name) updates.course_name = course_name.trim()
+    if (instructor !== undefined) updates.instructor = instructor?.trim() || null
+    if (credits) updates.credits = credits
+    if (color) updates.color = color
+    updates.updated_at = new Date().toISOString()
+
+    const { data: course, error } = await supabaseAdmin
+      .from('courses')
+      .update(updates)
+      .eq('id', id)
+      .eq('user_id', user.id) // Ensure user owns the course
+      .select()
+      .single()
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 400 })
+    }
+
+    if (!course) {
+      return NextResponse.json({ error: 'Course not found' }, { status: 404 })
+    }
+
+    return NextResponse.json({
+      message: 'Course updated successfully',
+      course
+    })
+  } catch (error: any) {
+    if (error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

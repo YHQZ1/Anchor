@@ -1,21 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseClient'
-import jwt from 'jsonwebtoken'
-
-const JWT_SECRET = process.env.JWT_SECRET!
-
-// Helper to verify JWT token
-const verifyToken = (request: NextRequest) => {
-  try {
-    const token = request.headers.get('authorization')?.replace('Bearer ', '')
-    if (!token) return null
-    const decoded = jwt.verify(token, JWT_SECRET) as any
-    return decoded
-  } catch (error) {
-    return null
-  }
-}
+import { verifyToken, requireAuth } from '@/lib/auth'
 
 // GET - Fetch attendance records and summary for user
 export async function GET(request: NextRequest) {
@@ -97,6 +83,7 @@ async function getAttendanceSummary(userId: string) {
         present: 0,
         absent: 0,
         late: 0,
+        excused: 0,
         attendance_percentage: 0
       };
     }
@@ -104,10 +91,13 @@ async function getAttendanceSummary(userId: string) {
     acc[courseCode].total_classes++;
     acc[courseCode][record.status]++;
     
-    // Calculate percentage (present + late count as attended)
+    // Calculate percentage (present + late count as attended, excused doesn't affect percentage)
     const attended = acc[courseCode].present + acc[courseCode].late;
-    acc[courseCode].attendance_percentage = 
-      Math.round((attended / acc[courseCode].total_classes) * 100);
+    const totalCounted = acc[courseCode].total_classes - acc[courseCode].excused;
+    
+    acc[courseCode].attendance_percentage = totalCounted > 0 
+      ? Math.round((attended / totalCounted) * 100)
+      : 100;
     
     return acc;
   }, {});
@@ -135,11 +125,35 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!['present', 'absent', 'late'].includes(status)) {
+    // Validate status against database constraint
+    const validStatuses = ['present', 'absent', 'late', 'excused'];
+    if (!validStatuses.includes(status)) {
       return NextResponse.json(
-        { error: 'Status must be present, absent, or late' },
+        { error: `Status must be one of: ${validStatuses.join(', ')}` },
         { status: 400 }
       )
+    }
+
+    // Validate date format
+    const classDate = new Date(class_date);
+    if (isNaN(classDate.getTime())) {
+      return NextResponse.json(
+        { error: 'Invalid date format' },
+        { status: 400 }
+      )
+    }
+
+    // Check if attendance for this course and date already exists
+    const { data: existingAttendance, error: checkError } = await supabaseAdmin
+      .from('attendance')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('course_id', course_id)
+      .eq('class_date', class_date)
+      .single()
+
+    if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = no rows returned
+      return NextResponse.json({ error: checkError.message }, { status: 400 })
     }
 
     const { data: attendance, error } = await supabaseAdmin
@@ -149,7 +163,8 @@ export async function POST(request: NextRequest) {
         course_id,
         class_date,
         status,
-        marked_at: new Date().toISOString()
+        marked_at: new Date().toISOString(),
+        ...(existingAttendance && { id: existingAttendance.id }) // Use existing ID if updating
       })
       .select(`
         *,
@@ -162,10 +177,67 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({
-      message: 'Attendance marked successfully',
+      message: existingAttendance ? 'Attendance updated successfully' : 'Attendance marked successfully',
       attendance
     })
   } catch (error) {
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
+// PATCH - Update attendance record
+export async function PATCH(request: NextRequest) {
+  try {
+    const user = requireAuth(request)
+    
+    const { id, status } = await request.json()
+
+    if (!id || !status) {
+      return NextResponse.json(
+        { error: 'Attendance ID and status are required' },
+        { status: 400 }
+      )
+    }
+
+    // Validate status
+    const validStatuses = ['present', 'absent', 'late', 'excused'];
+    if (!validStatuses.includes(status)) {
+      return NextResponse.json(
+        { error: `Status must be one of: ${validStatuses.join(', ')}` },
+        { status: 400 }
+      )
+    }
+
+    const { data: attendance, error } = await supabaseAdmin
+      .from('attendance')
+      .update({
+        status,
+        marked_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .eq('user_id', user.id) // Ensure user owns the attendance record
+      .select(`
+        *,
+        courses (course_code, course_name, color)
+      `)
+      .single()
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 400 })
+    }
+
+    if (!attendance) {
+      return NextResponse.json({ error: 'Attendance record not found' }, { status: 404 })
+    }
+
+    return NextResponse.json({
+      message: 'Attendance updated successfully',
+      attendance
+    })
+  } catch (error: any) {
+    if (error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

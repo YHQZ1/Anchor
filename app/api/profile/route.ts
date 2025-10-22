@@ -1,22 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseClient'
-import jwt from 'jsonwebtoken'
-
-const JWT_SECRET = process.env.JWT_SECRET!
-
-// Helper to verify JWT token
-const verifyToken = (request: NextRequest) => {
-  try {
-    const token = request.headers.get('authorization')?.replace('Bearer ', '')
-    if (!token) return null
-    
-    const decoded = jwt.verify(token, JWT_SECRET) as any
-    return decoded
-  } catch (error) {
-    return null
-  }
-}
+import { verifyToken, requireAuth } from '@/lib/auth'
 
 // GET - Fetch user profile
 export async function GET(request: NextRequest) {
@@ -72,6 +57,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Validate current_semester range if provided
+    if (current_semester && (current_semester < 1 || current_semester > 12)) {
+      return NextResponse.json(
+        { error: 'Current semester must be between 1 and 12' },
+        { status: 400 }
+      )
+    }
+
     // Upsert profile (creates or updates)
     const { data: profile, error } = await supabaseAdmin
       .from('profiles')
@@ -84,6 +77,7 @@ export async function POST(request: NextRequest) {
         current_semester: current_semester || 1,
         expected_graduation,
         updated_at: new Date().toISOString(),
+        onboarding_completed: true, // Mark as completed since they're saving
       })
       .select()
       .single()
@@ -102,6 +96,43 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     return NextResponse.json(
       { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+
+// PATCH - Partial update (for specific fields)
+export async function PATCH(request: NextRequest) {
+  try {
+    const user = requireAuth(request) // No await needed now
+    
+    const updates = await request.json()
+    
+    // Remove id if present to prevent changing user ID
+    delete updates.id
+    
+    const { data: profile, error } = await supabaseAdmin
+      .from('profiles')
+      .update({
+        ...updates,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', user.id) // Now user.id should work
+      .select()
+      .single()
+
+    if (error) throw error
+
+    return NextResponse.json({
+      message: 'Profile updated successfully',
+      profile
+    })
+  } catch (error: any) {
+    if (error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    return NextResponse.json(
+      { error: error.message || 'Internal server error' },
       { status: 500 }
     )
   }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -45,7 +46,7 @@ interface Course {
 }
 
 interface ClassSchedule {
-  day: string;
+  day: number;
   startTime: string;
   endTime: string;
   course: string;
@@ -76,7 +77,7 @@ export default function OnboardingWizard() {
 
   const [classSchedule, setClassSchedule] = useState<ClassSchedule[]>([
     {
-      day: "monday",
+      day: 1,
       startTime: "09:00",
       endTime: "10:00",
       course: "",
@@ -130,10 +131,23 @@ export default function OnboardingWizard() {
   const handleClassChange = (
     index: number,
     field: keyof ClassSchedule,
-    value: string
+    value: string | number
   ) => {
     const updatedSchedule = [...classSchedule];
-    updatedSchedule[index] = { ...updatedSchedule[index], [field]: value };
+
+    // Convert day field from string to number when it comes from Select
+    if (field === "day" && typeof value === "string") {
+      updatedSchedule[index] = {
+        ...updatedSchedule[index],
+        [field]: parseInt(value),
+      };
+    } else {
+      updatedSchedule[index] = {
+        ...updatedSchedule[index],
+        [field]: value,
+      };
+    }
+
     setClassSchedule(updatedSchedule);
   };
 
@@ -142,7 +156,7 @@ export default function OnboardingWizard() {
     setClassSchedule((prev) => [
       ...prev,
       {
-        day: "monday",
+        day: 1, // Monday = 1 (number instead of string "monday")
         startTime: "09:00",
         endTime: "10:00",
         course: defaultCourse,
@@ -166,6 +180,21 @@ export default function OnboardingWizard() {
         description: "You can now review and edit the imported classes below.",
       });
     }
+  };
+
+  // Add this helper function outside your component
+  const getRandomColor = () => {
+    const colors = [
+      "purple",
+      "blue",
+      "green",
+      "yellow",
+      "red",
+      "indigo",
+      "pink",
+      "orange",
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
   };
 
   const handleSubmit = async () => {
@@ -246,9 +275,9 @@ export default function OnboardingWizard() {
       }
 
       // Show loading toast
-      const loadingToast = toast.loading("Saving your profile...");
+      const loadingToast = toast.loading("Saving your profile and courses...");
 
-      // Save profile data
+      // 1. Save profile data
       const profileResponse = await fetch("/api/profile", {
         method: "POST",
         headers: {
@@ -264,47 +293,139 @@ export default function OnboardingWizard() {
           expected_graduation: academicInfo.expectedGraduation
             .toISOString()
             .split("T")[0],
+          onboarding_completed: true, // Mark as completed
         }),
       });
 
-      if (profileResponse.ok) {
-        // Mark onboarding as completed
-        const onboardingResponse = await fetch("/api/onboarding", {
+      if (!profileResponse.ok) {
+        const errorData = await profileResponse.json();
+        toast.dismiss(loadingToast);
+        console.error("Profile save failed:", errorData);
+        toast.error("Failed to save profile", {
+          description:
+            errorData.error || "Please check your information and try again.",
+        });
+        return;
+      }
+
+      // 2. Save courses
+      const coursePromises = courses.map(async (course) => {
+        const response = await fetch("/api/courses", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            student_id: academicInfo.studentId,
+            course_code: course.code.trim().toUpperCase(),
+            course_name: course.name.trim(),
+            instructor: course.instructor.trim(),
+            credits: course.credits || 3,
+            color: getRandomColor(), // Helper function for course colors
           }),
         });
 
-        if (onboardingResponse.ok) {
-          toast.dismiss(loadingToast);
-          toast.success("Setup completed!", {
-            description: "Your academic profile has been saved successfully",
-          });
-
-          // Small delay to show the success message
-          setTimeout(() => {
-            router.push("/dashboard");
-          }, 1000);
-        } else {
-          toast.dismiss(loadingToast);
-          toast.error("Setup incomplete", {
-            description: "Failed to complete onboarding. Please try again.",
-          });
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(
+            `Failed to save course ${course.code}: ${errorData.error}`
+          );
         }
-      } else {
-        toast.dismiss(loadingToast);
-        const errorData = await profileResponse.json();
-        console.error("Profile save failed:", errorData);
-        toast.error("Failed to save profile", {
-          description:
-            errorData.error || "Please check your information and try again.",
-        });
+
+        return response.json();
+      });
+
+      const courseResults = await Promise.allSettled(coursePromises);
+
+      // Check if any course saves failed
+      const failedCourses = courseResults.filter(
+        (result) => result.status === "rejected"
+      );
+      if (failedCourses.length > 0) {
+        console.error("Some courses failed to save:", failedCourses);
+        // Continue anyway, but log the error
       }
+
+      // Get successful course saves to map course codes to IDs
+      const successfulCourses = courseResults
+        .filter(
+          (result): result is PromiseFulfilledResult<any> =>
+            result.status === "fulfilled"
+        )
+        .map((result) => result.value.course);
+
+      // Create a mapping of course code to course ID for class scheduling
+      const courseCodeToIdMap: { [key: string]: string } = {};
+      successfulCourses.forEach((course) => {
+        courseCodeToIdMap[course.course_code] = course.id;
+      });
+
+      // 3. Save classes
+      // 3. Save classes
+      const classPromises = classSchedule.map(async (classItem) => {
+        const courseId = courseCodeToIdMap[classItem.course];
+        if (!courseId) {
+          throw new Error(`Course not found for code: ${classItem.course}`);
+        }
+
+        const response = await fetch("/api/classes", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            course_id: courseId,
+            day_of_week: classItem.day, // Already a number (0-6)
+            start_time: classItem.startTime,
+            end_time: classItem.endTime,
+            room: classItem.room.trim(),
+            class_type: classItem.type,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(`Failed to save class: ${errorData.error}`);
+        }
+
+        return response.json();
+      });
+
+      const classResults = await Promise.allSettled(classPromises);
+
+      // Check if any class saves failed
+      const failedClasses = classResults.filter(
+        (result) => result.status === "rejected"
+      );
+      if (failedClasses.length > 0) {
+        console.error("Some classes failed to save:", failedClasses);
+        // Continue anyway, but log the error
+      }
+
+      toast.dismiss(loadingToast);
+
+      // Show success message based on what was saved
+      const totalCourses = courses.length;
+      const totalClasses = classSchedule.length;
+      const savedCourses = totalCourses - failedCourses.length;
+      const savedClasses = totalClasses - failedClasses.length;
+
+      let successMessage = "Setup completed! ";
+      if (savedCourses === totalCourses && savedClasses === totalClasses) {
+        successMessage += `All ${savedCourses} courses and ${savedClasses} classes saved successfully.`;
+      } else {
+        successMessage += `Profile saved. ${savedCourses}/${totalCourses} courses and ${savedClasses}/${totalClasses} classes saved.`;
+      }
+
+      toast.success("Setup completed!", {
+        description: successMessage,
+      });
+
+      // Small delay to show the success message
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 2000);
     } catch (error) {
       toast.dismiss();
       console.error("Onboarding error:", error);
@@ -473,7 +594,7 @@ export default function OnboardingWizard() {
                   theme === "dark" ? "text-gray-400" : "text-slate-600"
                 }`}
               >
-                Add the courses you're taking this semester
+                Add the courses you&apos;re taking this semester
               </p>
             </div>
 
@@ -687,21 +808,22 @@ export default function OnboardingWizard() {
                       <div className="space-y-2">
                         <Label>Day</Label>
                         <Select
-                          value={classItem.day}
-                          onValueChange={(value) =>
-                            handleClassChange(index, "day", value)
+                          value={classItem.day.toString()} // Convert number to string for Select
+                          onValueChange={
+                            (value) => handleClassChange(index, "day", value) // Pass string, function converts to number
                           }
                         >
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="monday">Monday</SelectItem>
-                            <SelectItem value="tuesday">Tuesday</SelectItem>
-                            <SelectItem value="wednesday">Wednesday</SelectItem>
-                            <SelectItem value="thursday">Thursday</SelectItem>
-                            <SelectItem value="friday">Friday</SelectItem>
-                            <SelectItem value="saturday">Saturday</SelectItem>
+                            <SelectItem value="1">Monday</SelectItem>
+                            <SelectItem value="2">Tuesday</SelectItem>
+                            <SelectItem value="3">Wednesday</SelectItem>
+                            <SelectItem value="4">Thursday</SelectItem>
+                            <SelectItem value="5">Friday</SelectItem>
+                            <SelectItem value="6">Saturday</SelectItem>
+                            <SelectItem value="0">Sunday</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -959,7 +1081,7 @@ export default function OnboardingWizard() {
                 theme === "dark" ? "text-gray-400" : "text-slate-600"
               }`}
             >
-              Let's set up your academic profile to get started
+              Let&apos;s set up your academic profile to get started
             </p>
           </div>
           <div className="flex items-center gap-2">

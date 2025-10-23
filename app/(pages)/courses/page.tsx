@@ -542,8 +542,6 @@ export default function CoursesPage() {
   );
 }
 
-// Helper Functions
-
 function calculateStats(
   courses: Course[],
   assignments: Assignment[],

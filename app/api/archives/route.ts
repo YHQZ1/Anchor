@@ -92,21 +92,49 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
+    let targetCourseId = courseId;
+    if (archiveId && !courseId) {
+      const { data: archive } = await supabaseAdmin
+        .from("archives")
+        .select("course_id")
+        .eq("id", archiveId)
+        .eq("user_id", user.id)
+        .single();
+
+      if (!archive) {
+        return NextResponse.json(
+          { error: "Archive not found" },
+          { status: 404 }
+        );
+      }
+      targetCourseId = archive.course_id;
+    }
+
     let query = supabaseAdmin.from("archives").delete().eq("user_id", user.id);
     if (archiveId) query = query.eq("id", archiveId);
-    else if (courseId) query = query.eq("course_id", courseId);
+    else if (targetCourseId) query = query.eq("course_id", targetCourseId);
 
     const { error } = await query;
-
-    if (error)
+    if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });
+    }
 
-    if (courseId) {
-      await supabaseAdmin
+    if (targetCourseId) {
+      const { error: courseError } = await supabaseAdmin
         .from("courses")
-        .update({ archived: false, updated_at: new Date().toISOString() })
-        .eq("id", courseId)
+        .update({
+          archived: false,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", targetCourseId)
         .eq("user_id", user.id);
+
+      if (courseError) {
+        return NextResponse.json(
+          { error: courseError.message },
+          { status: 400 }
+        );
+      }
     }
 
     return NextResponse.json({ message: "Course unarchived successfully" });

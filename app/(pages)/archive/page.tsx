@@ -2,14 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  Archive,
-  RotateCcw,
-  Search,
-  BookOpen,
-  MoreVertical,
-  Eye,
-} from "lucide-react";
+import { Archive, RotateCcw, Search, MoreVertical, Eye, X, CheckCircle } from "lucide-react";
 import { SidebarTrigger } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useRouter } from "next/navigation";
 
 interface ArchiveItem {
   id: string;
@@ -54,6 +48,8 @@ export default function ArchivesPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [unarchiveConfirm, setUnarchiveConfirm] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     fetchArchives();
@@ -94,10 +90,24 @@ export default function ArchivesPage() {
 
       setArchives((prev) => prev.filter((archive) => archive.id !== archiveId));
       setUnarchiveConfirm(null);
+      setSuccessMessage("Course restored successfully!");
+
+      setTimeout(() => {
+        router.refresh();
+      }, 1000);
     } catch (err) {
       setError("Failed to unarchive course");
     }
   };
+
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
 
   const filteredArchives = archives.filter(
     (archive) =>
@@ -121,6 +131,33 @@ export default function ArchivesPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      {successMessage && (
+        <div className="fixed bottom-4 right-4 z-50 max-w-sm transform transition-all duration-300 ease-out animate-in slide-in-from-right-full">
+          <Card className="border-green-200 dark:border-green-800">
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-green-900 dark:text-green-400">
+                    Success
+                  </p>
+                  <p className="text-sm text-green-900 dark:text-green-400">
+                    {successMessage}
+                  </p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSuccessMessage(null)}
+                  className="h-6 w-6 p-0 cursor-pointer flex-shrink-0 text-green-600 hover:text-green-800"
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
       <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex h-16 items-center gap-4 px-6">
           <SidebarTrigger />
@@ -160,14 +197,14 @@ export default function ArchivesPage() {
 
       <UnarchiveDialog
         open={!!unarchiveConfirm}
-        onOpenChange={(open) => setUnarchiveConfirm(open ? unarchiveConfirm : null)}
+        onOpenChange={(open) =>
+          setUnarchiveConfirm(open ? unarchiveConfirm : null)
+        }
         onConfirm={() => unarchiveConfirm && handleUnarchive(unarchiveConfirm)}
       />
     </div>
   );
 }
-
-// Extracted Components
 
 function ArchiveCard({
   archive,

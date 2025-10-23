@@ -1,5 +1,5 @@
-import NextAuth from 'next-auth';
-import GoogleProvider from 'next-auth/providers/google';
+import NextAuth from 'next-auth'
+import GoogleProvider from 'next-auth/providers/google'
 
 const handler = NextAuth({
   providers: [
@@ -10,56 +10,48 @@ const handler = NextAuth({
   ],
   callbacks: {
     async jwt({ token, user, account }) {
-      // Initial sign in
       if (account && user) {
         try {
-          // Call your existing backend to create/login user
           const response = await fetch(`${process.env.NEXTAUTH_URL}/api/auth/google`, {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              googleAccessToken: account.access_token,
               email: user.email,
               name: user.name,
             }),
-          });
+          })
 
-          const data = await response.json();
+          const data = await response.json()
           
           if (response.ok) {
-            token.accessToken = account.access_token;
-            token.yourJWT = data.token; // Your existing JWT
-            token.user = data.user;
-            
-            // Store JWT in localStorage on the client side
-            // We'll handle this in the session callback
+            token.accessToken = account.access_token
+            token.yourJWT = data.token
+            token.user = data.user
+            token.profile = data.profile
           }
-        } catch (error) {
-          console.error('Google auth backend call failed:', error);
+        } catch {
+          console.error('Google auth backend call failed')
         }
       }
-      return token;
+      return token
     },
     async session({ session, token }) {
-      // Send custom JWT to client
-      session.yourJWT = token.yourJWT as string;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      session.user = token.user as any;
-      session.accessToken = token.accessToken as string;
+      session.yourJWT = token.yourJWT as string
+      session.accessToken = token.accessToken as string
+      session.profile = token.profile
       
-      // Remove this part - we'll handle localStorage in the layout
-      // if (typeof window !== 'undefined' && token.yourJWT) {
-      //   localStorage.setItem('jwtToken', token.yourJWT);
-      // }
+      if (token.user) {
+        session.user.id = token.user.id
+        session.user.email = token.user.email
+        session.user.name = token.user.username || token.user.email
+      }
       
-      return session;
+      return session
     },
   },
   pages: {
     signIn: '/auth',
   },
-});
+})
 
-export { handler as GET, handler as POST };
+export { handler as GET, handler as POST }

@@ -1,19 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseClient'
-import { verifyToken, requireAuth } from '@/lib/auth'
+import { withAuth } from '@/lib/apiHandler'
 
-// GET - Fetch user profile
 export async function GET(request: NextRequest) {
-  try {
-    const user = verifyToken(request)
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
-
+  return withAuth(async (request, user) => {
     const { data: profile, error } = await supabaseAdmin
       .from('profiles')
       .select('*')
@@ -21,51 +11,51 @@ export async function GET(request: NextRequest) {
       .single()
 
     if (error) {
-      return NextResponse.json(
-        { error: 'Profile not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
     }
 
-    return NextResponse.json({ profile })
-  } catch (error) {
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
-  }
+    const { data: userData } = await supabaseAdmin
+      .from('users')
+      .select('email, username')
+      .eq('id', user.id)
+      .single()
+
+    return NextResponse.json({
+      profile: {
+        ...profile,
+        email: userData?.email,
+        username: userData?.username
+      }
+    })
+  }, request)
 }
 
-// POST - Create or update profile
 export async function POST(request: NextRequest) {
-  try {
-    const user = verifyToken(request)
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
+  return withAuth(async (request, user) => {
+    const { 
+      full_name, 
+      student_id, 
+      college_name, 
+      department, 
+      current_semester, 
+      expected_graduation,
+      min_attendance_percentage,
+      enable_attendance_warnings,
+      onboarding_completed 
+    } = await request.json()
 
-    const { full_name, student_id, college_name, department, current_semester, expected_graduation } = await request.json()
-
-    // Basic validation
     if (!college_name || !department) {
-      return NextResponse.json(
-        { error: 'College name and department are required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'College name and department are required' }, { status: 400 })
     }
 
-    // Validate current_semester range if provided
     if (current_semester && (current_semester < 1 || current_semester > 12)) {
-      return NextResponse.json(
-        { error: 'Current semester must be between 1 and 12' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Current semester must be between 1 and 12' }, { status: 400 })
     }
 
-    // Upsert profile (creates or updates)
+    if (min_attendance_percentage && (min_attendance_percentage < 50 || min_attendance_percentage > 100)) {
+      return NextResponse.json({ error: 'Minimum attendance percentage must be between 50 and 100' }, { status: 400 })
+    }
+
     const { data: profile, error } = await supabaseAdmin
       .from('profiles')
       .upsert({
@@ -76,64 +66,42 @@ export async function POST(request: NextRequest) {
         department,
         current_semester: current_semester || 1,
         expected_graduation,
+        min_attendance_percentage: min_attendance_percentage || 75,
+        enable_attendance_warnings: enable_attendance_warnings !== false,
         updated_at: new Date().toISOString(),
-        onboarding_completed: true, // Mark as completed since they're saving
+        onboarding_completed: onboarding_completed !== false,
       })
       .select()
       .single()
 
-    if (error) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 400 }
-      )
-    }
+    if (error) return NextResponse.json({ error: error.message }, { status: 400 })
 
-    return NextResponse.json({
-      message: 'Profile saved successfully',
-      profile
-    })
-  } catch (error) {
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
-  }
+    return NextResponse.json({ message: 'Profile saved successfully', profile })
+  }, request)
 }
 
-// PATCH - Partial update (for specific fields)
 export async function PATCH(request: NextRequest) {
-  try {
-    const user = requireAuth(request) // No await needed now
-    
+  return withAuth(async (request, user) => {
     const updates = await request.json()
-    
-    // Remove id if present to prevent changing user ID
     delete updates.id
-    
+
+    if (updates.min_attendance_percentage && 
+        (updates.min_attendance_percentage < 50 || updates.min_attendance_percentage > 100)) {
+      return NextResponse.json({ error: 'Minimum attendance percentage must be between 50 and 100' }, { status: 400 })
+    }
+
     const { data: profile, error } = await supabaseAdmin
       .from('profiles')
       .update({
         ...updates,
         updated_at: new Date().toISOString(),
       })
-      .eq('id', user.id) // Now user.id should work
+      .eq('id', user.id)
       .select()
       .single()
 
-    if (error) throw error
+    if (error) return NextResponse.json({ error: error.message }, { status: 400 })
 
-    return NextResponse.json({
-      message: 'Profile updated successfully',
-      profile
-    })
-  } catch (error: any) {
-    if (error.message === 'Unauthorized') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    )
-  }
+    return NextResponse.json({ message: 'Profile updated successfully', profile })
+  }, request)
 }

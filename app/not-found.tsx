@@ -21,15 +21,12 @@ interface Shape {
 
 export default function NotFound() {
   const { theme } = useTheme();
-  const [mounted, setMounted] = useState(false);
   const [shapes, setShapes] = useState<Shape[]>([]);
 
   const numberOfShapes = 30;
   const shapeColor = theme === "dark" ? "bg-white/20" : "bg-black/20";
 
   useEffect(() => {
-    setMounted(true);
-
     const newShapes: Shape[] = Array.from({ length: numberOfShapes }).map(
       () => ({
         x: Math.random() * window.innerWidth,
@@ -48,14 +45,6 @@ export default function NotFound() {
 
     setShapes(newShapes);
   }, []);
-
-  if (!mounted) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="text-white">Loading...</div>
-      </div>
-    );
-  }
 
   const renderShape = (shape: Shape, idx: number) => {
     const baseStyle: React.CSSProperties = {
@@ -189,15 +178,11 @@ export default function NotFound() {
         theme === "dark" ? "bg-black text-white" : "bg-white text-slate-900"
       }`}
     >
-      {/* Animated Shapes Background */}
       {shapes.map((shape, idx) => renderShape(shape, idx))}
 
-      {/* Content */}
       <div className="relative z-10 max-w-md w-full text-center space-y-8">
-        {/* 404 */}
         <h1 className="text-8xl md:text-9xl font-bold">404</h1>
 
-        {/* Message */}
         <p
           className={`text-lg ${
             theme === "dark" ? "text-gray-400" : "text-slate-600"
@@ -206,7 +191,6 @@ export default function NotFound() {
           Page not found
         </p>
 
-        {/* Back Button */}
         <button
           onClick={() => window.history.back()}
           className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg border font-medium transition-colors ${

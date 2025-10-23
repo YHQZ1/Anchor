@@ -15,6 +15,7 @@ import {
   LogOut,
   Bell,
   Shield,
+  Archive,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { usePathname, useRouter } from "next/navigation";
@@ -39,7 +40,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Image from "next/image";
 
-// Sidebar Context
 interface SidebarContextType {
   open: boolean;
   setOpen: (open: boolean) => void;
@@ -57,7 +57,6 @@ export function useSidebar() {
   return context;
 }
 
-// Sidebar Provider
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = React.useState(true);
   const toggleSidebar = React.useCallback(() => setOpen((prev) => !prev), []);
@@ -68,7 +67,6 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// Sidebar Trigger
 export function SidebarTrigger() {
   const { toggleSidebar } = useSidebar();
   return (
@@ -95,37 +93,174 @@ export function SidebarTrigger() {
   );
 }
 
-// Sidebar Component
-export function AppSidebar() {
-  const { open } = useSidebar();
-  const { theme, setTheme } = useTheme();
-  const pathname = usePathname();
-  const router = useRouter();
+const MENU_ITEMS = [
+  { title: "Dashboard", url: "/dashboard", icon: Home },
+  { title: "Assignments", url: "/assignments", icon: CheckSquare },
+  { title: "Attendance", url: "/attendance", icon: Calendar },
+  { title: "Courses", url: "/courses", icon: BookOpen },
+  { title: "Archives", url: "/archive", icon: Archive },
+  { title: "Settings", url: "/settings", icon: Settings },
+];
+
+interface UserData {
+  name: string;
+  email: string;
+}
+
+function SSRSafeDropdownMenu({ children, open }: { children: React.ReactNode; open: boolean }) {
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return (
+      <div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium cursor-pointer text-sidebar-foreground">
+        <User2 className="h-5 w-5 shrink-0" />
+        {open && (
+          <div className="flex-1 truncate">
+            <div className="font-medium">Student</div>
+            <div className="text-xs text-sidebar-foreground/60">
+              student@example.com
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <DropdownMenu>
+      {children}
+    </DropdownMenu>
+  );
+}
+
+function SSRSafeAlertDialog({ children, open }: { children: React.ReactNode; open: boolean }) {
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return (
+      <button className="flex cursor-pointer w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground">
+        <LogOut className="h-5 w-5 shrink-0" />
+        {open && <span>Logout</span>}
+      </button>
+    );
+  }
+
+  return (
+    <AlertDialog>
+      {children}
+    </AlertDialog>
+  );
+}
+
+function ThemeAwareLogo() {
+  const { theme, systemTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
 
-  React.useEffect(() => setMounted(true), []);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  // Clean URLs here
-  const menuItems = [
-    { title: "Dashboard", url: "/dashboard", icon: Home },
-    { title: "Assignments", url: "/assignments", icon: CheckSquare },
-    { title: "Attendance", url: "/attendance", icon: Calendar },
-    { title: "Courses", url: "/courses", icon: BookOpen },
-    // { title: "Analytics", url: "/analytics", icon: BarChart3 },
-    { title: "Settings", url: "/settings", icon: Settings },
-  ];
+  const currentTheme = theme === "system" ? systemTheme : theme;
+  const logoSrc = !mounted 
+    ? "/logo-light.png"
+    : currentTheme === "dark" 
+      ? "/logo-dark.png" 
+      : "/logo-light.png";
 
-  const isActive = (url: string) => pathname.startsWith(url);
+  return (
+    <div className="relative w-10 h-10 flex-shrink-0">
+      <Image
+        src={logoSrc}
+        alt="Logo"
+        fill
+        className="object-contain"
+        priority
+      />
+    </div>
+  );
+}
+
+function ThemeToggleButton({ open }: { open: boolean }) {
+  const { theme, setTheme, systemTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   if (!mounted) {
     return (
-      <aside className="fixed left-0 top-0 z-40 h-screen w-16 bg-sidebar border-sidebar-border border-r">
-        <div className="flex h-16 items-center border-b border-sidebar-border px-4 justify-center">
-          <div className="w-10 h-10 bg-muted rounded-lg animate-pulse"></div>
-        </div>
-      </aside>
+      <button className="flex w-full items-center gap-3 cursor-pointer rounded-lg px-3 py-2.5 text-sm font-medium mb-2 text-sidebar-foreground hover:bg-sidebar-accent">
+        <div className="h-5 w-5 shrink-0" />
+        {open && <span>Toggle Theme</span>}
+      </button>
     );
   }
+
+  const currentTheme = theme === "system" ? systemTheme : theme;
+  const isDark = currentTheme === "dark";
+
+  return (
+    <button
+      onClick={() => setTheme(isDark ? "light" : "dark")}
+      className="flex w-full items-center gap-3 cursor-pointer rounded-lg px-3 py-2.5 text-sm font-medium mb-2 text-sidebar-foreground hover:bg-sidebar-accent"
+    >
+      {isDark ? (
+        <Sun className="h-5 w-5 shrink-0" />
+      ) : (
+        <Moon className="h-5 w-5 shrink-0" />
+      )}
+      {open && <span>Toggle Theme</span>}
+    </button>
+  );
+}
+
+export function AppSidebar() {
+  const { open } = useSidebar();
+  const pathname = usePathname();
+  const router = useRouter();
+  const [userData, setUserData] = React.useState<UserData>({
+    name: "Student",
+    email: "student@example.com",
+  });
+
+  React.useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem("jwtToken");
+        if (!token) return;
+
+        const response = await fetch("/api/profile", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUserData({
+            name: data.profile?.full_name || data.profile?.username || "Student",
+            email: data.profile?.email || "student@example.com",
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const isActive = (url: string) => pathname.startsWith(url);
 
   return (
     <aside
@@ -133,33 +268,22 @@ export function AppSidebar() {
         open ? "w-64" : "w-16"
       }`}
     >
-      {/* Header */}
       <div className="flex h-16 items-center border-b border-sidebar-border px-4">
         <div
           className={`flex items-center ${
             open ? "justify-start gap-2 w-full" : "justify-center"
           }`}
         >
-          <div className="relative w-10 h-10 flex-shrink-0">
-            <Image
-              src={theme === "dark" ? "/logo-dark.png" : "/logo-light.png"}
-              alt="Logo"
-              fill
-              className="object-contain"
-              priority
-            />
-          </div>
-
+          <ThemeAwareLogo />
           {open && (
             <span className="text-3xl font-semibold tracking-wide">Anchor</span>
           )}
         </div>
       </div>
 
-      {/* Navigation */}
       <div className="flex flex-col h-[calc(100vh-8rem)] overflow-y-auto px-3 py-4">
         <nav className="space-y-1">
-          {menuItems.map((item) => (
+          {MENU_ITEMS.map((item) => (
             <Link
               key={item.title}
               href={item.url}
@@ -176,41 +300,33 @@ export function AppSidebar() {
         </nav>
       </div>
 
-      {/* Footer */}
       <div className="absolute bottom-0 left-0 right-0 border-t border-sidebar-border p-3">
-        {/* User Menu */}
-        <DropdownMenu>
+        <SSRSafeDropdownMenu open={open}>
           <DropdownMenuTrigger asChild>
-            <div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium cursor-pointer text-sidebar-foreground hover:bg-sidebar-accent">
+            <div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium cursor-pointer text-sidebar-foreground hover:bg-sidebar-accent transition-none">
               <User2 className="h-5 w-5 shrink-0" />
               {open && (
-                <>
-                  <div className="flex-1 truncate">
-                    <div className="font-medium">Student</div>
-                    <div className="text-xs text-sidebar-foreground/60">
-                      student@example.com
-                    </div>
+                <div className="flex-1 truncate">
+                  <div className="font-medium">{userData.name}</div>
+                  <div className="text-xs text-sidebar-foreground/60">
+                    {userData.email}
                   </div>
-                </>
+                </div>
               )}
             </div>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="end">
+          <DropdownMenuContent className="w-56 transition-none" align="end">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={() => {
-                // Handle view profile
-                console.log("View Profile clicked");
-                // router.push('/profile');
-              }}
+              className="cursor-pointer transition-none"
+              onClick={() => router.push("/settings")}
             >
               <User className="h-4 w-4 mr-2" />
               View Profile
             </DropdownMenuItem>
             <DropdownMenuItem
-              className="cursor-pointer"
+              className="cursor-pointer transition-none"
               onClick={() => router.push("/settings?section=account")}
             >
               <Settings className="h-4 w-4 mr-2" />
@@ -218,37 +334,25 @@ export function AppSidebar() {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="cursor-pointer"
+              className="cursor-pointer transition-none"
               onClick={() => router.push("/settings?section=notifications")}
             >
               <Bell className="h-4 w-4 mr-2" />
               Notifications
             </DropdownMenuItem>
             <DropdownMenuItem
-              className="cursor-pointer"
+              className="cursor-pointer transition-none"
               onClick={() => router.push("/settings?section=privacy")}
             >
               <Shield className="h-4 w-4 mr-2" />
               Privacy & Security
             </DropdownMenuItem>
           </DropdownMenuContent>
-        </DropdownMenu>
+        </SSRSafeDropdownMenu>
 
-        {/* Theme Toggle */}
-        <button
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="flex w-full items-center gap-3 cursor-pointer rounded-lg px-3 py-2.5 text-sm font-medium mb-2 text-sidebar-foreground hover:bg-sidebar-accent"
-        >
-          {theme === "dark" ? (
-            <Sun className="h-5 w-5 shrink-0" />
-          ) : (
-            <Moon className="h-5 w-5 shrink-0" />
-          )}
-          {open && <span>Toggle Theme</span>}
-        </button>
+        <ThemeToggleButton open={open} />
 
-        {/* Logout Dialog */}
-        <AlertDialog>
+        <SSRSafeAlertDialog open={open}>
           <AlertDialogTrigger asChild>
             <button className="flex cursor-pointer w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent">
               <LogOut className="h-5 w-5 shrink-0" />
@@ -261,13 +365,16 @@ export function AppSidebar() {
                 Are you sure you want to log out?
               </AlertDialogTitle>
               <AlertDialogDescription>
-                You&apos;ll be signed out of your account, and your session data will
-                be cleared.
+                You&apos;ll be signed out of your account, and your session data
+                will be cleared.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel className="cursor-pointer">
+                Cancel
+              </AlertDialogCancel>
               <AlertDialogAction
+                className="cursor-pointer"
                 onClick={() => {
                   localStorage.removeItem("jwtToken");
                   router.replace("/");
@@ -277,16 +384,14 @@ export function AppSidebar() {
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
-        </AlertDialog>
+        </SSRSafeAlertDialog>
       </div>
     </aside>
   );
 }
 
-// Sidebar Layout Wrapper
 export function SidebarLayout({ children }: { children: React.ReactNode }) {
   const { open } = useSidebar();
-
   return (
     <div className="flex h-screen overflow-hidden">
       <AppSidebar />

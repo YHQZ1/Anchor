@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -15,46 +16,31 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { signIn } from "next-auth/react";
+import { FloatingShapes } from "@/components/FloatingShapes";
 
 type AuthMode = "signup" | "signin";
 type AlertType = "success" | "error";
 
-type ShapeType = "square" | "circle" | "triangle" | "line";
-
-interface Shape {
-  x: number;
-  y: number;
-  size: number;
-  rotate: number;
-  type: ShapeType;
-  floatX: number;
-  floatY: number;
-  rotateDeg: number;
-  duration: number;
-}
-
-interface InputProps {
-  label: string;
-  type?: string;
-  name: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  placeholder?: string;
+interface AuthData {
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
 }
 
 export default function Auth() {
-  const [mounted, setMounted] = useState(false);
   const { theme } = useTheme();
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const searchParams = useSearchParams();
   const router = useRouter();
+  
   const initialMode = searchParams.get("mode") as AuthMode;
-  const [authMode, setAuthMode] = useState<AuthMode>(
-    initialMode === "signin" ? "signin" : "signup"
-  );
+  const [authMode, setAuthMode] = useState<AuthMode>(initialMode === "signin" ? "signin" : "signup");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [alert, setAlert] = useState<{ type: AlertType; title: string; description: string } | null>(null);
 
-  const [signUpData, setSignUpData] = useState({
+  const [signUpData, setSignUpData] = useState<AuthData>({
     username: "",
     email: "",
     password: "",
@@ -66,57 +52,12 @@ export default function Auth() {
     password: "",
   });
 
-  const [alert, setAlert] = useState<{
-    type: AlertType;
-    title: string;
-    description: string;
-  } | null>(null);
-
-  const [isLoading, setIsLoading] = useState(false);
-
-  const numberOfShapes = 30;
-  const shapeColor = theme === "dark" ? "bg-white/20" : "bg-black/20";
-
-  const [shapes, setShapes] = useState<Shape[]>([]);
-
-  useEffect(() => {
-    setMounted(true);
-
-    const newShapes: Shape[] = Array.from({ length: numberOfShapes }).map(
-      () => ({
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * window.innerHeight,
-        size: Math.random() * 80 + 30,
-        rotate: Math.random() * 360,
-        type: ["square", "circle", "triangle", "line"][
-          Math.floor(Math.random() * 4)
-        ] as ShapeType,
-        floatX: (Math.random() - 0.5) * 100,
-        floatY: (Math.random() - 0.5) * 100,
-        rotateDeg: (Math.random() - 0.5) * 180,
-        duration: Math.random() * 4 + 3,
-      })
-    );
-
-    setShapes(newShapes);
-  }, []);
-
   useEffect(() => {
     if (alert) {
       const timer = setTimeout(() => setAlert(null), 4000);
       return () => clearTimeout(timer);
     }
   }, [alert]);
-
-  if (!mounted) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-full max-w-md p-6">
-          <div className="h-96 bg-muted/20 rounded-xl animate-pulse"></div>
-        </div>
-      </div>
-    );
-  }
 
   const toggleAuthMode = () => {
     setAuthMode((prev) => (prev === "signup" ? "signin" : "signup"));
@@ -161,13 +102,11 @@ export default function Auth() {
 
       if (res.ok) {
         localStorage.setItem("jwtToken", data.token);
-
         setAlert({
           type: "success",
           title: "Account created!",
           description: `Welcome, ${signUpData.username}! Your account has been successfully created.`,
         });
-
         setTimeout(() => router.push("/onboarding"), 1000);
       } else {
         setAlert({
@@ -177,7 +116,6 @@ export default function Auth() {
         });
       }
     } catch (error) {
-      console.error(error);
       setAlert({
         type: "error",
         title: "Network error",
@@ -206,19 +144,13 @@ export default function Auth() {
 
       if (res.ok) {
         localStorage.setItem("jwtToken", data.token);
-
         setAlert({
           type: "success",
           title: "Login successful!",
           description: `Welcome back!`,
         });
-
         setTimeout(() => {
-          if (data.onboarding_completed) {
-            router.push("/dashboard");
-          } else {
-            router.push("/onboarding");
-          }
+          router.push(data.onboarding_completed ? "/dashboard" : "/onboarding");
         }, 1000);
       } else {
         setAlert({
@@ -228,7 +160,6 @@ export default function Auth() {
         });
       }
     } catch (error) {
-      console.error(error);
       setAlert({
         type: "error",
         title: "Network error",
@@ -237,132 +168,6 @@ export default function Auth() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const renderShape = (shape: Shape, idx: number) => {
-    const baseStyle: React.CSSProperties = {
-      top: shape.y,
-      left: shape.x,
-      position: "absolute",
-      opacity: 0.6,
-    };
-
-    const commonClasses = `${shapeColor}`;
-
-    if (shape.type === "circle") {
-      return (
-        <motion.div
-          key={idx}
-          className={commonClasses}
-          style={{
-            ...baseStyle,
-            width: shape.size,
-            height: shape.size,
-            borderRadius: "50%",
-          }}
-          animate={{
-            x: [0, shape.floatX, 0],
-            y: [0, shape.floatY, 0],
-          }}
-          transition={{
-            duration: shape.duration,
-            repeat: Infinity,
-            repeatType: "reverse",
-            ease: "easeInOut",
-          }}
-        />
-      );
-    }
-
-    if (shape.type === "triangle") {
-      return (
-        <motion.div
-          key={idx}
-          className={commonClasses}
-          style={{
-            ...baseStyle,
-            width: 0,
-            height: 0,
-            borderLeft: `${shape.size / 2}px solid transparent`,
-            borderRight: `${shape.size / 2}px solid transparent`,
-            borderBottom: `${shape.size}px solid ${
-              theme === "dark" ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)"
-            }`,
-            transform: `rotate(${shape.rotate}deg)`,
-            backgroundColor: "transparent",
-          }}
-          animate={{
-            x: [0, shape.floatX, 0],
-            y: [0, shape.floatY, 0],
-            rotate: [
-              shape.rotate,
-              shape.rotate + shape.rotateDeg,
-              shape.rotate,
-            ],
-          }}
-          transition={{
-            duration: shape.duration,
-            repeat: Infinity,
-            repeatType: "reverse",
-            ease: "easeInOut",
-          }}
-        />
-      );
-    }
-
-    if (shape.type === "line") {
-      return (
-        <motion.div
-          key={idx}
-          className={commonClasses}
-          style={{
-            ...baseStyle,
-            width: shape.size * 1.5,
-            height: 3,
-            transform: `rotate(${shape.rotate}deg)`,
-          }}
-          animate={{
-            x: [0, shape.floatX, 0],
-            y: [0, shape.floatY, 0],
-            rotate: [
-              shape.rotate,
-              shape.rotate + shape.rotateDeg,
-              shape.rotate,
-            ],
-          }}
-          transition={{
-            duration: shape.duration,
-            repeat: Infinity,
-            repeatType: "reverse",
-            ease: "easeInOut",
-          }}
-        />
-      );
-    }
-
-    return (
-      <motion.div
-        key={idx}
-        className={commonClasses}
-        style={{
-          ...baseStyle,
-          width: shape.size,
-          height: shape.size,
-          transform: `rotate(${shape.rotate}deg)`,
-        }}
-        animate={{
-          x: [0, shape.floatX, 0],
-          y: [0, shape.floatY, 0],
-          rotate: [shape.rotate, shape.rotate + shape.rotateDeg, shape.rotate],
-        }}
-        transition={{
-          duration: shape.duration,
-          repeat: Infinity,
-          repeatType: "reverse",
-          ease: "easeInOut",
-        }}
-      />
-    );
   };
 
   return (
@@ -394,7 +199,7 @@ export default function Auth() {
         )}
       </AnimatePresence>
 
-      {shapes.map((shape, idx) => renderShape(shape, idx))}
+      <FloatingShapes theme={theme} numberOfShapes={30} />
 
       <Card className="relative w-full max-w-md z-10 bg-card text-card-foreground">
         <CardHeader>
@@ -409,11 +214,7 @@ export default function Auth() {
         </CardHeader>
 
         <CardContent>
-          <form
-            onSubmit={
-              authMode === "signup" ? handleSignUpSubmit : handleSignInSubmit
-            }
-          >
+          <form onSubmit={authMode === "signup" ? handleSignUpSubmit : handleSignInSubmit}>
             <div className="space-y-4">
               {authMode === "signup" && (
                 <FormInput
@@ -429,30 +230,16 @@ export default function Auth() {
                 label="Email"
                 type="email"
                 name="email"
-                value={
-                  authMode === "signup" ? signUpData.email : signInData.email
-                }
-                onChange={
-                  authMode === "signup"
-                    ? handleSignUpChange
-                    : handleSignInChange
-                }
+                value={authMode === "signup" ? signUpData.email : signInData.email}
+                onChange={authMode === "signup" ? handleSignUpChange : handleSignInChange}
                 placeholder="Email"
               />
 
               <PasswordInput
                 label="Password"
                 name="password"
-                value={
-                  authMode === "signup"
-                    ? signUpData.password
-                    : signInData.password
-                }
-                onChange={
-                  authMode === "signup"
-                    ? handleSignUpChange
-                    : handleSignInChange
-                }
+                value={authMode === "signup" ? signUpData.password : signInData.password}
+                onChange={authMode === "signup" ? handleSignUpChange : handleSignInChange}
                 showPassword={showPassword}
                 setShowPassword={setShowPassword}
                 placeholder="Password"
@@ -478,9 +265,7 @@ export default function Auth() {
                 {isLoading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-                    {authMode === "signup"
-                      ? "Creating Account..."
-                      : "Signing In..."}
+                    {authMode === "signup" ? "Creating Account..." : "Signing In..."}
                   </>
                 ) : authMode === "signup" ? (
                   "Create Account"
@@ -493,9 +278,7 @@ export default function Auth() {
 
           <div className="relative flex items-center justify-center mt-6 mb-4">
             <div className="flex-1 border-t border-border"></div>
-            <span className="px-4 text-sm text-muted-foreground">
-              or continue with
-            </span>
+            <span className="px-4 text-sm text-muted-foreground">or continue with</span>
             <div className="flex-1 border-t border-border"></div>
           </div>
 
@@ -563,11 +346,16 @@ const FormInput = ({
   value,
   onChange,
   placeholder,
-}: InputProps) => (
+}: {
+  label: string;
+  type?: string;
+  name: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
+}) => (
   <div>
-    <label className="block text-sm font-medium mb-1 text-foreground">
-      {label}
-    </label>
+    <label className="block text-sm font-medium mb-1 text-foreground">{label}</label>
     <input
       type={type}
       name={name}
@@ -587,14 +375,17 @@ const PasswordInput = ({
   showPassword,
   setShowPassword,
   placeholder,
-}: InputProps & {
+}: {
+  label: string;
+  name: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   showPassword: boolean;
   setShowPassword: (val: boolean) => void;
+  placeholder?: string;
 }) => (
   <div>
-    <label className="block text-sm font-medium mb-1 text-foreground">
-      {label}
-    </label>
+    <label className="block text-sm font-medium mb-1 text-foreground">{label}</label>
     <div className="relative">
       <input
         type={showPassword ? "text" : "password"}
@@ -609,11 +400,7 @@ const PasswordInput = ({
         onClick={() => setShowPassword(!showPassword)}
         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
       >
-        {showPassword ? (
-          <EyeOff className="w-5 h-5" />
-        ) : (
-          <Eye className="w-5 h-5" />
-        )}
+        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
       </button>
     </div>
   </div>

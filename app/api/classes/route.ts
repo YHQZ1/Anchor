@@ -1,92 +1,73 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { NextRequest, NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabaseClient'
-import { verifyToken, requireAuth } from '@/lib/auth'
+import { NextRequest, NextResponse } from "next/server";
+import { supabaseAdmin } from "@/lib/supabaseClient";
+import { withAuth } from "@/lib/apiHandler";
 
-// GET - Fetch all classes for user
 export async function GET(request: NextRequest) {
-  try {
-    const user = verifyToken(request)
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
+  return withAuth(async (request, user) => {
     const { data: classes, error } = await supabaseAdmin
-      .from('classes')
-      .select(`
-        *,
-        courses (course_code, course_name, color)
-      `)
-      .eq('user_id', user.id)
-      .order('day_of_week', { ascending: true })
-      .order('start_time', { ascending: true })
+      .from("classes")
+      .select(`*, courses!inner (course_code, course_name, color, archived)`)
+      .eq("user_id", user.id)
+      .eq("courses.archived", false)
+      .order("day_of_week", { ascending: true })
+      .order("start_time", { ascending: true });
 
-    if (error) {
-      return NextResponse.json({ error: 'Failed to fetch classes' }, { status: 500 })
-    }
-
-    return NextResponse.json({ classes })
-  } catch (error) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
-  }
+    if (error)
+      return NextResponse.json(
+        { error: "Failed to fetch classes" },
+        { status: 500 }
+      );
+    return NextResponse.json({ classes });
+  }, request);
 }
 
-// POST - Add new class to timetable
 export async function POST(request: NextRequest) {
-  try {
-    const user = verifyToken(request)
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+  return withAuth(async (request, user) => {
+    const { course_id, day_of_week, start_time, end_time, room, class_type } =
+      await request.json();
 
-    const { course_id, day_of_week, start_time, end_time, room, class_type } = await request.json()
-
-    // Validation
     if (!course_id || day_of_week === undefined || !start_time || !end_time) {
       return NextResponse.json(
-        { error: 'Course, day, start time and end time are required' },
+        { error: "Course, day, start time and end time are required" },
         { status: 400 }
-      )
+      );
     }
 
-    // Validate day of week
     if (day_of_week < 0 || day_of_week > 6) {
       return NextResponse.json(
-        { error: 'Day of week must be between 0 (Sunday) and 6 (Saturday)' },
+        { error: "Day of week must be between 0 (Sunday) and 6 (Saturday)" },
         { status: 400 }
-      )
+      );
     }
 
-    // Validate time format and logic
     if (start_time >= end_time) {
       return NextResponse.json(
-        { error: 'End time must be after start time' },
+        { error: "End time must be after start time" },
         { status: 400 }
-      )
+      );
     }
 
-    // Check for schedule conflicts
-    const { data: conflictingClasses, error: conflictError } = await supabaseAdmin
-      .from('classes')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('day_of_week', day_of_week)
+    const { data: conflictingClasses } = await supabaseAdmin
+      .from("classes")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("day_of_week", day_of_week)
       .or(`start_time.lte.${end_time},end_time.gte.${start_time}`)
-      .neq('course_id', course_id) // Allow same course to have back-to-back classes
-
-    if (conflictError) {
-      return NextResponse.json({ error: 'Failed to check schedule conflicts' }, { status: 500 })
-    }
+      .neq("course_id", course_id);
 
     if (conflictingClasses && conflictingClasses.length > 0) {
       return NextResponse.json(
-        { error: 'Schedule conflict: This time slot overlaps with another class' },
+        {
+          error:
+            "Schedule conflict: This time slot overlaps with another class",
+        },
         { status: 409 }
-      )
+      );
     }
 
     const { data: classItem, error } = await supabaseAdmin
-      .from('classes')
+      .from("classes")
       .insert({
         user_id: user.id,
         course_id,
@@ -94,122 +75,101 @@ export async function POST(request: NextRequest) {
         start_time,
         end_time,
         room: room?.trim() || null,
-        class_type: class_type || 'lecture'
+        class_type: class_type || "lecture",
       })
-      .select(`
-        *,
-        courses (course_code, course_name, color)
-      `)
-      .single()
+      .select(`*, courses (course_code, course_name, color)`)
+      .single();
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
-    }
+    if (error)
+      return NextResponse.json({ error: error.message }, { status: 400 });
 
     return NextResponse.json({
-      message: 'Class added successfully',
-      class: classItem
-    })
-  } catch (error) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
-  }
+      message: "Class added successfully",
+      class: classItem,
+    });
+  }, request);
 }
 
-// PATCH - Update class
 export async function PATCH(request: NextRequest) {
-  try {
-    const user = requireAuth(request)
-    
-    const { id, course_id, day_of_week, start_time, end_time, room, class_type } = await request.json()
+  return withAuth(async (request, user) => {
+    const {
+      id,
+      course_id,
+      day_of_week,
+      start_time,
+      end_time,
+      room,
+      class_type,
+    } = await request.json();
 
-    if (!id) {
-      return NextResponse.json({ error: 'Class ID is required' }, { status: 400 })
-    }
+    if (!id)
+      return NextResponse.json(
+        { error: "Class ID is required" },
+        { status: 400 }
+      );
 
-    // Validate time logic if both times are provided
     if (start_time && end_time && start_time >= end_time) {
       return NextResponse.json(
-        { error: 'End time must be after start time' },
+        { error: "End time must be after start time" },
         { status: 400 }
-      )
+      );
     }
 
-    // Validate day of week if provided
     if (day_of_week !== undefined && (day_of_week < 0 || day_of_week > 6)) {
       return NextResponse.json(
-        { error: 'Day of week must be between 0 (Sunday) and 6 (Saturday)' },
+        { error: "Day of week must be between 0 (Sunday) and 6 (Saturday)" },
         { status: 400 }
-      )
+      );
     }
 
-    const updates: any = {
-      updated_at: new Date().toISOString()
-    }
-    if (course_id) updates.course_id = course_id
-    if (day_of_week !== undefined) updates.day_of_week = day_of_week
-    if (start_time) updates.start_time = start_time
-    if (end_time) updates.end_time = end_time
-    if (room !== undefined) updates.room = room?.trim() || null
-    if (class_type) updates.class_type = class_type
+    const updates: any = { updated_at: new Date().toISOString() };
+    if (course_id) updates.course_id = course_id;
+    if (day_of_week !== undefined) updates.day_of_week = day_of_week;
+    if (start_time) updates.start_time = start_time;
+    if (end_time) updates.end_time = end_time;
+    if (room !== undefined) updates.room = room?.trim() || null;
+    if (class_type) updates.class_type = class_type;
 
     const { data: classItem, error } = await supabaseAdmin
-      .from('classes')
+      .from("classes")
       .update(updates)
-      .eq('id', id)
-      .eq('user_id', user.id) // Ensure user owns the class
-      .select(`
-        *,
-        courses (course_code, course_name, color)
-      `)
-      .single()
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .select(`*, courses (course_code, course_name, color)`)
+      .single();
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
-    }
-
-    if (!classItem) {
-      return NextResponse.json({ error: 'Class not found' }, { status: 404 })
-    }
+    if (error)
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    if (!classItem)
+      return NextResponse.json({ error: "Class not found" }, { status: 404 });
 
     return NextResponse.json({
-      message: 'Class updated successfully',
-      class: classItem
-    })
-  } catch (error: any) {
-    if (error.message === 'Unauthorized') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
-  }
+      message: "Class updated successfully",
+      class: classItem,
+    });
+  }, request);
 }
 
-// DELETE - Remove class from timetable
 export async function DELETE(request: NextRequest) {
-  try {
-    const user = verifyToken(request)
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+  return withAuth(async (request, user) => {
+    const { searchParams } = new URL(request.url);
+    const classId = searchParams.get("id");
 
-    const { searchParams } = new URL(request.url)
-    const classId = searchParams.get('id')
-
-    if (!classId) {
-      return NextResponse.json({ error: 'Class ID is required' }, { status: 400 })
-    }
+    if (!classId)
+      return NextResponse.json(
+        { error: "Class ID is required" },
+        { status: 400 }
+      );
 
     const { error } = await supabaseAdmin
-      .from('classes')
+      .from("classes")
       .delete()
-      .eq('id', classId)
-      .eq('user_id', user.id) // Ensure user owns the class
+      .eq("id", classId)
+      .eq("user_id", user.id);
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
-    }
+    if (error)
+      return NextResponse.json({ error: error.message }, { status: 400 });
 
-    return NextResponse.json({ message: 'Class deleted successfully' })
-  } catch (error) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
-  }
+    return NextResponse.json({ message: "Class deleted successfully" });
+  }, request);
 }

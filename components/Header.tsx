@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Moon, Sun, Menu, X } from "lucide-react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
@@ -9,39 +9,19 @@ import Link from "next/link";
 export default function Header() {
   const { theme, setTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => setMounted(true), []);
 
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
-
-  if (!mounted) {
-    return (
-      <nav className="fixed w-full top-0 z-50 backdrop-blur-xl border-b bg-background/80 border-border">
-        <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-10 py-3 sm:py-0 flex items-center justify-between">
-          <div className="flex items-center space-x-4 lg:space-x-6">
-            <div className="w-12 sm:w-20 h-12 sm:h-12 bg-muted rounded-lg animate-pulse"></div>
-          </div>
-          <div className="w-9 h-9 bg-muted rounded-lg animate-pulse"></div>
-        </div>
-      </nav>
-    );
-  }
 
   return (
     <>
       <nav className="fixed w-full top-0 z-50 backdrop-blur-xl border-b bg-background/80 border-border">
         <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-10 py-3 sm:py-0 flex items-center justify-between">
-          {/* Left: Logo + Desktop Navigation */}
           <div className="flex items-center space-x-4 lg:space-x-6">
-            {/* Logo */}
             <Link
               href="/"
               className="flex items-center gap-2 sm:gap-3 cursor-pointer flex-shrink-0 my-2"
             >
-              {/* Logo */}
               <div className="relative w-12 sm:w-20 h-12 sm:h-12">
-                {/* Light logo - visible in light mode */}
                 <Image
                   src="/logo-light.png"
                   alt="Logo"
@@ -49,7 +29,6 @@ export default function Header() {
                   className="object-contain transition-opacity duration-300 dark:hidden"
                   priority
                 />
-                {/* Dark logo - visible in dark mode */}
                 <Image
                   src="/logo-dark.png"
                   alt="Logo"
@@ -58,17 +37,13 @@ export default function Header() {
                   priority
                 />
               </div>
-
-              {/* Name - Remove transition to fix delay */}
               <span className="text-2xl sm:text-3xl font-semibold tracking-wide text-foreground">
                 Anchor
               </span>
             </Link>
           </div>
 
-          {/* Right: Sign In/Sign Up + Theme Toggle + Mobile Menu */}
           <div className="flex items-center space-x-3 sm:space-x-4 lg:space-x-6">
-            {/* Desktop Auth Links */}
             <Link
               href="/auth?mode=signin"
               className="hidden md:block text-sm lg:text-base font-medium transition-colors text-muted-foreground hover:text-purple-600 dark:hover:text-purple-400"
@@ -82,7 +57,6 @@ export default function Header() {
               Sign Up
             </Link>
 
-            {/* Theme Toggle */}
             <button
               className="cursor-pointer p-2 rounded-lg transition-colors hover:bg-accent"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
@@ -95,7 +69,6 @@ export default function Header() {
               )}
             </button>
 
-            {/* Mobile Menu Button */}
             <button
               className="lg:hidden p-2 rounded-lg transition-colors hover:bg-accent"
               onClick={toggleMobileMenu}
@@ -111,7 +84,6 @@ export default function Header() {
         </div>
       </nav>
 
-      {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
@@ -119,14 +91,12 @@ export default function Header() {
         />
       )}
 
-      {/* Mobile Menu Drawer */}
       <div
         className={`fixed top-[60px] sm:top-[64px] right-0 h-[calc(100vh-60px)] sm:h-[calc(100vh-64px)] w-full sm:w-80 z-40 transform transition-transform duration-300 ease-in-out lg:hidden ${
           mobileMenuOpen ? "translate-x-0" : "translate-x-full"
         } bg-background/95 border-l border-border backdrop-blur-xl`}
       >
         <div className="flex flex-col h-full p-6 space-y-6">
-          {/* Mobile Navigation Links */}
           <div className="space-y-0">
             <button
               className="w-full text-left text-lg font-medium py-3 px-4 rounded-lg transition-colors text-foreground hover:bg-accent hover:text-purple-600 dark:hover:text-purple-400"
@@ -148,10 +118,8 @@ export default function Header() {
             </button>
           </div>
 
-          {/* Divider */}
           <div className="border-t border-border" />
 
-          {/* Mobile Auth Links */}
           <div className="space-y-3 md:hidden">
             <Link
               href="/auth?mode=signin"

@@ -1,20 +1,51 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, JSX } from "react";
 import {
   CheckSquare,
   Clock,
   Filter,
   Search,
-  Calendar,
+  Calendar as CalendarIcon,
   FileText,
-  Download,
-  ExternalLink,
+  Plus,
+  X,
+  Edit,
+  Trash2,
   CheckCircle2,
 } from "lucide-react";
 import { SidebarTrigger } from "@/components/Sidebar";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,150 +53,213 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+interface Course {
+  id: string;
+  course_code: string;
+  course_name: string;
+  color: string;
+}
+
+interface Assignment {
+  id: string;
+  title: string;
+  description: string;
+  due_date: string;
+  priority: "low" | "medium" | "high";
+  status: "pending" | "in-progress" | "completed" | "overdue";
+  progress: number;
+  course_id: string;
+  courses: Course;
+}
+
 export default function AssignmentsPage() {
-  const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterPriority, setFilterPriority] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingAssignment, setEditingAssignment] = useState<Assignment | null>(
+    null
+  );
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
-  React.useEffect(() => setMounted(true), []);
+  const [newAssignment, setNewAssignment] = useState({
+    title: "",
+    description: "",
+    course_id: "",
+    due_date: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    priority: "medium" as "low" | "medium" | "high",
+  });
 
-  if (!mounted) {
-    return (
-      <div className="min-h-screen bg-background text-foreground">
-        <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="flex h-16 items-center gap-4 px-6">
-            <div className="w-8 h-8 bg-muted rounded animate-pulse"></div>
-            <div className="flex-1">
-              <div className="h-6 w-32 bg-muted rounded animate-pulse"></div>
-            </div>
-          </div>
-        </header>
-        <main className="p-6">
-          <div className="h-96 bg-muted/20 rounded-xl animate-pulse"></div>
-        </main>
-      </div>
-    );
-  }
+  useEffect(() => {
+    fetchAssignments();
+    fetchCourses();
+  }, []);
 
-  const assignments = [
-    {
-      id: 1,
-      title: "Data Structures Lab Report",
-      course: "CS 301",
-      courseName: "Data Structures & Algorithms",
-      dueDate: "2025-10-22",
-      dueTime: "11:59 PM",
-      status: "pending",
-      priority: "high",
-      description:
-        "Complete analysis of sorting algorithms with time complexity comparisons",
-      files: ["Lab_Instructions.pdf", "Starter_Code.zip"],
-      submitted: false,
-      progress: 60,
-    },
-    {
-      id: 2,
-      title: "Algorithm Analysis Essay",
-      course: "CS 402",
-      courseName: "Advanced Algorithms",
-      dueDate: "2025-10-24",
-      dueTime: "11:59 PM",
-      status: "pending",
-      priority: "medium",
-      description: "Write a 3000-word essay on dynamic programming approaches",
-      files: ["Essay_Guidelines.pdf"],
-      submitted: false,
-      progress: 30,
-    },
-    {
-      id: 3,
-      title: "Database Design Project",
-      course: "CS 305",
-      courseName: "Database Management Systems",
-      dueDate: "2025-10-26",
-      dueTime: "11:59 PM",
-      status: "pending",
-      priority: "medium",
-      description:
-        "Design and implement a normalized database schema for an e-commerce system",
-      files: ["Project_Requirements.pdf", "Sample_Data.csv"],
-      submitted: false,
-      progress: 45,
-    },
-    {
-      id: 4,
-      title: "Web Development Assignment",
-      course: "CS 201",
-      courseName: "Web Technologies",
-      dueDate: "2025-10-28",
-      dueTime: "11:59 PM",
-      status: "not-started",
-      priority: "low",
-      description:
-        "Build a responsive landing page using React and Tailwind CSS",
-      files: ["Design_Mockup.fig", "Requirements.pdf"],
-      submitted: false,
-      progress: 0,
-    },
-    {
-      id: 5,
-      title: "Operating Systems Quiz",
-      course: "CS 303",
-      courseName: "Operating Systems",
-      dueDate: "2025-10-20",
-      dueTime: "11:59 PM",
-      status: "submitted",
-      priority: "high",
-      description:
-        "Multiple choice quiz covering process scheduling and memory management",
-      files: [],
-      submitted: true,
-      progress: 100,
-      submittedDate: "2025-10-19",
-    },
-    {
-      id: 6,
-      title: "Computer Networks Lab",
-      course: "CS 401",
-      courseName: "Computer Networks",
-      dueDate: "2025-10-25",
-      dueTime: "11:59 PM",
-      status: "pending",
-      priority: "high",
-      description: "Configure and test a network topology using packet tracer",
-      files: ["Lab_Manual.pdf", "Topology_File.pkt"],
-      submitted: false,
-      progress: 20,
-    },
-  ];
+  const fetchAssignments = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const token = localStorage.getItem("jwtToken");
+      if (!token) throw new Error("No authentication token found");
+
+      const response = await fetch("/api/assignments", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.status === 401) {
+        window.location.href = "/auth";
+        return;
+      }
+
+      if (!response.ok) throw new Error("Failed to fetch assignments");
+
+      const data = await response.json();
+      setAssignments(data.assignments || []);
+    } catch (err) {
+      setError("Failed to load assignments");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchCourses = async () => {
+    try {
+      const token = localStorage.getItem("jwtToken");
+      if (!token) return;
+
+      const response = await fetch("/api/courses", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCourses(data.courses || []);
+      }
+    } catch (err) {
+      console.error("Error fetching courses:", err);
+    }
+  };
+
+  const handleAddAssignment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem("jwtToken");
+      if (!token) throw new Error("No authentication token");
+
+      const dueDate = new Date(newAssignment.due_date);
+      if (dueDate <= new Date())
+        throw new Error("Due date must be in the future");
+
+      const response = await fetch("/api/assignments", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...newAssignment,
+          due_date: dueDate.toISOString(),
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to add assignment");
+      }
+
+      const data = await response.json();
+      setAssignments((prev) => [data.assignment, ...prev]);
+      setShowAddModal(false);
+      setNewAssignment({
+        title: "",
+        description: "",
+        course_id: "",
+        due_date: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        priority: "medium",
+      });
+    } catch (err) {
+      console.error("Error adding assignment:", err);
+    }
+  };
+
+  const handleUpdateAssignment = async (assignmentId: string, updates: any) => {
+    try {
+      const token = localStorage.getItem("jwtToken");
+      if (!token) throw new Error("No authentication token");
+
+      const response = await fetch("/api/assignments", {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: assignmentId, ...updates }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to update assignment");
+      }
+
+      const data = await response.json();
+      setAssignments((prev) =>
+        prev.map((assignment) =>
+          assignment.id === assignmentId ? data.assignment : assignment
+        )
+      );
+      setEditingAssignment(null);
+      setShowEditModal(false);
+    } catch (err) {
+      console.error("Error updating assignment:", err);
+    }
+  };
+
+  const handleDeleteAssignment = async (assignmentId: string) => {
+    try {
+      const token = localStorage.getItem("jwtToken");
+      if (!token) throw new Error("No authentication token");
+
+      const response = await fetch(`/api/assignments?id=${assignmentId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!response.ok) throw new Error("Failed to delete assignment");
+
+      setAssignments((prev) =>
+        prev.filter((assignment) => assignment.id !== assignmentId)
+      );
+      setDeleteConfirm(null);
+    } catch (err) {
+      console.error("Error deleting assignment:", err);
+    }
+  };
+
+  const handleProgressUpdate = (assignmentId: string, progress: number) => {
+      const updates: { progress: number; status?: string } = { progress };
+      if (progress === 100) updates.status = "completed";
+      else if (progress > 0) updates.status = "in-progress";
+      handleUpdateAssignment(assignmentId, updates);
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "submitted":
-        return (
-          <Badge variant="default" className="transition-none">
-            Submitted
-          </Badge>
-        );
+      case "completed":
+        return <Badge variant="default">Submitted</Badge>;
+      case "in-progress":
+        return <Badge variant="secondary">In Progress</Badge>;
       case "pending":
-        return (
-          <Badge variant="secondary" className="transition-none">
-            Pending
-          </Badge>
-        );
-      case "not-started":
-        return (
-          <Badge variant="outline" className="transition-none">
-            Not Started
-          </Badge>
-        );
+        return <Badge variant="outline">Not Started</Badge>;
+      case "overdue":
+        return <Badge variant="destructive">Overdue</Badge>;
       default:
-        return (
-          <Badge variant="outline" className="transition-none">
-            Unknown
-          </Badge>
-        );
+        return <Badge variant="outline">Unknown</Badge>;
     }
   };
 
@@ -188,8 +282,12 @@ export default function AssignmentsPage() {
       filterPriority === "all" || assignment.priority === filterPriority;
     const matchesSearch =
       assignment.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      assignment.course.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      assignment.courseName.toLowerCase().includes(searchQuery.toLowerCase());
+      assignment.courses.course_code
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      assignment.courses.course_name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
 
     return matchesStatus && matchesPriority && matchesSearch;
   });
@@ -202,30 +300,571 @@ export default function AssignmentsPage() {
     },
     {
       label: "Pending",
-      value: assignments.filter((a) => !a.submitted).length,
+      value: assignments.filter(
+        (a) => a.status === "pending" || a.status === "in-progress"
+      ).length,
       icon: Clock,
     },
     {
-      label: "Submitted",
-      value: assignments.filter((a) => a.submitted).length,
+      label: "Completed",
+      value: assignments.filter((a) => a.status === "completed").length,
       icon: CheckCircle2,
     },
     {
       label: "Due This Week",
       value: assignments.filter((a) => {
         const daysLeft = Math.ceil(
-          (new Date(a.dueDate).getTime() - new Date().getTime()) /
+          (new Date(a.due_date).getTime() - new Date().getTime()) /
             (1000 * 60 * 60 * 24)
         );
         return daysLeft >= 0 && daysLeft <= 7;
       }).length,
-      icon: Calendar,
+      icon: CalendarIcon,
     },
   ];
 
+  if (loading) return <AssignmentsSkeleton />;
+  if (error) return <ErrorState error={error} onRetry={fetchAssignments} />;
+
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Header */}
+      <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex h-16 items-center gap-4 px-6">
+          <SidebarTrigger />
+          <div className="flex-1">
+            <h1 className="text-xl font-semibold">Assignments</h1>
+          </div>
+          <Button
+            onClick={() => setShowAddModal(true)}
+            variant={"outline"}
+            className="flex items-center gap-2 cursor-pointer transition-none"
+          >
+            <Plus className="h-4 w-4" />
+            Add Assignment
+          </Button>
+        </div>
+      </header>
+
+      <main className="p-6 space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {stats.map((stat, index) => (
+            <Card key={index}>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-500/10">
+                    <stat.icon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      {stat.label}
+                    </p>
+                    <p className="text-2xl font-bold">{stat.value}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search assignments..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full h-10 pl-10 pr-4 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="flex cursor-pointer transition-none items-center gap-2 h-10"
+                  >
+                    <Filter className="h-4 w-4" />
+                    {filterStatus === "all"
+                      ? "All Status"
+                      : filterStatus.replace("-", " ")}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => setFilterStatus("all")}>
+                    All Status
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setFilterStatus("pending")}>
+                    Pending
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => setFilterStatus("in-progress")}
+                  >
+                    In Progress
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => setFilterStatus("completed")}
+                  >
+                    Completed
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setFilterStatus("overdue")}>
+                    Overdue
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="flex items-center transition-none gap-2 cursor-pointer h-10"
+                  >
+                    <Filter className="h-4 w-4" />
+                    {filterPriority === "all" ? "All Priority" : filterPriority}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => setFilterPriority("all")}>
+                    All Priority
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setFilterPriority("high")}>
+                    High
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setFilterPriority("medium")}>
+                    Medium
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setFilterPriority("low")}>
+                    Low
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="space-y-4">
+          {filteredAssignments.length === 0 ? (
+            <Card>
+              <CardContent className="p-12 text-center">
+                <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                <CardTitle className="text-lg font-medium mb-2">
+                  No assignments found
+                </CardTitle>
+                <CardDescription>
+                  {assignments.length === 0
+                    ? "You don't have any assignments yet"
+                    : "Try adjusting your filters or search query"}
+                </CardDescription>
+              </CardContent>
+            </Card>
+          ) : (
+            filteredAssignments.map((assignment) => (
+              <AssignmentCard
+                key={assignment.id}
+                assignment={assignment}
+                onEdit={() => {
+                  setEditingAssignment(assignment);
+                  setShowEditModal(true);
+                }}
+                onDelete={() => setDeleteConfirm(assignment.id)}
+                onProgressUpdate={handleProgressUpdate}
+                getStatusBadge={getStatusBadge}
+                getDaysUntilDue={getDaysUntilDue}
+              />
+            ))
+          )}
+        </div>
+      </main>
+
+      {showAddModal && (
+        <AssignmentModal
+          title="Add New Assignment"
+          assignment={newAssignment}
+          courses={courses}
+          onClose={() => setShowAddModal(false)}
+          onSubmit={handleAddAssignment}
+          onChange={setNewAssignment}
+        />
+      )}
+
+      {showEditModal && editingAssignment && (
+        <AssignmentModal
+          title="Edit Assignment"
+          assignment={editingAssignment}
+          courses={courses}
+          onClose={() => {
+            setShowEditModal(false);
+            setEditingAssignment(null);
+          }}
+          onSubmit={() =>
+            handleUpdateAssignment(editingAssignment.id, {
+              title: editingAssignment.title,
+              description: editingAssignment.description,
+              due_date: editingAssignment.due_date,
+              priority: editingAssignment.priority,
+            })
+          }
+          onChange={setEditingAssignment}
+        />
+      )}
+
+      <AlertDialog
+        open={!!deleteConfirm}
+        onOpenChange={() => setDeleteConfirm(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Assignment</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this assignment? This action
+              cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() =>
+                deleteConfirm && handleDeleteAssignment(deleteConfirm)
+              }
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}
+
+// Extracted Components
+
+function AssignmentCard({
+  assignment,
+  onEdit,
+  onDelete,
+  onProgressUpdate,
+  getStatusBadge,
+  getDaysUntilDue,
+}: {
+  assignment: Assignment;
+  onEdit: () => void;
+  onDelete: () => void;
+  onProgressUpdate: (id: string, progress: number) => void;
+  getStatusBadge: (status: string) => JSX.Element;
+  getDaysUntilDue: (dueDate: string) => string;
+}) {
+  return (
+    <Card className="hover:bg-accent/50">
+      <CardHeader>
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+          <div className="flex-1">
+            <div className="flex items-start gap-3 mb-2">
+              <CheckSquare className="h-5 w-5 mt-0.5 flex-shrink-0 text-purple-600 dark:text-purple-400" />
+              <div>
+                <CardTitle className="text-lg mb-1">
+                  {assignment.title}
+                </CardTitle>
+                <CardDescription>
+                  {assignment.courses.course_code} •{" "}
+                  {assignment.courses.course_name}
+                </CardDescription>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {getStatusBadge(assignment.status)}
+            <div className="flex gap-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onEdit}
+                title="Edit assignment"
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onDelete}
+                title="Delete assignment"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent>
+        <p className="text-sm mb-4 text-muted-foreground">
+          {assignment.description}
+        </p>
+
+        {assignment.status !== "completed" && (
+          <div className="mb-4">
+            <div className="flex justify-between text-xs mb-2">
+              <span className="text-muted-foreground">Progress</span>
+              <span className="text-muted-foreground">
+                {assignment.progress}%
+              </span>
+            </div>
+            <Progress value={assignment.progress} className="h-2" />
+            <div className="flex gap-1 mt-2">
+              {[0, 25, 50, 75, 100].map((value) => (
+                <Button
+                  key={value}
+                  variant={
+                    assignment.progress === value ? "default" : "outline"
+                  }
+                  size="sm"
+                  onClick={() => onProgressUpdate(assignment.id, value)}
+                  className="h-6 px-2 text-xs cursor-pointer"
+                >
+                  {value}%
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
+      </CardContent>
+
+      <CardFooter>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 w-full">
+          <div className="flex items-center gap-4 text-sm">
+            <div className="flex items-center gap-1">
+              <CalendarIcon className="h-4 w-4" />
+              <span>
+                Due: {new Date(assignment.due_date).toLocaleDateString()}
+              </span>
+            </div>
+            <span
+              className={`font-medium ${
+                getDaysUntilDue(assignment.due_date) === "Overdue"
+                  ? "text-red-500"
+                  : getDaysUntilDue(assignment.due_date).includes("today") ||
+                    getDaysUntilDue(assignment.due_date).includes("tomorrow")
+                  ? "text-orange-500"
+                  : "text-muted-foreground"
+              }`}
+            >
+              {getDaysUntilDue(assignment.due_date)}
+            </span>
+          </div>
+
+          <div className="flex gap-2">
+            {assignment.status !== "completed" && (
+              <Button
+                size="sm"
+                onClick={() => onProgressUpdate(assignment.id, 100)}
+                className="cursor-pointer"
+              >
+                Mark Complete
+              </Button>
+            )}
+          </div>
+        </div>
+      </CardFooter>
+    </Card>
+  );
+}
+
+function AssignmentModal({
+  title,
+  assignment,
+  courses,
+  onClose,
+  onSubmit,
+  onChange,
+}: {
+  title: string;
+  assignment: any;
+  courses: Course[];
+  onClose: () => void;
+  onSubmit: (e: React.FormEvent) => void;
+  onChange: (assignment: any) => void;
+}) {
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>{title}</CardTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="cursor-pointer"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={onSubmit} className="space-y-4">
+            <div>
+              <label className="text-sm font-medium mb-1 block">Title</label>
+              <input
+                type="text"
+                required
+                value={assignment.title}
+                onChange={(e) =>
+                  onChange({ ...assignment, title: e.target.value })
+                }
+                className="w-full px-3 py-2 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+                placeholder="Assignment title"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">
+                Description
+              </label>
+              <textarea
+                value={assignment.description}
+                onChange={(e) =>
+                  onChange({ ...assignment, description: e.target.value })
+                }
+                className="w-full px-3 py-2 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+                placeholder="Assignment description"
+                rows={3}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Course</label>
+              <Select
+                value={assignment.course_id}
+                onValueChange={(value) =>
+                  onChange({ ...assignment, course_id: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a course" />
+                </SelectTrigger>
+                <SelectContent>
+                  {courses.map((course) => (
+                    <SelectItem key={course.id} value={course.id}>
+                      {course.course_code} - {course.course_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Priority</label>
+              <Select
+                value={assignment.priority}
+                onValueChange={(value) =>
+                  onChange({ ...assignment, priority: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </form>
+        </CardContent>
+        <CardFooter className="flex gap-2">
+          <Button
+            variant="outline"
+            className="flex-1 cursor-pointer"
+            onClick={onClose}
+          >
+            Cancel
+          </Button>
+          <Button className="flex-1 cursor-pointer" onClick={onSubmit}>
+            {title.includes("Add") ? "Add Assignment" : "Save Changes"}
+          </Button>
+        </CardFooter>
+      </Card>
+    </div>
+  );
+}
+
+function AssignmentsSkeleton() {
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex h-16 items-center gap-4 px-6">
+          <Skeleton className="w-8 h-8 rounded" />
+          <div className="flex-1">
+            <Skeleton className="h-6 w-32 rounded" />
+          </div>
+        </div>
+      </header>
+      <main className="p-6 space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="rounded-xl border border-border bg-card p-4"
+            >
+              <div className="flex items-center gap-3">
+                <Skeleton className="w-10 h-10 rounded-lg" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-20 rounded" />
+                  <Skeleton className="h-6 w-8 rounded" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="rounded-xl border border-border bg-card p-4">
+          <div className="flex flex-col md:flex-row gap-4">
+            <Skeleton className="h-10 flex-1 rounded-lg" />
+            <Skeleton className="h-10 w-32 rounded-lg" />
+            <Skeleton className="h-10 w-32 rounded-lg" />
+          </div>
+        </div>
+        <div className="space-y-4">
+          {[1, 2, 3, 4].map((i) => (
+            <Card key={i}>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-2">
+                    <Skeleton className="h-6 w-3/4 rounded" />
+                    <Skeleton className="h-4 w-1/2 rounded" />
+                  </div>
+                  <Skeleton className="h-6 w-20 rounded" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-4 w-full rounded mb-4" />
+                <Skeleton className="h-2 w-full rounded" />
+              </CardContent>
+              <CardFooter>
+                <div className="flex justify-between w-full">
+                  <Skeleton className="h-4 w-48 rounded" />
+                  <div className="flex gap-2">
+                    <Skeleton className="h-9 w-24 rounded" />
+                    <Skeleton className="h-9 w-32 rounded" />
+                  </div>
+                </div>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      </main>
+    </div>
+  );
+}
+
+function ErrorState({
+  error,
+  onRetry,
+}: {
+  error: string;
+  onRetry: () => void;
+}) {
+  return (
+    <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex h-16 items-center gap-4 px-6">
           <SidebarTrigger />
@@ -234,217 +873,21 @@ export default function AssignmentsPage() {
           </div>
         </div>
       </header>
-
-      {/* Main Content */}
-      <main className="p-6 space-y-6">
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {stats.map((stat, index) => (
-            <div
-              key={index}
-              className="rounded-xl border border-border bg-card p-4"
-            >
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-500/10">
-                  <stat.icon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">{stat.label}</p>
-                  <p className="text-2xl font-bold">{stat.value}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Filters and Search */}
-        <div className="rounded-xl border border-border bg-card p-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            {/* Search */}
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search assignments..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-              />
-            </div>
-
-            {/* Status Filter Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-input bg-background text-foreground hover:bg-accent">
-                  <Filter className="h-4 w-4" />
-                  {filterStatus === "all"
-                    ? "All Status"
-                    : filterStatus.replace("-", " ")}
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => setFilterStatus("all")}>
-                  All Status
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFilterStatus("pending")}>
-                  Pending
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setFilterStatus("not-started")}
-                >
-                  Not Started
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFilterStatus("submitted")}>
-                  Submitted
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Priority Filter Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-input bg-background text-foreground hover:bg-accent">
-                  <Filter className="h-4 w-4" />
-                  {filterPriority === "all" ? "All Priority" : filterPriority}
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => setFilterPriority("all")}>
-                  All Priority
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFilterPriority("high")}>
-                  High
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFilterPriority("medium")}>
-                  Medium
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFilterPriority("low")}>
-                  Low
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-
-        {/* Assignments List */}
-        <div className="space-y-4">
-          {filteredAssignments.length === 0 ? (
-            <div className="rounded-xl border border-border bg-card p-12 text-center">
-              <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <h3 className="text-lg font-medium mb-2">No assignments found</h3>
-              <p className="text-sm text-muted-foreground">
-                Try adjusting your filters or search query
-              </p>
-            </div>
-          ) : (
-            filteredAssignments.map((assignment) => (
-              <div
-                key={assignment.id}
-                className="rounded-xl border border-border bg-card p-6 hover:bg-accent/50 cursor-pointer"
-              >
-                {/* Assignment Header */}
-                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-start gap-3 mb-2">
-                      <CheckSquare className="h-5 w-5 mt-0.5 flex-shrink-0 text-purple-600 dark:text-purple-400" />
-                      <div>
-                        <h3 className="text-lg font-semibold mb-1">
-                          {assignment.title}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          {assignment.course} • {assignment.courseName}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-2">
-                    {getStatusBadge(assignment.status)}
-                  </div>
-                </div>
-
-                {/* Assignment Description */}
-                <p className="text-sm mb-4 text-muted-foreground">
-                  {assignment.description}
-                </p>
-
-                {/* Progress Bar */}
-                {!assignment.submitted && (
-                  <div className="mb-4">
-                    <div className="flex justify-between text-xs mb-2">
-                      <span className="text-muted-foreground">Progress</span>
-                      <span className="text-muted-foreground">
-                        {assignment.progress}%
-                      </span>
-                    </div>
-                    <Progress value={assignment.progress} className="h-2 transition-none" />
-                  </div>
-                )}
-
-                {/* Files */}
-                {assignment.files.length > 0 && (
-                  <div className="mb-4">
-                    <p className="text-xs font-medium mb-2 text-muted-foreground">
-                      Attached Files:
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {assignment.files.map((file, index) => (
-                        <button
-                          key={index}
-                          className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border text-xs hover:bg-accent"
-                        >
-                          <FileText className="h-3 w-3" />
-                          {file}
-                          <Download className="h-3 w-3" />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Footer */}
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pt-4 border-t border-border">
-                  <div className="flex items-center gap-4 text-sm">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4" />
-                      <span>
-                        Due: {new Date(assignment.dueDate).toLocaleDateString()}{" "}
-                        at {assignment.dueTime}
-                      </span>
-                    </div>
-                    <span
-                      className={`font-medium ${
-                        getDaysUntilDue(assignment.dueDate) === "Overdue"
-                          ? "text-red-500"
-                          : getDaysUntilDue(assignment.dueDate).includes(
-                              "today"
-                            ) ||
-                            getDaysUntilDue(assignment.dueDate).includes(
-                              "tomorrow"
-                            )
-                          ? "text-orange-500"
-                          : "text-muted-foreground"
-                      }`}
-                    >
-                      {getDaysUntilDue(assignment.dueDate)}
-                    </span>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <button className="px-4 py-2 rounded-lg border border-border text-sm font-medium hover:bg-accent">
-                      View Details
-                      <ExternalLink className="inline h-3 w-3 ml-1" />
-                    </button>
-                    {!assignment.submitted && (
-                      <button className="px-4 py-2 rounded-lg text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white">
-                        Submit Assignment
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
+      <main className="p-6">
+        <div className="flex items-center justify-center h-96">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-destructive">
+                Failed to load assignments
+              </CardTitle>
+              <CardDescription>{error}</CardDescription>
+            </CardHeader>
+            <CardFooter>
+              <Button onClick={onRetry} className="w-full cursor-pointer">
+                Retry
+              </Button>
+            </CardFooter>
+          </Card>
         </div>
       </main>
     </div>

@@ -358,12 +358,12 @@ function calculateOverallStats(
 
 function getStatusBadge(percentage: number, threshold: number) {
   if (percentage >= 90) {
-    return <Badge variant="default">Excellent</Badge>;
+    return <Badge variant="default" className="transition-none">Excellent</Badge>;
   } else if (percentage >= threshold) {
-    return <Badge variant="secondary">Safe</Badge>;
+    return <Badge variant="secondary" className="transition-none">Safe</Badge>;
   } else {
     return (
-      <Badge variant="destructive" className="text-white dark:text-white">
+      <Badge variant="destructive" className="text-white dark:text-white transition-none">
         At Risk
       </Badge>
     );
@@ -470,7 +470,7 @@ function SubjectBreakdown({
     <div className="lg:col-span-2 rounded-xl border border-border bg-card p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold">Subject-wise Breakdown</h2>
-        <Button variant="ghost" onClick={onExport}>
+        <Button variant="ghost" onClick={onExport} className="transition-none">
           <Download className="h-4 w-4 mr-1" />
           Export
         </Button>
@@ -490,16 +490,16 @@ function SubjectBreakdown({
             <AccordionItem
               key={course.course_code}
               value={`course-${index}`}
-              className="border border-border rounded-lg"
+              className="border border-border rounded-lg transition-none"
             >
               <AccordionTrigger className="px-4 py-3 hover:no-underline cursor-pointer">
                 <div className="flex items-center justify-between w-full pr-4">
                   <div className="flex items-center gap-3">
                     <div className="text-left">
-                      <h3 className="font-medium text-base">
+                      <h3 className="font-medium text-base transition-none">
                         {course.course_name}
                       </h3>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-muted-foreground transition-none">
                         {course.course_code}
                       </p>
                     </div>
@@ -507,7 +507,7 @@ function SubjectBreakdown({
                   <div className="flex items-center gap-4">
                     {getStatusBadge(course.attendance_percentage, threshold)}
                     <div className="text-right">
-                      <p className="text-lg font-bold">
+                      <p className="text-lg font-bold transition-none">
                         {course.attendance_percentage}%
                       </p>
                       <p className="text-xs text-muted-foreground">

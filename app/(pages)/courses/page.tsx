@@ -19,7 +19,6 @@ import {
   Edit,
   Eye,
   AlertCircle,
-  CheckCircle,
   X,
   FileText,
   BarChart3,
@@ -29,10 +28,10 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -135,8 +134,6 @@ export default function CoursesPage() {
   const [showViewModal, setShowViewModal] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [archiveConfirm, setArchiveConfirm] = useState<string | null>(null);
-  const [alertError, setAlertError] = useState<string | null>(null);
-  const [alertSuccess, setAlertSuccess] = useState<string | null>(null);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [viewingCourse, setViewingCourse] = useState<Course | null>(null);
 
@@ -255,10 +252,13 @@ export default function CoursesPage() {
         credits: 3,
         color: "purple",
       });
+      toast.success("Course added successfully", {
+        description: `${data.course.course_code} has been added to your courses`,
+      });
     } catch (err) {
-      setAlertError(
-        err instanceof Error ? err.message : "Failed to add course"
-      );
+      toast.error("Failed to add course", {
+        description: err instanceof Error ? err.message : "Please try again",
+      });
     }
   };
 
@@ -286,10 +286,13 @@ export default function CoursesPage() {
         prev.map((course) => (course.id === courseId ? data.course : course))
       );
       setShowEditModal(false);
+      toast.success("Course updated successfully", {
+        description: "Your changes have been saved",
+      });
     } catch (err) {
-      setAlertError(
-        err instanceof Error ? err.message : "Failed to update course"
-      );
+      toast.error("Failed to update course", {
+        description: err instanceof Error ? err.message : "Please try again",
+      });
     }
   };
 
@@ -318,11 +321,13 @@ export default function CoursesPage() {
 
       setCourses((prev) => prev.filter((course) => course.id !== courseId));
       setArchiveConfirm(null);
-      setAlertSuccess("Course archived successfully");
+      toast.success("Course archived successfully", {
+        description: "The course has been moved to archives",
+      });
     } catch (err) {
-      setAlertError(
-        err instanceof Error ? err.message : "Failed to archive course"
-      );
+      toast.error("Failed to archive course", {
+        description: err instanceof Error ? err.message : "Please try again",
+      });
     }
   };
 
@@ -340,8 +345,13 @@ export default function CoursesPage() {
 
       setCourses((prev) => prev.filter((course) => course.id !== courseId));
       setDeleteConfirm(null);
+      toast.success("Course deleted successfully", {
+        description: "The course and its associated data have been removed",
+      });
     } catch (err) {
-      setAlertError("Failed to delete course");
+      toast.error("Failed to delete course", {
+        description: "Please try again",
+      });
     }
   };
 
@@ -523,21 +533,6 @@ export default function CoursesPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {alertError && (
-        <AlertMessage
-          type="error"
-          message={alertError}
-          onClose={() => setAlertError(null)}
-        />
-      )}
-      {alertSuccess && (
-        <AlertMessage
-          type="success"
-          message={alertSuccess}
-          onClose={() => setAlertSuccess(null)}
-        />
-      )}
     </div>
   );
 }
@@ -825,22 +820,43 @@ function CourseCard({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem className="cursor-pointer" onClick={onView}>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                onView();
+              }}
+            >
               <Eye className="h-4 w-4 mr-2" />
               View Details
             </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer" onClick={onEdit}>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit();
+              }}
+            >
               <Edit className="h-4 w-4 mr-2" />
               Edit Course
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer" onClick={onArchive}>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                onArchive();
+              }}
+            >
               <Archive className="h-4 w-4 mr-2" />
               Archive
             </DropdownMenuItem>
             <DropdownMenuItem
               className="cursor-pointer text-red-600 focus:text-red-600"
-              onClick={onDelete}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete();
+              }}
             >
               <Trash2 className="h-4 w-4 mr-2" />
               Delete
@@ -1330,67 +1346,6 @@ function CourseDetailsModal({
             Edit Course
           </Button>
         </CardFooter>
-      </Card>
-    </div>
-  );
-}
-
-function AlertMessage({
-  type,
-  message,
-  onClose,
-}: {
-  type: "error" | "success";
-  message: string;
-  onClose: () => void;
-}) {
-  const isError = type === "error";
-  return (
-    <div className="fixed bottom-4 right-4 z-50 max-w-sm transform transition-all duration-300 ease-out animate-in slide-in-from-right-full">
-      <Card
-        className={`border-${
-          isError ? "destructive" : "green-200 dark:border-green-800"
-        }`}
-      >
-        <CardContent className="p-4">
-          <div className="flex items-start gap-3">
-            {isError ? (
-              <AlertCircle className="h-5 w-5 text-destructive mt-0.5 flex-shrink-0" />
-            ) : (
-              <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-            )}
-            <div className="flex-1">
-              <p
-                className={`text-sm font-medium ${
-                  isError
-                    ? "text-destructive"
-                    : "text-green-900 dark:text-green-400"
-                }`}
-              >
-                {isError ? "Error" : "Success"}
-              </p>
-              <p
-                className={`text-sm ${
-                  isError
-                    ? "text-muted-foreground"
-                    : "text-green-700 dark:text-green-300"
-                }`}
-              >
-                {message}
-              </p>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className={`h-6 w-6 p-0 cursor-pointer flex-shrink-0 ${
-                isError ? "" : "text-green-600 hover:text-green-800"
-              }`}
-            >
-              <X className="h-3 w-3" />
-            </Button>
-          </div>
-        </CardContent>
       </Card>
     </div>
   );

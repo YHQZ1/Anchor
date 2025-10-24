@@ -63,7 +63,7 @@ export default function Header() {
             </Link>
 
             <button
-              className="cursor-pointer p-2 rounded-lg transition-colors hover:bg-accent"
+              className="cursor-pointer p-2 rounded-lg transition-colors text-muted-foreground hover:text-purple-600 dark:hover:text-purple-400"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               aria-label="Toggle theme"
             >

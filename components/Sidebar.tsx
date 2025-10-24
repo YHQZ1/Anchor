@@ -98,7 +98,7 @@ const MENU_ITEMS = [
   { title: "Assignments", url: "/assignments", icon: CheckSquare },
   { title: "Attendance", url: "/attendance", icon: Calendar },
   { title: "Courses", url: "/courses", icon: BookOpen },
-  { title: "Archives", url: "/archive", icon: Archive },
+  { title: "Archives", url: "/archives", icon: Archive },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 

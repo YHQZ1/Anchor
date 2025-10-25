@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -15,7 +16,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { signIn } from "next-auth/react";
+import { supabase } from "@/lib/supabaseClient";
 import { FloatingShapes } from "@/components/FloatingShapes";
 
 type AuthMode = "signup" | "signin";
@@ -32,13 +33,19 @@ export default function Auth() {
   const { theme } = useTheme();
   const searchParams = useSearchParams();
   const router = useRouter();
-  
+
   const initialMode = searchParams.get("mode") as AuthMode;
-  const [authMode, setAuthMode] = useState<AuthMode>(initialMode === "signin" ? "signin" : "signup");
+  const [authMode, setAuthMode] = useState<AuthMode>(
+    initialMode === "signin" ? "signin" : "signup"
+  );
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [alert, setAlert] = useState<{ type: AlertType; title: string; description: string } | null>(null);
+  const [alert, setAlert] = useState<{
+    type: AlertType;
+    title: string;
+    description: string;
+  } | null>(null);
 
   const [signUpData, setSignUpData] = useState<AuthData>({
     username: "",
@@ -150,7 +157,7 @@ export default function Auth() {
           description: `Welcome back!`,
         });
         setTimeout(() => {
-          router.push(data.onboarding_completed ? "/dashboard" : "/onboarding");
+          router.push(data.profile.onboarding_completed ? "/dashboard" : "/onboarding");
         }, 1000);
       } else {
         setAlert({
@@ -163,6 +170,35 @@ export default function Auth() {
       setAlert({
         type: "error",
         title: "Network error",
+        description: "Please try again.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleAuth = async () => {
+    setIsLoading(true);
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) {
+        setAlert({
+          type: "error",
+          title: "Google sign in failed",
+          description: error.message,
+        });
+      }
+    } catch (error: any) {
+      setAlert({
+        type: "error",
+        title: "Something went wrong",
         description: "Please try again.",
       });
     } finally {
@@ -199,7 +235,10 @@ export default function Auth() {
         )}
       </AnimatePresence>
 
-      <FloatingShapes theme={theme} numberOfShapes={30} />
+      <FloatingShapes 
+        theme={theme || "light"} 
+        numberOfShapes={30} 
+      />
 
       <Card className="relative w-full max-w-md z-10 bg-card text-card-foreground">
         <CardHeader>
@@ -214,7 +253,11 @@ export default function Auth() {
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={authMode === "signup" ? handleSignUpSubmit : handleSignInSubmit}>
+          <form
+            onSubmit={
+              authMode === "signup" ? handleSignUpSubmit : handleSignInSubmit
+            }
+          >
             <div className="space-y-4">
               {authMode === "signup" && (
                 <FormInput
@@ -230,16 +273,30 @@ export default function Auth() {
                 label="Email"
                 type="email"
                 name="email"
-                value={authMode === "signup" ? signUpData.email : signInData.email}
-                onChange={authMode === "signup" ? handleSignUpChange : handleSignInChange}
+                value={
+                  authMode === "signup" ? signUpData.email : signInData.email
+                }
+                onChange={
+                  authMode === "signup"
+                    ? handleSignUpChange
+                    : handleSignInChange
+                }
                 placeholder="Email"
               />
 
               <PasswordInput
                 label="Password"
                 name="password"
-                value={authMode === "signup" ? signUpData.password : signInData.password}
-                onChange={authMode === "signup" ? handleSignUpChange : handleSignInChange}
+                value={
+                  authMode === "signup"
+                    ? signUpData.password
+                    : signInData.password
+                }
+                onChange={
+                  authMode === "signup"
+                    ? handleSignUpChange
+                    : handleSignInChange
+                }
                 showPassword={showPassword}
                 setShowPassword={setShowPassword}
                 placeholder="Password"
@@ -265,7 +322,9 @@ export default function Auth() {
                 {isLoading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-                    {authMode === "signup" ? "Creating Account..." : "Signing In..."}
+                    {authMode === "signup"
+                      ? "Creating Account..."
+                      : "Signing In..."}
                   </>
                 ) : authMode === "signup" ? (
                   "Create Account"
@@ -278,15 +337,18 @@ export default function Auth() {
 
           <div className="relative flex items-center justify-center mt-6 mb-4">
             <div className="flex-1 border-t border-border"></div>
-            <span className="px-4 text-sm text-muted-foreground">or continue with</span>
+            <span className="px-4 text-sm text-muted-foreground">
+              or continue with
+            </span>
             <div className="flex-1 border-t border-border"></div>
           </div>
 
           <div className="flex justify-center">
             <button
               type="button"
-              onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
-              className="flex cursor-pointer items-center justify-center gap-3 py-3 px-6 rounded-lg font-medium transition-all duration-200 border border-input bg-background hover:bg-accent text-foreground w-full max-w-xs"
+              onClick={handleGoogleAuth}
+              disabled={isLoading}
+              className="flex cursor-pointer items-center justify-center gap-3 py-3 px-6 rounded-lg font-medium transition-all duration-200 border border-input bg-background hover:bg-accent text-foreground w-full max-w-xs disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path
@@ -306,7 +368,7 @@ export default function Auth() {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              <span>Continue with Google</span>
+              <span>{isLoading ? "Redirecting..." : "Continue with Google"}</span>
             </button>
           </div>
         </CardContent>
@@ -317,7 +379,7 @@ export default function Auth() {
               Already have an account?{" "}
               <button
                 onClick={toggleAuthMode}
-                className="text-purple-600 hover:text-purple-700 underline cursor-pointer"
+                className="text-purple-600 hover:text-purple-700 underline cursor-pointer transition-colors"
               >
                 Sign In
               </button>
@@ -327,7 +389,7 @@ export default function Auth() {
               Don&apos;t have an account?{" "}
               <button
                 onClick={toggleAuthMode}
-                className="text-purple-600 hover:text-purple-700 underline cursor-pointer"
+                className="text-purple-600 hover:text-purple-700 underline cursor-pointer transition-colors"
               >
                 Sign Up
               </button>
@@ -355,14 +417,17 @@ const FormInput = ({
   placeholder?: string;
 }) => (
   <div>
-    <label className="block text-sm font-medium mb-1 text-foreground">{label}</label>
+    <label className="block text-sm font-medium mb-1 text-foreground">
+      {label}
+    </label>
     <input
       type={type}
       name={name}
       value={value}
       onChange={onChange}
       placeholder={placeholder}
-      className="w-full px-4 py-2 rounded-lg transition-all duration-200 border border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-purple-500 focus:ring-purple-500/20"
+      className="w-full px-4 py-2 rounded-lg transition-all duration-200 border border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 focus:outline-none"
+      required
     />
   </div>
 );
@@ -385,7 +450,9 @@ const PasswordInput = ({
   placeholder?: string;
 }) => (
   <div>
-    <label className="block text-sm font-medium mb-1 text-foreground">{label}</label>
+    <label className="block text-sm font-medium mb-1 text-foreground">
+      {label}
+    </label>
     <div className="relative">
       <input
         type={showPassword ? "text" : "password"}
@@ -393,14 +460,20 @@ const PasswordInput = ({
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        className="w-full px-4 py-2 rounded-lg transition-all duration-200 border border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-purple-500 focus:ring-purple-500/20"
+        className="w-full px-4 py-2 pr-10 rounded-lg transition-all duration-200 border border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 focus:outline-none"
+        required
       />
       <button
         type="button"
         onClick={() => setShowPassword(!showPassword)}
-        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+        aria-label={showPassword ? "Hide password" : "Show password"}
       >
-        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+        {showPassword ? (
+          <EyeOff className="w-5 h-5" />
+        ) : (
+          <Eye className="w-5 h-5" />
+        )}
       </button>
     </div>
   </div>

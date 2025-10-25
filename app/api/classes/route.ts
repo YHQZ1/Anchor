@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabaseClient";
+import { getSupabaseAdmin } from "@/lib/supabaseClient";
 import { withAuth } from "@/lib/apiHandler";
 
 export async function GET(request: NextRequest) {
   return withAuth(async (request, user) => {
+    const supabaseAdmin = getSupabaseAdmin();
     const { data: classes, error } = await supabaseAdmin
       .from("classes")
       .select(`*, courses!inner (course_code, course_name, color, archived)`)
@@ -24,6 +25,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   return withAuth(async (request, user) => {
+    const supabaseAdmin = getSupabaseAdmin();
     const { course_id, day_of_week, start_time, end_time, room, class_type } =
       await request.json();
 
@@ -92,6 +94,7 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   return withAuth(async (request, user) => {
+    const supabaseAdmin = getSupabaseAdmin();
     const {
       id,
       course_id,
@@ -152,6 +155,7 @@ export async function PATCH(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   return withAuth(async (request, user) => {
+    const supabaseAdmin = getSupabaseAdmin();
     const { searchParams } = new URL(request.url);
     const classId = searchParams.get("id");
 

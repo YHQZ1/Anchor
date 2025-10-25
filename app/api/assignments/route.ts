@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabaseClient";
+import { getSupabaseAdmin } from "@/lib/supabaseClient";
 import { withAuth } from "@/lib/apiHandler";
 
 export async function GET(request: NextRequest) {
   return withAuth(async (request, user) => {
+    const supabaseAdmin = getSupabaseAdmin();
     const { searchParams } = new URL(request.url);
     const courseId = searchParams.get("course_id");
     const status = searchParams.get("status");
@@ -40,6 +41,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   return withAuth(async (request, user) => {
+    const supabaseAdmin = getSupabaseAdmin();
     const { course_id, title, description, due_date, priority } =
       await request.json();
 
@@ -93,6 +95,7 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   return withAuth(async (request, user) => {
+    const supabaseAdmin = getSupabaseAdmin();
     const { id, title, description, due_date, priority, status, progress } =
       await request.json();
 
@@ -176,6 +179,7 @@ export async function PATCH(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   return withAuth(async (request, user) => {
+    const supabaseAdmin = getSupabaseAdmin();
     const { searchParams } = new URL(request.url);
     const assignmentId = searchParams.get("id");
 

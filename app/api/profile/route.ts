@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabaseClient'
+import { getSupabaseAdmin } from '@/lib/supabaseClient'
 import { withAuth } from '@/lib/apiHandler'
 
 export async function GET(request: NextRequest) {
   return withAuth(async (request, user) => {
+    const supabaseAdmin = getSupabaseAdmin()
+    
     const { data: profile, error } = await supabaseAdmin
       .from('profiles')
       .select('*')
@@ -32,6 +34,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   return withAuth(async (request, user) => {
+    const supabaseAdmin = getSupabaseAdmin()
+    
     const { 
       full_name, 
       student_id, 
@@ -41,7 +45,8 @@ export async function POST(request: NextRequest) {
       expected_graduation,
       min_attendance_percentage,
       enable_attendance_warnings,
-      onboarding_completed 
+      onboarding_completed,
+      avatar_url 
     } = await request.json()
 
     if (!college_name || !department) {
@@ -68,6 +73,7 @@ export async function POST(request: NextRequest) {
         expected_graduation,
         min_attendance_percentage: min_attendance_percentage || 75,
         enable_attendance_warnings: enable_attendance_warnings !== false,
+        avatar_url: avatar_url || null,
         updated_at: new Date().toISOString(),
         onboarding_completed: onboarding_completed !== false,
       })
@@ -82,6 +88,8 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   return withAuth(async (request, user) => {
+    const supabaseAdmin = getSupabaseAdmin()
+    
     const updates = await request.json()
     delete updates.id
 

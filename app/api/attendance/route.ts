@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabaseClient";
+import { getSupabaseAdmin } from "@/lib/supabaseClient";
 import { withAuth } from "@/lib/apiHandler";
 
 export async function GET(request: NextRequest) {
   return withAuth(async (request, user) => {
+    const supabaseAdmin = getSupabaseAdmin();
     const { searchParams } = new URL(request.url);
     const courseId = searchParams.get("course_id");
     const startDate = searchParams.get("start_date");
@@ -37,6 +38,7 @@ export async function GET(request: NextRequest) {
 }
 
 async function getAttendanceSummary(userId: string) {
+  const supabaseAdmin = getSupabaseAdmin();
   const { data: attendance, error } = await supabaseAdmin
     .from("attendance")
     .select(
@@ -81,6 +83,7 @@ async function getAttendanceSummary(userId: string) {
 
 export async function POST(request: NextRequest) {
   return withAuth(async (request, user) => {
+    const supabaseAdmin = getSupabaseAdmin();
     const { course_id, class_date, status } = await request.json();
 
     if (!course_id || !class_date || !status) {
@@ -141,6 +144,7 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   return withAuth(async (request, user) => {
+    const supabaseAdmin = getSupabaseAdmin();
     const { id, status } = await request.json();
 
     if (!id || !status) {
@@ -186,6 +190,7 @@ export async function PATCH(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   return withAuth(async (request, user) => {
+    const supabaseAdmin = getSupabaseAdmin();
     const { searchParams } = new URL(request.url);
     const attendanceId = searchParams.get("id");
 

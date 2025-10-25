@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabaseClient";
+import { getSupabaseAdmin } from "@/lib/supabaseClient";
 import { withAuth } from "@/lib/apiHandler";
 
 export async function GET(request: NextRequest) {
   return withAuth(async (request, user) => {
+    const supabaseAdmin = getSupabaseAdmin();
     const { data: archives, error } = await supabaseAdmin
       .from("archives")
       .select(
@@ -23,6 +24,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   return withAuth(async (request, user) => {
+    const supabaseAdmin = getSupabaseAdmin();
     const { course_id, reason, notes } = await request.json();
 
     if (!course_id)
@@ -81,6 +83,7 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   return withAuth(async (request, user) => {
+    const supabaseAdmin = getSupabaseAdmin();
     const { searchParams } = new URL(request.url);
     const archiveId = searchParams.get("id");
     const courseId = searchParams.get("course_id");

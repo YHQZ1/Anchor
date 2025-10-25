@@ -9,7 +9,7 @@ import {
   MoreVertical,
   Eye,
 } from "lucide-react";
-import { SidebarTrigger } from "@/components/Sidebar";
+import { SidebarTrigger, MobileSidebarTrigger } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,7 +49,7 @@ interface ArchiveItem {
   };
 }
 
-export default function ArchivesPage() {
+export default function Archives() {
   const [archives, setArchives] = useState<ArchiveItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -134,27 +134,32 @@ export default function ArchivesPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-16 items-center gap-4 px-6">
-          <SidebarTrigger />
+        <div className="flex h-14 sm:h-16 items-center gap-4 px-4 sm:px-6">
+          <div className="lg:hidden">
+            <MobileSidebarTrigger />
+          </div>
+          <div className="hidden lg:block">
+            <SidebarTrigger />
+          </div>
           <div className="flex-1">
-            <h1 className="text-xl font-semibold">Archived Courses</h1>
+            <h1 className="text-lg sm:text-xl font-semibold">Archived Courses</h1>
           </div>
         </div>
       </header>
 
-      <main className="p-6 space-y-6">
-        <div className="flex-1 flex items-center gap-2 px-4 py-2 rounded-lg border border-input bg-background max-w-md">
-          <Search className="h-4 w-4 text-muted-foreground" />
+      <main className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+        <div className="flex-1 flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg border border-input bg-background max-w-md">
+          <Search className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           <Input
             type="text"
             placeholder="Search archived courses..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1 bg-transparent border-none outline-none"
+            className="flex-1 bg-transparent border-none outline-none text-xs sm:text-sm"
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {filteredArchives.map((archive) => (
             <ArchiveCard
               key={archive.id}
@@ -192,57 +197,57 @@ function ArchiveCard({
 }) {
   return (
     <Card key={archive.id} className="relative">
-      <CardHeader>
+      <CardHeader className="p-4 sm:p-6">
         <div className="flex items-start justify-between">
-          <div>
-            <CardTitle className="text-lg">
+          <div className="min-w-0 flex-1">
+            <CardTitle className="text-base sm:text-lg truncate">
               {archive.courses.course_name}
             </CardTitle>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs sm:text-sm text-muted-foreground truncate">
               {archive.courses.course_code}
             </p>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
-                <MoreVertical className="h-4 w-4" />
+              <Button variant="ghost" className="h-7 w-7 sm:h-8 sm:w-8 p-0 cursor-pointer">
+                <MoreVertical className="h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>
-                <Eye className="h-4 w-4 mr-2" />
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem className="text-xs sm:text-sm cursor-pointer">
+                <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                 View Details
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={onUnarchive}
-                className="text-green-600"
+                className="text-green-600 text-xs sm:text-sm cursor-pointer"
               >
-                <RotateCcw className="h-4 w-4 mr-2" />
+                <RotateCcw className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                 Restore
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="flex items-center justify-between text-sm">
+      <CardContent className="p-4 sm:p-6 pt-0 space-y-2 sm:space-y-3">
+        <div className="flex items-center justify-between text-xs sm:text-sm">
           <span>Instructor</span>
-          <span className="font-medium">
+          <span className="font-medium truncate ml-2 max-w-[120px]">
             {archive.courses.instructor || "N/A"}
           </span>
         </div>
-        <div className="flex items-center justify-between text-sm">
+        <div className="flex items-center justify-between text-xs sm:text-sm">
           <span>Credits</span>
           <span className="font-medium">{archive.courses.credits}</span>
         </div>
-        <div className="flex items-center justify-between text-sm">
+        <div className="flex items-center justify-between text-xs sm:text-sm">
           <span>Archived</span>
           <span className="font-medium">{formatDate(archive.archived_at)}</span>
         </div>
         {archive.reason && (
-          <div className="text-sm">
+          <div className="text-xs sm:text-sm">
             <span className="text-muted-foreground">Reason: </span>
-            <span>{archive.reason}</span>
+            <span className="line-clamp-2">{archive.reason}</span>
           </div>
         )}
       </CardContent>
@@ -261,19 +266,19 @@ function UnarchiveDialog({
 }) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent className="max-w-[95vw] sm:max-w-md">
         <AlertDialogHeader>
-          <AlertDialogTitle>Restore Course</AlertDialogTitle>
-          <AlertDialogDescription>
+          <AlertDialogTitle className="text-sm sm:text-base">Restore Course</AlertDialogTitle>
+          <AlertDialogDescription className="text-xs sm:text-sm">
             Are you sure you want to restore this course? It will be moved back
             to your active courses.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
+          <AlertDialogCancel className="cursor-pointer text-xs sm:text-sm h-9 sm:h-10">Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
-            className="bg-green-600 hover:bg-green-700 cursor-pointer"
+            className="bg-green-600 hover:bg-green-700 cursor-pointer text-xs sm:text-sm h-9 sm:h-10"
           >
             Restore
           </AlertDialogAction>
@@ -285,10 +290,10 @@ function UnarchiveDialog({
 
 function EmptyState({ hasSearchQuery }: { hasSearchQuery: boolean }) {
   return (
-    <div className="text-center py-12">
-      <Archive className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-      <h3 className="text-lg font-medium mb-2">No archived courses</h3>
-      <p className="text-sm text-muted-foreground">
+    <div className="text-center py-8 sm:py-12">
+      <Archive className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-muted-foreground opacity-50" />
+      <h3 className="text-base sm:text-lg font-medium mb-2">No archived courses</h3>
+      <p className="text-xs sm:text-sm text-muted-foreground">
         {hasSearchQuery
           ? "No courses match your search"
           : "Courses you archive will appear here"}
@@ -301,40 +306,45 @@ function ArchivesSkeleton() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-16 items-center gap-4 px-6">
-          <SidebarTrigger />
+        <div className="flex h-14 sm:h-16 items-center gap-4 px-4 sm:px-6">
+          <div className="lg:hidden">
+            <MobileSidebarTrigger />
+          </div>
+          <div className="hidden lg:block">
+            <SidebarTrigger />
+          </div>
           <div className="flex-1">
-            <h1 className="text-xl font-semibold">Archived Courses</h1>
+            <h1 className="text-lg sm:text-xl font-semibold">Archived Courses</h1>
           </div>
         </div>
       </header>
-      <main className="p-6 space-y-6">
-        <div className="h-10 w-full max-w-md bg-muted rounded-lg animate-pulse" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <main className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+        <div className="h-9 sm:h-10 w-full max-w-md bg-muted rounded-lg animate-pulse" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="rounded-lg border border-border bg-card p-6 animate-pulse"
+              className="rounded-lg border border-border bg-card p-4 sm:p-6 animate-pulse"
             >
-              <div className="flex items-start justify-between mb-4">
-                <div className="space-y-2">
-                  <div className="h-6 w-32 bg-muted rounded" />
-                  <div className="h-4 w-24 bg-muted rounded" />
+              <div className="flex items-start justify-between mb-3 sm:mb-4">
+                <div className="space-y-2 flex-1">
+                  <div className="h-5 w-32 sm:h-6 sm:w-40 bg-muted rounded" />
+                  <div className="h-3 w-24 sm:h-4 sm:w-32 bg-muted rounded" />
                 </div>
-                <div className="h-8 w-8 bg-muted rounded" />
+                <div className="h-7 w-7 sm:h-8 sm:w-8 bg-muted rounded" />
               </div>
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 <div className="flex justify-between">
-                  <div className="h-4 w-16 bg-muted rounded" />
-                  <div className="h-4 w-20 bg-muted rounded" />
+                  <div className="h-3 w-16 sm:h-4 sm:w-20 bg-muted rounded" />
+                  <div className="h-3 w-20 sm:h-4 sm:w-24 bg-muted rounded" />
                 </div>
                 <div className="flex justify-between">
-                  <div className="h-4 w-12 bg-muted rounded" />
-                  <div className="h-4 w-8 bg-muted rounded" />
+                  <div className="h-3 w-12 sm:h-4 sm:w-16 bg-muted rounded" />
+                  <div className="h-3 w-8 sm:h-4 sm:w-12 bg-muted rounded" />
                 </div>
                 <div className="flex justify-between">
-                  <div className="h-4 w-16 bg-muted rounded" />
-                  <div className="h-4 w-24 bg-muted rounded" />
+                  <div className="h-3 w-16 sm:h-4 sm:w-20 bg-muted rounded" />
+                  <div className="h-3 w-20 sm:h-4 sm:w-24 bg-muted rounded" />
                 </div>
               </div>
             </div>
@@ -355,22 +365,27 @@ function ErrorState({
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-16 items-center gap-4 px-6">
-          <SidebarTrigger />
+        <div className="flex h-14 sm:h-16 items-center gap-4 px-4 sm:px-6">
+          <div className="lg:hidden">
+            <MobileSidebarTrigger />
+          </div>
+          <div className="hidden lg:block">
+            <SidebarTrigger />
+          </div>
           <div className="flex-1">
-            <h1 className="text-xl font-semibold">Archived Courses</h1>
+            <h1 className="text-lg sm:text-xl font-semibold">Archived Courses</h1>
           </div>
         </div>
       </header>
-      <main className="p-6">
-        <div className="flex items-center justify-center h-96">
+      <main className="p-4 sm:p-6">
+        <div className="flex items-center justify-center h-64 sm:h-96">
           <div className="text-center">
-            <Archive className="h-12 w-12 text-destructive mx-auto mb-4" />
-            <h2 className="text-xl font-semibold mb-2">
+            <Archive className="h-8 w-8 sm:h-12 sm:w-12 text-destructive mx-auto mb-3 sm:mb-4" />
+            <h2 className="text-lg sm:text-xl font-semibold mb-2">
               Failed to load archives
             </h2>
-            <p className="text-muted-foreground mb-4">{error}</p>
-            <Button onClick={onRetry} className="cursor-pointer">Retry</Button>
+            <p className="text-xs sm:text-sm text-muted-foreground mb-4">{error}</p>
+            <Button onClick={onRetry} className="cursor-pointer text-xs sm:text-sm h-9 sm:h-10">Retry</Button>
           </div>
         </div>
       </main>

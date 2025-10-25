@@ -14,7 +14,7 @@ import {
   Clock,
   AlertCircle,
 } from "lucide-react";
-import { SidebarTrigger } from "@/components/Sidebar";
+import { SidebarTrigger, MobileSidebarTrigger } from "@/components/Sidebar";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -79,7 +79,7 @@ interface AttendanceSummary {
   attendance_percentage: number;
 }
 
-export default function AttendancePage() {
+export default function Attendance() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [attendanceSummary, setAttendanceSummary] = useState<
@@ -252,36 +252,44 @@ export default function AttendancePage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-16 items-center gap-4 px-6">
-          <SidebarTrigger />
-          <div className="flex-1">
-            <h1 className="text-xl font-semibold">Attendance</h1>
+        <div className="flex h-14 sm:h-16 items-center gap-4 px-4 sm:px-6">
+          {/* Mobile trigger */}
+          <div className="lg:hidden">
+            <MobileSidebarTrigger />
           </div>
-          <div className="flex items-center gap-3">
+          {/* Desktop trigger */}
+          <div className="hidden lg:block">
+            <SidebarTrigger />
+          </div>
+          <div className="flex-1">
+            <h1 className="text-lg sm:text-xl font-semibold">Attendance</h1>
+          </div>
+          <div className="flex items-center gap-2 sm:gap-3">
             <Button
               variant="outline"
               onClick={handleExportData}
-              className="cursor-pointer transition-none"
+              className="cursor-pointer transition-none text-xs sm:text-sm h-9 sm:h-10"
             >
-              <Download className="h-4 w-4 mr-2" />
-              Export
+              <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Export</span>
             </Button>
             <Button
               variant="outline"
               onClick={() => setShowMarkAttendance(true)}
-              className="cursor-pointer transition-none"
+              className="cursor-pointer transition-none text-xs sm:text-sm h-9 sm:h-10"
             >
-              <Calendar className="h-4 w-4 mr-2" />
-              Mark Today
+              <Calendar className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Mark Today</span>
+              <span className="sm:hidden">Mark</span>
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="p-6 space-y-6">
+      <main className="p-4 sm:p-6 space-y-4 sm:space-y-6">
         <StatsGrid stats={stats} userProfile={userProfile} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           <SubjectBreakdown
             attendanceSummary={attendanceSummary}
             userProfile={userProfile}
@@ -358,12 +366,12 @@ function calculateOverallStats(
 
 function getStatusBadge(percentage: number, threshold: number) {
   if (percentage >= 90) {
-    return <Badge variant="default" className="transition-none">Excellent</Badge>;
+    return <Badge variant="default" className="transition-none text-xs">Excellent</Badge>;
   } else if (percentage >= threshold) {
-    return <Badge variant="secondary" className="transition-none">Safe</Badge>;
+    return <Badge variant="secondary" className="transition-none text-xs">Safe</Badge>;
   } else {
     return (
-      <Badge variant="destructive" className="text-white dark:text-white transition-none">
+      <Badge variant="destructive" className="text-white dark:text-white transition-none text-xs">
         At Risk
       </Badge>
     );
@@ -373,15 +381,15 @@ function getStatusBadge(percentage: number, threshold: number) {
 function getStatusIcon(status: string) {
   switch (status) {
     case "present":
-      return <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />;
+      return <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-500 flex-shrink-0" />;
     case "absent":
-      return <XCircle className="h-5 w-5 text-red-500 flex-shrink-0" />;
+      return <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-500 flex-shrink-0" />;
     case "late":
-      return <Clock className="h-5 w-5 text-yellow-500 flex-shrink-0" />;
+      return <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-500 flex-shrink-0" />;
     case "excused":
-      return <AlertTriangle className="h-5 w-5 text-blue-500 flex-shrink-0" />;
+      return <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500 flex-shrink-0" />;
     default:
-      return <CheckCircle className="h-5 w-5 text-gray-500 flex-shrink-0" />;
+      return <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500 flex-shrink-0" />;
   }
 }
 
@@ -432,20 +440,20 @@ function StatsGrid({ stats, userProfile }: { stats: any; userProfile: any }) {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
       {statItems.map((stat, index) => (
         <Card key={index}>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 rounded-lg bg-purple-100 dark:bg-purple-500/10">
-                <stat.icon className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <div className="p-2 sm:p-3 rounded-lg bg-purple-100 dark:bg-purple-500/10">
+                <stat.icon className="h-4 w-4 sm:h-6 sm:w-6 text-purple-600 dark:text-purple-400" />
               </div>
             </div>
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">
+              <p className="text-xs sm:text-sm font-medium text-muted-foreground">
                 {stat.title}
               </p>
-              <p className="text-3xl font-bold">{stat.value}</p>
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold">{stat.value}</p>
               <p className="text-xs text-muted-foreground">{stat.trend}</p>
             </div>
           </CardContent>
@@ -467,47 +475,47 @@ function SubjectBreakdown({
   const threshold = userProfile?.min_attendance_percentage || 75;
 
   return (
-    <div className="lg:col-span-2 rounded-xl border border-border bg-card p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold">Subject-wise Breakdown</h2>
-        <Button variant="ghost" onClick={onExport} className="transition-none">
-          <Download className="h-4 w-4 mr-1" />
-          Export
+    <div className="lg:col-span-2 rounded-xl border border-border bg-card p-4 sm:p-6">
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <h2 className="text-lg sm:text-xl font-semibold">Subject-wise Breakdown</h2>
+        <Button variant="ghost" onClick={onExport} className="transition-none text-xs sm:text-sm h-8 sm:h-9">
+          <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+          <span className="hidden sm:inline">Export</span>
         </Button>
       </div>
 
       {attendanceSummary.length === 0 ? (
-        <div className="text-center py-12">
-          <Calendar className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-          <h3 className="text-lg font-medium mb-2">No attendance data</h3>
-          <p className="text-sm text-muted-foreground">
+        <div className="text-center py-8 sm:py-12">
+          <Calendar className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-muted-foreground opacity-50" />
+          <h3 className="text-base sm:text-lg font-medium mb-2">No attendance data</h3>
+          <p className="text-xs sm:text-sm text-muted-foreground">
             Start marking your attendance to see your progress
           </p>
         </div>
       ) : (
-        <Accordion type="single" collapsible className="space-y-4">
+        <Accordion type="single" collapsible className="space-y-3 sm:space-y-4">
           {attendanceSummary.map((course, index) => (
             <AccordionItem
               key={course.course_code}
               value={`course-${index}`}
               className="border border-border rounded-lg transition-none"
             >
-              <AccordionTrigger className="px-4 py-3 hover:no-underline cursor-pointer">
-                <div className="flex items-center justify-between w-full pr-4">
-                  <div className="flex items-center gap-3">
-                    <div className="text-left">
-                      <h3 className="font-medium text-base transition-none">
+              <AccordionTrigger className="px-3 sm:px-4 py-2 sm:py-3 hover:no-underline cursor-pointer">
+                <div className="flex items-center justify-between w-full pr-3 sm:pr-4">
+                  <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                    <div className="text-left min-w-0 flex-1">
+                      <h3 className="font-medium text-sm sm:text-base transition-none truncate">
                         {course.course_name}
                       </h3>
-                      <p className="text-sm text-muted-foreground transition-none">
+                      <p className="text-xs text-muted-foreground transition-none truncate">
                         {course.course_code}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0 ml-2">
                     {getStatusBadge(course.attendance_percentage, threshold)}
                     <div className="text-right">
-                      <p className="text-lg font-bold transition-none">
+                      <p className="text-base sm:text-lg font-bold transition-none">
                         {course.attendance_percentage}%
                       </p>
                       <p className="text-xs text-muted-foreground">
@@ -518,10 +526,10 @@ function SubjectBreakdown({
                   </div>
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="px-4 pb-4">
-                <div className="space-y-4">
+              <AccordionContent className="px-3 sm:px-4 pb-3 sm:pb-4">
+                <div className="space-y-3 sm:space-y-4">
                   <div>
-                    <div className="flex justify-between text-sm mb-2">
+                    <div className="flex justify-between text-xs mb-1 sm:mb-2">
                       <span className="text-muted-foreground">
                         Attendance Progress
                       </span>
@@ -531,11 +539,11 @@ function SubjectBreakdown({
                     </div>
                     <Progress
                       value={course.attendance_percentage}
-                      className="h-2"
+                      className="h-1 sm:h-2"
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
                     <div>
                       <p className="text-muted-foreground">Present</p>
                       <p className="font-medium">{course.present}</p>
@@ -554,7 +562,7 @@ function SubjectBreakdown({
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-accent">
+                  <div className="flex items-center justify-between p-2 sm:p-3 rounded-lg bg-accent text-xs sm:text-sm">
                     <span className="text-muted-foreground">
                       Classes needed to reach {threshold}%
                     </span>
@@ -583,23 +591,23 @@ function RecentActivity({
   recentActivity: AttendanceRecord[];
 }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-6">
-      <h2 className="text-xl font-semibold mb-6">Recent Activity</h2>
-      <div className="space-y-4">
+    <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
+      <h2 className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6">Recent Activity</h2>
+      <div className="space-y-3 sm:space-y-4">
         {recentActivity.length === 0 ? (
-          <div className="text-center py-8">
-            <Clock className="h-8 w-8 mx-auto mb-2 text-muted-foreground opacity-50" />
-            <p className="text-sm text-muted-foreground">No recent activity</p>
+          <div className="text-center py-6 sm:py-8">
+            <Clock className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 text-muted-foreground opacity-50" />
+            <p className="text-xs sm:text-sm text-muted-foreground">No recent activity</p>
           </div>
         ) : (
           recentActivity.map((activity) => (
             <div
               key={activity.id}
-              className="flex items-center gap-3 p-3 rounded-lg bg-accent"
+              className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg bg-accent"
             >
               {getStatusIcon(activity.status)}
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm truncate">
+                <p className="font-medium text-xs sm:text-sm truncate">
                   {activity.courses.course_code}
                 </p>
                 <p className="text-xs mt-0.5 text-muted-foreground">
@@ -615,6 +623,7 @@ function RecentActivity({
                     ? "destructive"
                     : "secondary"
                 }
+                className="text-xs"
               >
                 {activity.status}
               </Badge>
@@ -637,17 +646,17 @@ function AttendanceInsights({
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Insights & Predictions</CardTitle>
+      <CardHeader className="p-4 sm:p-6">
+        <CardTitle className="text-lg sm:text-xl">Insights & Predictions</CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="p-4 rounded-lg border border-border bg-accent">
-            <div className="flex items-center gap-3 mb-2">
-              <AlertTriangle className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-              <h3 className="font-medium">Subjects at Risk</h3>
+      <CardContent className="p-4 sm:p-6 pt-0">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+          <div className="p-3 sm:p-4 rounded-lg border border-border bg-accent">
+            <div className="flex items-center gap-2 sm:gap-3 mb-2">
+              <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 dark:text-purple-400" />
+              <h3 className="font-medium text-sm sm:text-base">Subjects at Risk</h3>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               {stats.subjectsAtRisk > 0
                 ? `${stats.subjectsAtRisk} subject${
                     stats.subjectsAtRisk > 1 ? "s" : ""
@@ -656,12 +665,12 @@ function AttendanceInsights({
             </p>
           </div>
 
-          <div className="p-4 rounded-lg border border-border bg-accent">
-            <div className="flex items-center gap-3 mb-2">
-              <Clock className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-              <h3 className="font-medium">Overall Progress</h3>
+          <div className="p-3 sm:p-4 rounded-lg border border-border bg-accent">
+            <div className="flex items-center gap-2 sm:gap-3 mb-2">
+              <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 dark:text-purple-400" />
+              <h3 className="font-medium text-sm sm:text-base">Overall Progress</h3>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               Current overall attendance is{" "}
               <span className="font-semibold">{stats.overallAttendance}%</span>.{" "}
               {stats.overallAttendance >= threshold
@@ -670,12 +679,12 @@ function AttendanceInsights({
             </p>
           </div>
 
-          <div className="p-4 rounded-lg border border-border bg-accent">
-            <div className="flex items-center gap-3 mb-2">
-              <TrendingUp className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-              <h3 className="font-medium">Safe Buffer</h3>
+          <div className="p-3 sm:p-4 rounded-lg border border-border bg-accent">
+            <div className="flex items-center gap-2 sm:gap-3 mb-2">
+              <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 dark:text-purple-400" />
+              <h3 className="font-medium text-sm sm:text-base">Safe Buffer</h3>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               You can miss up to{" "}
               <span className="font-semibold">{stats.safeAbsences}</span> more
               classes while staying above {threshold}% threshold.
@@ -704,17 +713,17 @@ function MarkAttendanceModal({
 }) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent className="max-w-[95vw] sm:max-w-md">
         <AlertDialogHeader>
-          <AlertDialogTitle>Mark Today's Attendance</AlertDialogTitle>
-          <AlertDialogDescription>
+          <AlertDialogTitle className="text-sm sm:text-base">Mark Today's Attendance</AlertDialogTitle>
+          <AlertDialogDescription className="text-xs sm:text-sm">
             Record your attendance for today's classes.
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           <div>
-            <label className="text-sm font-medium mb-1 block">Course</label>
+            <label className="text-xs sm:text-sm font-medium mb-1 block">Course</label>
             <Select
               value={markAttendanceData.course_id}
               onValueChange={(value) =>
@@ -724,12 +733,12 @@ function MarkAttendanceModal({
                 }))
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className="text-xs sm:text-sm h-9 sm:h-10">
                 <SelectValue placeholder="Select a course" />
               </SelectTrigger>
               <SelectContent>
                 {courses.map((course) => (
-                  <SelectItem key={course.id} value={course.id}>
+                  <SelectItem key={course.id} value={course.id} className="text-xs sm:text-sm">
                     {course.course_code} - {course.course_name}
                   </SelectItem>
                 ))}
@@ -738,7 +747,7 @@ function MarkAttendanceModal({
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-1 block">Date</label>
+            <label className="text-xs sm:text-sm font-medium mb-1 block">Date</label>
             <input
               type="date"
               value={markAttendanceData.class_date}
@@ -748,12 +757,12 @@ function MarkAttendanceModal({
                   class_date: e.target.value,
                 }))
               }
-              className="w-full px-3 py-2 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+              className="w-full px-3 py-2 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring text-xs sm:text-sm"
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-1 block">Status</label>
+            <label className="text-xs sm:text-sm font-medium mb-1 block">Status</label>
             <Select
               value={markAttendanceData.status}
               onValueChange={(value) =>
@@ -763,24 +772,25 @@ function MarkAttendanceModal({
                 }))
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className="text-xs sm:text-sm h-9 sm:h-10">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="present">Present</SelectItem>
-                <SelectItem value="absent">Absent</SelectItem>
-                <SelectItem value="late">Late</SelectItem>
-                <SelectItem value="excused">Excused</SelectItem>
+                <SelectItem value="present" className="text-xs sm:text-sm">Present</SelectItem>
+                <SelectItem value="absent" className="text-xs sm:text-sm">Absent</SelectItem>
+                <SelectItem value="late" className="text-xs sm:text-sm">Late</SelectItem>
+                <SelectItem value="excused" className="text-xs sm:text-sm">Excused</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
 
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel className="text-xs sm:text-sm h-9 sm:h-10">Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={onMarkAttendance}
             disabled={!markAttendanceData.course_id}
+            className="text-xs sm:text-sm h-9 sm:h-10"
           >
             Mark Attendance
           </AlertDialogAction>
@@ -794,65 +804,73 @@ function AttendanceSkeleton() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-16 items-center gap-4 px-6">
-          <SidebarTrigger />
-          <div className="flex-1">
-            <h1 className="text-xl font-semibold">Attendance</h1>
+        <div className="flex h-14 sm:h-16 items-center gap-4 px-4 sm:px-6">
+          <div className="lg:hidden">
+            <Skeleton className="w-7 h-7 sm:w-8 sm:h-8 rounded" />
           </div>
-          <div className="flex items-center gap-3">
-            <Skeleton className="h-9 w-32 rounded" />
-            <Skeleton className="h-9 w-32 rounded" />
+          <div className="hidden lg:block">
+            <Skeleton className="w-7 h-7 sm:w-8 sm:h-8 rounded" />
+          </div>
+          <div className="flex-1">
+            <Skeleton className="h-5 w-24 sm:h-6 sm:w-32 rounded" />
+          </div>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Skeleton className="h-9 w-16 sm:h-10 sm:w-20 rounded" />
+            <Skeleton className="h-9 w-16 sm:h-10 sm:w-20 rounded" />
           </div>
         </div>
       </header>
-      <main className="p-6 space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <main className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {[1, 2, 3, 4].map((i) => (
             <Card key={i}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <Skeleton className="w-12 h-12 rounded-lg" />
+              <CardContent className="p-3 sm:p-4">
+                <div className="flex items-center justify-between mb-3 sm:mb-4">
+                  <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg" />
                 </div>
                 <div className="space-y-2">
-                  <Skeleton className="h-4 w-24 rounded" />
-                  <Skeleton className="h-8 w-16 rounded" />
-                  <Skeleton className="h-3 w-32 rounded" />
+                  <Skeleton className="h-3 w-20 sm:h-4 sm:w-24 rounded" />
+                  <Skeleton className="h-6 w-12 sm:h-8 sm:w-16 rounded" />
+                  <Skeleton className="h-2 w-24 sm:h-3 sm:w-32 rounded" />
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 rounded-xl border border-border bg-card p-6">
-            <div className="flex items-center justify-between mb-6">
-              <Skeleton className="h-6 w-48 rounded" />
-              <Skeleton className="h-4 w-16 rounded" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="lg:col-span-2 rounded-xl border border-border bg-card p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <Skeleton className="h-5 w-36 sm:h-6 sm:w-48 rounded" />
+              <Skeleton className="h-4 w-12 sm:h-4 sm:w-16 rounded" />
             </div>
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {[1, 2, 3, 4].map((i) => (
                 <Card key={i}>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-2">
-                        <Skeleton className="h-6 w-32 rounded" />
-                        <Skeleton className="h-4 w-24 rounded" />
+                  <CardHeader className="p-3 sm:p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div className="space-y-2 flex-1">
+                        <Skeleton className="h-4 w-32 sm:h-6 sm:w-40 rounded" />
+                        <Skeleton className="h-3 w-24 sm:h-4 sm:w-32 rounded" />
                       </div>
-                      <Skeleton className="h-6 w-20 rounded" />
+                      <div className="flex items-center gap-2">
+                        <Skeleton className="h-5 w-16 rounded" />
+                        <Skeleton className="h-5 w-12 rounded" />
+                      </div>
                     </div>
                   </CardHeader>
                 </Card>
               ))}
             </div>
           </div>
-          <div className="rounded-xl border border-border bg-card p-6">
-            <Skeleton className="h-6 w-32 rounded mb-6" />
-            <div className="space-y-4">
+          <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
+            <Skeleton className="h-5 w-28 sm:h-6 sm:w-32 rounded mb-4 sm:mb-6" />
+            <div className="space-y-3 sm:space-y-4">
               {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="flex gap-3">
-                  <Skeleton className="w-5 h-5 rounded" />
+                <div key={i} className="flex gap-2 sm:gap-3">
+                  <Skeleton className="w-4 h-4 sm:w-5 sm:h-5 rounded" />
                   <div className="flex-1 space-y-2">
-                    <Skeleton className="h-4 w-full rounded" />
-                    <Skeleton className="h-3 w-32 rounded" />
+                    <Skeleton className="h-3 w-full sm:h-4 rounded" />
+                    <Skeleton className="h-2 w-24 sm:h-3 sm:w-32 rounded" />
                   </div>
                 </div>
               ))}
@@ -874,25 +892,30 @@ function ErrorState({
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-16 items-center gap-4 px-6">
-          <SidebarTrigger />
+        <div className="flex h-14 sm:h-16 items-center gap-4 px-4 sm:px-6">
+          <div className="lg:hidden">
+            <MobileSidebarTrigger />
+          </div>
+          <div className="hidden lg:block">
+            <SidebarTrigger />
+          </div>
           <div className="flex-1">
-            <h1 className="text-xl font-semibold">Attendance</h1>
+            <h1 className="text-lg sm:text-xl font-semibold">Attendance</h1>
           </div>
         </div>
       </header>
-      <main className="p-6">
-        <div className="flex items-center justify-center h-96">
+      <main className="p-4 sm:p-6">
+        <div className="flex items-center justify-center h-64 sm:h-96">
           <Card className="w-full max-w-md">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-destructive">
-                <AlertCircle className="h-5 w-5" />
+              <CardTitle className="flex items-center gap-2 text-destructive text-base sm:text-lg">
+                <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5" />
                 Failed to load attendance data
               </CardTitle>
-              <CardDescription>{error}</CardDescription>
+              <CardDescription className="text-xs sm:text-sm">{error}</CardDescription>
             </CardHeader>
             <CardFooter>
-              <Button onClick={onRetry} className="w-full">
+              <Button onClick={onRetry} className="w-full text-xs sm:text-sm h-9 sm:h-10">
                 Retry
               </Button>
             </CardFooter>

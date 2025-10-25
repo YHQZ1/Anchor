@@ -26,7 +26,7 @@ export default function Unauthorized() {
   const [mounted, setMounted] = useState(false);
   const [shapes, setShapes] = useState<Shape[]>([]);
 
-  const numberOfShapes = 20;
+  const numberOfShapes = 12;
   const shapeColor = theme === "dark" ? "bg-white/20" : "bg-black/20";
 
   useEffect(() => {
@@ -36,15 +36,15 @@ export default function Unauthorized() {
       () => ({
         x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1200),
         y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800),
-        size: Math.random() * 80 + 30,
+        size: Math.random() * 60 + 20,
         rotate: Math.random() * 360,
         type: ["square", "circle", "triangle", "line"][
           Math.floor(Math.random() * 4)
         ] as ShapeType,
-        floatX: (Math.random() - 0.5) * 100,
-        floatY: (Math.random() - 0.5) * 100,
-        rotateDeg: (Math.random() - 0.5) * 180,
-        duration: Math.random() * 4 + 3,
+        floatX: (Math.random() - 0.5) * 80,
+        floatY: (Math.random() - 0.5) * 80,
+        rotateDeg: (Math.random() - 0.5) * 120,
+        duration: Math.random() * 5 + 4,
       })
     );
 
@@ -139,7 +139,7 @@ export default function Unauthorized() {
           style={{
             ...baseStyle,
             width: shape.size * 1.5,
-            height: 3,
+            height: 2,
             transform: `rotate(${shape.rotate}deg)`,
           }}
           animate={{
@@ -195,35 +195,29 @@ export default function Unauthorized() {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden px-6 bg-background text-foreground">
-      {/* Animated Shapes Background */}
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden px-4 sm:px-6 bg-background text-foreground">
       {shapes.map((shape, idx) => renderShape(shape, idx))}
 
-      {/* Content */}
-      <div className="relative z-10 max-w-md w-full text-center space-y-8">
-        {/* 401 */}
-        <h1 className="text-8xl md:text-9xl font-bold">401</h1>
+      <div className="relative z-10 max-w-md w-full text-center space-y-6 sm:space-y-8">
+        <h1 className="text-6xl sm:text-8xl md:text-9xl font-bold">401</h1>
 
-        {/* Message */}
-        <p className="text-lg text-muted-foreground">
-          You must be logged in to view this page. Please log in to continue or
-          return to the previous page.
+        <p className="text-base sm:text-lg text-muted-foreground px-2">
+          You must be logged in to view this page. Please log in to continue or return to the previous page.
         </p>
 
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
           <button
             onClick={handleLogin}
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-input bg-background hover:bg-accent font-medium cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg border border-input bg-background hover:bg-accent font-medium cursor-pointer text-sm sm:text-base transition-colors"
           >
             Login / Sign Up
           </button>
 
           <button
             onClick={handleGoBack}
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-input bg-background hover:bg-accent font-medium cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg border border-input bg-background hover:bg-accent font-medium cursor-pointer text-sm sm:text-base transition-colors"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
             Go Back
           </button>
         </div>

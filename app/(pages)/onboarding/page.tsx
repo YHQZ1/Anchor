@@ -19,6 +19,23 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
 
 interface Course {
   code: string;
@@ -314,13 +331,68 @@ export default function OnboardingWizard() {
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-      <div className="relative w-full max-w-4xl h-[80vh] max-h-[80vh] overflow-hidden rounded-xl border border-border bg-background shadow-2xl flex flex-col">
-        <Header currentStep={currentStep} totalSteps={totalSteps} />
-        <ProgressBar progress={progress} />
-        <StepIndicator steps={steps} currentStep={currentStep} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+      <div className="relative w-full max-w-4xl h-full max-h-[90vh] sm:max-h-[80vh] overflow-hidden rounded-xl border border-border bg-background shadow-2xl flex flex-col">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-border flex-shrink-0">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">
+              Welcome to Anchor!
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Let&apos;s set up your academic profile to get started
+            </p>
+          </div>
+          <Badge variant="secondary" className="text-xs sm:text-sm">
+            Step {currentStep} of {totalSteps}
+          </Badge>
+        </div>
 
-        <div className="flex-1 overflow-y-auto px-6 py-4">
+        <div className="px-4 sm:px-6 pt-4 flex-shrink-0">
+          <Progress value={progress} className="h-2" />
+        </div>
+
+        <div className="flex justify-center px-4 sm:px-6 py-4 flex-shrink-0">
+          <div className="flex items-center gap-4 sm:gap-6 overflow-x-auto pb-2 w-full justify-center">
+            {steps.map((step, index) => (
+              <div
+                key={step.number}
+                className="flex items-center gap-2 sm:gap-3 flex-shrink-0"
+              >
+                <div
+                  className={`flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 ${
+                    currentStep >= step.number
+                      ? "bg-primary border-primary text-primary-foreground"
+                      : "border-muted text-muted-foreground"
+                  }`}
+                >
+                  {currentStep > step.number ? (
+                    <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                  ) : (
+                    <step.icon className="h-3 w-3 sm:h-4 sm:w-4" />
+                  )}
+                </div>
+                <span
+                  className={`text-xs sm:text-sm font-medium whitespace-nowrap ${
+                    currentStep >= step.number
+                      ? "text-primary"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  {step.title}
+                </span>
+                {index < steps.length - 1 && (
+                  <div
+                    className={`w-4 sm:w-8 h-0.5 ${
+                      currentStep > step.number ? "bg-primary" : "bg-muted"
+                    }`}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4">
           {currentStep === 1 && (
             <AcademicProfileStep
               academicInfo={academicInfo}
@@ -345,148 +417,40 @@ export default function OnboardingWizard() {
           )}
         </div>
 
-        <Footer
-          currentStep={currentStep}
-          totalSteps={totalSteps}
-          onBack={() => setCurrentStep(currentStep - 1)}
-          onNext={() => setCurrentStep(currentStep + 1)}
-          onSubmit={handleSubmit}
-          loading={loading}
-        />
-      </div>
-    </div>
-  );
-}
+        <div className="flex items-center justify-between p-4 sm:p-6 border-t border-border bg-background flex-shrink-0">
+          <Button
+            variant="outline"
+            className="cursor-pointer text-xs sm:text-sm"
+            onClick={() => setCurrentStep(currentStep - 1)}
+            disabled={currentStep === 1}
+          >
+            <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+            Back
+          </Button>
 
-// Extracted Components
-
-function Header({
-  currentStep,
-  totalSteps,
-}: {
-  currentStep: number;
-  totalSteps: number;
-}) {
-  return (
-    <div className="flex items-center justify-between p-6 border-b border-border flex-shrink-0">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">
-          Welcome to Anchor!
-        </h1>
-        <p className="mt-1 text-muted-foreground">
-          Let&apos;s set up your academic profile to get started
-        </p>
-      </div>
-      <Badge variant="secondary">
-        Step {currentStep} of {totalSteps}
-      </Badge>
-    </div>
-  );
-}
-
-function ProgressBar({ progress }: { progress: number }) {
-  return (
-    <div className="px-6 pt-4 flex-shrink-0">
-      <Progress value={progress} className="h-2" />
-    </div>
-  );
-}
-
-function StepIndicator({
-  steps,
-  currentStep,
-}: {
-  steps: any[];
-  currentStep: number;
-}) {
-  return (
-    <div className="flex justify-center px-6 py-4 flex-shrink-0">
-      <div className="flex items-center gap-8">
-        {steps.map((step, index) => (
-          <div key={step.number} className="flex items-center gap-3">
-            <div
-              className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
-                currentStep >= step.number
-                  ? "bg-primary border-primary text-primary-foreground"
-                  : "border-muted text-muted-foreground"
-              }`}
+          {currentStep < totalSteps ? (
+            <Button
+              onClick={() => setCurrentStep(currentStep + 1)}
+              className="cursor-pointer text-xs sm:text-sm"
             >
-              {currentStep > step.number ? (
-                <CheckCircle2 className="h-4 w-4" />
-              ) : (
-                <step.icon className="h-4 w-4" />
-              )}
-            </div>
-            <span
-              className={`text-sm font-medium ${
-                currentStep >= step.number
-                  ? "text-primary"
-                  : "text-muted-foreground"
-              }`}
+              Continue
+              <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 ml-2" />
+            </Button>
+          ) : (
+            <Button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="cursor-pointer text-xs sm:text-sm"
             >
-              {step.title}
-            </span>
-            {index < steps.length - 1 && (
-              <div
-                className={`w-12 h-0.5 ${
-                  currentStep > step.number ? "bg-primary" : "bg-muted"
-                }`}
-              />
-            )}
-          </div>
-        ))}
+              {loading ? "Completing Setup..." : "Complete Setup"}
+              <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 ml-2" />
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
 }
-
-function Footer({
-  currentStep,
-  totalSteps,
-  onBack,
-  onNext,
-  onSubmit,
-  loading,
-}: {
-  currentStep: number;
-  totalSteps: number;
-  onBack: () => void;
-  onNext: () => void;
-  onSubmit: () => void;
-  loading: boolean;
-}) {
-  return (
-    <div className="flex items-center justify-between p-6 border-t border-border bg-background flex-shrink-0">
-      <Button
-        variant="outline"
-        className="cursor-pointer"
-        onClick={onBack}
-        disabled={currentStep === 1}
-      >
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Back
-      </Button>
-
-      {currentStep < totalSteps ? (
-        <Button onClick={onNext} className="cursor-pointer">
-          Continue
-          <ArrowRight className="h-4 w-4 ml-2" />
-        </Button>
-      ) : (
-        <Button
-          onClick={onSubmit}
-          disabled={loading}
-          className="cursor-pointer"
-        >
-          {loading ? "Completing Setup..." : "Complete Setup"}
-          <CheckCircle2 className="h-4 w-4 ml-2" />
-        </Button>
-      )}
-    </div>
-  );
-}
-
-// Step Components
 
 function AcademicProfileStep({
   academicInfo,
@@ -500,15 +464,15 @@ function AcademicProfileStep({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h2 className="text-2xl font-bold mb-2">Academic Profile</h2>
-        <p className="text-sm text-muted-foreground">
+        <h2 className="text-xl sm:text-2xl font-bold mb-2">Academic Profile</h2>
+        <p className="text-xs sm:text-sm text-muted-foreground">
           Tell us about your academic background
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <FormField
           label="Full Name *"
           id="fullName"
@@ -586,15 +550,15 @@ function CoursesStep({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h2 className="text-2xl font-bold mb-2">Your Courses</h2>
-        <p className="text-sm text-muted-foreground">
+        <h2 className="text-xl sm:text-2xl font-bold mb-2">Your Courses</h2>
+        <p className="text-xs sm:text-sm text-muted-foreground">
           Add the courses you&apos;re taking this semester
         </p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         {courses.map((course, index) => (
           <CourseForm
             key={index}
@@ -611,9 +575,9 @@ function CoursesStep({
         type="button"
         variant="outline"
         onClick={addCourse}
-        className="w-full cursor-pointer"
+        className="w-full cursor-pointer text-xs sm:text-sm"
       >
-        <Plus className="h-4 w-4 mr-2" />
+        <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
         Add Another Course
       </Button>
     </div>
@@ -674,10 +638,10 @@ function ScheduleStep({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h2 className="text-2xl font-bold mb-2">Class Schedule</h2>
-        <p className="text-sm text-muted-foreground">
+        <h2 className="text-xl sm:text-2xl font-bold mb-2">Class Schedule</h2>
+        <p className="text-xs sm:text-sm text-muted-foreground">
           Set up your weekly class schedule for attendance tracking
         </p>
       </div>
@@ -689,13 +653,17 @@ function ScheduleStep({
           <div className="w-full border-t border-border" />
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-background text-muted-foreground">OR</span>
+          <span className="px-2 bg-background text-muted-foreground text-xs">
+            OR
+          </span>
         </div>
       </div>
 
       <div>
-        <h3 className="text-lg font-semibold mb-4">Add Classes Manually</h3>
-        <div className="space-y-4">
+        <h3 className="text-lg font-semibold mb-3 sm:mb-4">
+          Add Classes Manually
+        </h3>
+        <div className="space-y-3 sm:space-y-4">
           {classSchedule.map((classItem, index) => (
             <ClassForm
               key={index}
@@ -713,9 +681,9 @@ function ScheduleStep({
           type="button"
           variant="outline"
           onClick={addClass}
-          className="w-full mt-4 cursor-pointer"
+          className="w-full mt-3 sm:mt-4 cursor-pointer text-xs sm:text-sm"
         >
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
           Add Another Class
         </Button>
       </div>
@@ -731,10 +699,12 @@ function PreferencesStep({
   onChange: (prefs: any) => void;
 }) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h2 className="text-2xl font-bold mb-2">Attendance Preferences</h2>
-        <p className="text-sm text-muted-foreground">
+        <h2 className="text-xl sm:text-2xl font-bold mb-2">
+          Attendance Preferences
+        </h2>
+        <p className="text-xs sm:text-sm text-muted-foreground">
           Set your attendance goals and preferences
         </p>
       </div>
@@ -757,27 +727,6 @@ function PreferencesStep({
   );
 }
 
-// Helper Components (these would be in separate files)
-
-// Import these from your UI components
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { format } from "date-fns";
-
 function FormField({
   label,
   id,
@@ -795,13 +744,16 @@ function FormField({
 }) {
   return (
     <div className="space-y-2">
-      <Label htmlFor={id}>{label}</Label>
+      <Label htmlFor={id} className="text-xs sm:text-sm">
+        {label}
+      </Label>
       <Input
         id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         required={required}
+        className="text-xs sm:text-sm"
       />
     </div>
   );
@@ -816,14 +768,20 @@ function SemesterSelect({
 }) {
   return (
     <div className="space-y-2">
-      <Label htmlFor="currentSemester">Current Semester *</Label>
+      <Label htmlFor="currentSemester" className="text-xs sm:text-sm">
+        Current Semester *
+      </Label>
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger>
+        <SelectTrigger className="text-xs sm:text-sm">
           <SelectValue placeholder="Select semester" />
         </SelectTrigger>
         <SelectContent>
           {[1, 2, 3, 4, 5, 6, 7, 8].map((sem) => (
-            <SelectItem key={sem} value={sem.toString()}>
+            <SelectItem
+              key={sem}
+              value={sem.toString()}
+              className="text-xs sm:text-sm"
+            >
               {sem}
               {sem === 1
                 ? "st"
@@ -850,30 +808,26 @@ function GraduationDatePicker({
 }) {
   return (
     <div className="space-y-2">
-      <Label htmlFor="expectedGraduation">Expected Graduation</Label>
+      <Label htmlFor="expectedGraduation" className="text-xs sm:text-sm">
+        Expected Graduation
+      </Label>
       <Popover>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className="w-full justify-start text-left font-normal"
+            className="w-full justify-start text-left font-normal text-xs sm:text-sm h-9 sm:h-10"
           >
-            <CalendarIcon className="mr-2 h-4 w-4 opacity-70" />
+            <CalendarIcon className="mr-2 h-3 w-3 sm:h-4 sm:w-4 opacity-70" />
             {value ? format(value, "PPP") : "Pick a date"}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-64 p-2" align="start">
-          <div className="h-74 overflow-y-auto">
-            <Calendar
-              mode="single"
-              selected={value}
-              onSelect={(date) => date && onChange(date)}
-              captionLayout="dropdown"
-              fromYear={new Date().getFullYear() - 10}
-              toYear={new Date().getFullYear() + 10}
-              initialFocus
-              className="[&_.rdp-day]:h-7 [&_.rdp-day]:w-7 [&_.rdp-table]:text-sm [&_.rdp-months]:p-2 rounded-md border shadow-sm"
-            />
-          </div>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={value}
+            onSelect={(date) => date && onChange(date)}
+            initialFocus
+          />
         </PopoverContent>
       </Popover>
     </div>
@@ -894,53 +848,63 @@ function CourseForm({
   showRemove: boolean;
 }) {
   return (
-    <div className="p-4 rounded-lg border border-border bg-card">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-medium">Course {index + 1}</h3>
+    <div className="p-3 sm:p-4 rounded-lg border border-border bg-card">
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <h3 className="font-medium text-sm sm:text-base">Course {index + 1}</h3>
         {showRemove && (
           <Button
             variant="ghost"
             size="sm"
             onClick={() => onRemove(index)}
-            className="h-8 w-8 p-0 text-destructive hover:text-destructive/90"
+            className="h-6 w-6 sm:h-8 sm:w-8 p-0 text-destructive hover:text-destructive/90"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <FormField
           label="Course Code *"
           value={course.code}
           onChange={(value) => onCourseChange(index, "code", value)}
           placeholder="e.g., CS 301"
-          required id={""}        />
+          required
+          id={""}
+        />
         <FormField
           label="Course Name *"
           value={course.name}
           onChange={(value) => onCourseChange(index, "name", value)}
           placeholder="e.g., Data Structures"
-          required id={""}        />
+          required
+          id={""}
+        />
         <FormField
           label="Instructor *"
           value={course.instructor}
           onChange={(value) => onCourseChange(index, "instructor", value)}
           placeholder="Professor name"
-          required id={""}        />
+          required
+          id={""}
+        />
 
         <div className="space-y-2">
-          <Label>Credits</Label>
+          <Label className="text-xs sm:text-sm">Credits</Label>
           <Select
             value={course.credits.toString()}
             onValueChange={(value) => onCourseChange(index, "credits", value)}
           >
-            <SelectTrigger>
+            <SelectTrigger className="text-xs sm:text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {[1, 2, 3, 4, 5].map((credit) => (
-                <SelectItem key={credit} value={credit.toString()}>
+                <SelectItem
+                  key={credit}
+                  value={credit.toString()}
+                  className="text-xs sm:text-sm"
+                >
                   {credit} credit{credit !== 1 ? "s" : ""}
                 </SelectItem>
               ))}
@@ -958,17 +922,23 @@ function FileUploadSection({
   onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
   return (
-    <div className="p-6 rounded-lg border border-border bg-card">
+    <div className="p-4 sm:p-6 rounded-lg border border-border bg-card">
       <div className="text-center">
-        <Upload className="h-12 w-12 mx-auto mb-4 text-primary" />
-        <h3 className="text-lg font-semibold mb-2">Upload Your Timetable</h3>
-        <p className="text-sm mb-4 text-muted-foreground">
+        <Upload className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-primary" />
+        <h3 className="text-base sm:text-lg font-semibold mb-2">
+          Upload Your Timetable
+        </h3>
+        <p className="text-xs sm:text-sm mb-3 sm:mb-4 text-muted-foreground">
           Upload your Excel or PDF timetable to automatically import your
           schedule
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button type="button" variant="outline" className="relative">
-            <Upload className="h-4 w-4 mr-2" />
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Button
+            type="button"
+            variant="outline"
+            className="relative text-xs sm:text-sm"
+          >
+            <Upload className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
             Choose File
             <Input
               type="file"
@@ -977,7 +947,7 @@ function FileUploadSection({
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             />
           </Button>
-          <Button variant="outline" disabled>
+          <Button variant="outline" disabled className="text-xs sm:text-sm">
             Download Template
           </Button>
         </div>
@@ -1010,78 +980,102 @@ function ClassForm({
   );
 
   return (
-    <div className="p-4 rounded-lg border border-border bg-card">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-medium">Class {index + 1}</h3>
+    <div className="p-3 sm:p-4 rounded-lg border border-border bg-card">
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <h3 className="font-medium text-sm sm:text-base">Class {index + 1}</h3>
         {showRemove && (
           <Button
             variant="ghost"
             size="sm"
             onClick={() => onRemove(index)}
-            className="h-8 w-8 p-0 text-destructive hover:text-destructive/90"
+            className="h-6 w-6 sm:h-8 sm:w-8 p-0 text-destructive hover:text-destructive/90"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         <div className="space-y-2">
-          <Label>Day</Label>
+          <Label className="text-xs sm:text-sm">Day</Label>
           <Select
             value={classItem.day.toString()}
             onValueChange={(value) => onClassChange(index, "day", value)}
           >
-            <SelectTrigger>
+            <SelectTrigger className="text-xs sm:text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="1">Monday</SelectItem>
-              <SelectItem value="2">Tuesday</SelectItem>
-              <SelectItem value="3">Wednesday</SelectItem>
-              <SelectItem value="4">Thursday</SelectItem>
-              <SelectItem value="5">Friday</SelectItem>
-              <SelectItem value="6">Saturday</SelectItem>
-              <SelectItem value="0">Sunday</SelectItem>
+              <SelectItem value="1" className="text-xs sm:text-sm">
+                Monday
+              </SelectItem>
+              <SelectItem value="2" className="text-xs sm:text-sm">
+                Tuesday
+              </SelectItem>
+              <SelectItem value="3" className="text-xs sm:text-sm">
+                Wednesday
+              </SelectItem>
+              <SelectItem value="4" className="text-xs sm:text-sm">
+                Thursday
+              </SelectItem>
+              <SelectItem value="5" className="text-xs sm:text-sm">
+                Friday
+              </SelectItem>
+              <SelectItem value="6" className="text-xs sm:text-sm">
+                Saturday
+              </SelectItem>
+              <SelectItem value="0" className="text-xs sm:text-sm">
+                Sunday
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
-          <Label>Start Time</Label>
+          <Label className="text-xs sm:text-sm">Start Time</Label>
           <Input
             type="time"
             value={classItem.startTime}
             onChange={(e) => onClassChange(index, "startTime", e.target.value)}
+            className="text-xs sm:text-sm"
           />
         </div>
 
         <div className="space-y-2">
-          <Label>End Time</Label>
+          <Label className="text-xs sm:text-sm">End Time</Label>
           <Input
             type="time"
             value={classItem.endTime}
             onChange={(e) => onClassChange(index, "endTime", e.target.value)}
+            className="text-xs sm:text-sm"
           />
         </div>
 
         <div className="space-y-2">
-          <Label>Course *</Label>
+          <Label className="text-xs sm:text-sm">Course *</Label>
           <Select
             value={classItem.course}
             onValueChange={(value) => onClassChange(index, "course", value)}
           >
-            <SelectTrigger>
+            <SelectTrigger className="text-xs sm:text-sm">
               <SelectValue placeholder="Select course" />
             </SelectTrigger>
             <SelectContent>
               {availableCourses.map((course, courseIndex) => (
-                <SelectItem key={courseIndex} value={course.code}>
+                <SelectItem
+                  key={courseIndex}
+                  value={course.code}
+                  className="text-xs sm:text-sm"
+                >
                   {course.code} - {course.name || "Unnamed Course"}
                 </SelectItem>
               ))}
               {availableCourses.length === 0 && (
-                <SelectItem value="no-courses" disabled>
+                <SelectItem
+                  value="no-courses"
+                  disabled
+                  className="text-xs sm:text-sm"
+                >
                   No courses available
                 </SelectItem>
               )}
@@ -1090,28 +1084,35 @@ function ClassForm({
         </div>
 
         <div className="space-y-2">
-          <Label>Room *</Label>
+          <Label className="text-xs sm:text-sm">Room *</Label>
           <Input
             value={classItem.room}
             onChange={(e) => onClassChange(index, "room", e.target.value)}
             placeholder="e.g., Room 301"
             required
+            className="text-xs sm:text-sm"
           />
         </div>
 
         <div className="space-y-2">
-          <Label>Type</Label>
+          <Label className="text-xs sm:text-sm">Type</Label>
           <Select
             value={classItem.type}
             onValueChange={(value) => onClassChange(index, "type", value)}
           >
-            <SelectTrigger>
+            <SelectTrigger className="text-xs sm:text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="lecture">Lecture</SelectItem>
-              <SelectItem value="lab">Lab</SelectItem>
-              <SelectItem value="tutorial">Tutorial</SelectItem>
+              <SelectItem value="lecture" className="text-xs sm:text-sm">
+                Lecture
+              </SelectItem>
+              <SelectItem value="lab" className="text-xs sm:text-sm">
+                Lab
+              </SelectItem>
+              <SelectItem value="tutorial" className="text-xs sm:text-sm">
+                Tutorial
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -1128,21 +1129,21 @@ function AttendanceSlider({
   onChange: (value: number) => void;
 }) {
   return (
-    <div className="p-6 rounded-lg border border-border bg-card">
+    <div className="p-4 sm:p-6 rounded-lg border border-border bg-card">
       <div className="space-y-4">
         <div>
-          <Label htmlFor="minAttendance" className="text-base">
+          <Label htmlFor="minAttendance" className="text-sm sm:text-base">
             Minimum Attendance Percentage
           </Label>
-          <p className="text-sm mt-1 text-muted-foreground">
+          <p className="text-xs sm:text-sm mt-1 text-muted-foreground">
             Set the minimum attendance percentage you want to maintain for each
             course
           </p>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           <div className="flex items-center justify-between">
-            <span className="text-lg font-semibold text-foreground">
+            <span className="text-base sm:text-lg font-semibold text-foreground">
               {minAttendance}%
             </span>
           </div>
@@ -1154,7 +1155,7 @@ function AttendanceSlider({
             step={1}
             className="w-full cursor-pointer"
           />
-          <div className="flex justify-between text-sm text-muted-foreground">
+          <div className="flex justify-between text-xs sm:text-sm text-muted-foreground">
             <span>50%</span>
             <span>75%</span>
             <span>100%</span>
@@ -1173,17 +1174,17 @@ function WarningsToggle({
   onChange: (value: boolean) => void;
 }) {
   return (
-    <div className="p-6 rounded-lg border border-border bg-card">
+    <div className="p-4 sm:p-6 rounded-lg border border-border bg-card">
       <div className="flex items-center justify-between">
         <div>
-          <Label className="text-base">Attendance Warnings</Label>
-          <p className="text-sm mt-1 text-muted-foreground">
+          <Label className="text-sm sm:text-base">Attendance Warnings</Label>
+          <p className="text-xs sm:text-sm mt-1 text-muted-foreground">
             Receive notifications when your attendance drops below your target
           </p>
         </div>
         <Button
           variant={enableWarnings ? "default" : "outline"}
-          className="cursor-pointer mb-10"
+          className="cursor-pointer text-xs sm:text-sm"
           onClick={() => onChange(!enableWarnings)}
         >
           {enableWarnings ? "Enabled" : "Disabled"}

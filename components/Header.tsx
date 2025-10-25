@@ -26,7 +26,7 @@ export default function Header() {
               href="/"
               className="flex items-center gap-2 sm:gap-3 cursor-pointer flex-shrink-0 my-2"
             >
-              <div className="relative w-12 sm:w-20 h-12 sm:h-12">
+              <div className="relative w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14">
                 <Image
                   src="/logo-light.png"
                   alt="Logo"
@@ -42,7 +42,7 @@ export default function Header() {
                   priority
                 />
               </div>
-              <span className="text-2xl sm:text-3xl font-semibold tracking-wide text-foreground">
+              <span className="text-2xl sm:text-2xl md:text-3xl font-semibold tracking-wide text-foreground">
                 Anchor
               </span>
             </Link>
@@ -63,28 +63,28 @@ export default function Header() {
             </Link>
 
             <button
-              className="cursor-pointer p-2 rounded-lg transition-colors text-muted-foreground hover:text-purple-600 dark:hover:text-purple-400"
+              className="cursor-pointer p-2 rounded-lg transition-colors text-muted-foreground hover:text-purple-600 dark:hover:text-purple-400 hover:bg-accent/50"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               aria-label="Toggle theme"
             >
               {!mounted ? (
-                <div className="w-5 h-5" />
+                <div className="w-6 h-6 sm:w-6 sm:h-6" />
               ) : theme === "dark" ? (
-                <Sun className="w-5 h-5" />
+                <Sun className="w-6 h-6 sm:w-6 sm:h-6" />
               ) : (
-                <Moon className="w-5 h-5" />
+                <Moon className="w-4 h-4 sm:w-6 sm:h-6" />
               )}
             </button>
 
             <button
-              className="lg:hidden p-2 rounded-lg transition-colors hover:bg-accent"
+              className="lg:hidden p-2 rounded-lg transition-colors hover:bg-accent text-muted-foreground"
               onClick={toggleMobileMenu}
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? (
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5 sm:w-6 sm:h-6" />
               ) : (
-                <Menu className="w-6 h-6" />
+                <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
               )}
             </button>
           </div>
@@ -99,12 +99,12 @@ export default function Header() {
       )}
 
       <div
-        className={`fixed top-[60px] sm:top-[64px] right-0 h-[calc(100vh-60px)] sm:h-[calc(100vh-64px)] w-full sm:w-80 z-40 transform transition-transform duration-300 ease-in-out lg:hidden ${
+        className={`fixed top-16 sm:top-[64px] right-0 h-[calc(100vh-64px)] w-full max-w-xs sm:max-w-sm z-40 transform transition-transform duration-300 ease-in-out lg:hidden ${
           mobileMenuOpen ? "translate-x-0" : "translate-x-full"
         } bg-background/95 border-l border-border backdrop-blur-xl`}
       >
         <div className="flex flex-col h-full p-6 space-y-6">
-          <div className="space-y-0">
+          <div className="space-y-2">
             <button
               className="w-full text-left text-lg font-medium py-3 px-4 rounded-lg transition-colors text-foreground hover:bg-accent hover:text-purple-600 dark:hover:text-purple-400"
               onClick={toggleMobileMenu}
@@ -125,12 +125,12 @@ export default function Header() {
             </button>
           </div>
 
-          <div className="border-t border-border" />
+          <div className="border-t border-border pt-4" />
 
-          <div className="space-y-3 md:hidden">
+          <div className="space-y-3">
             <Link
               href="/auth?mode=signin"
-              className="block w-full text-center text-base font-medium py-3 px-4 rounded-lg transition-colors text-foreground hover:bg-accent hover:text-purple-600 dark:hover:text-purple-400"
+              className="block w-full text-center text-base font-medium py-3 px-4 rounded-lg transition-colors text-foreground hover:bg-accent hover:text-purple-600 dark:hover:text-purple-400 border border-border"
               onClick={toggleMobileMenu}
             >
               Sign In

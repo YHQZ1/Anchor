@@ -16,7 +16,7 @@ import {
   Trash2,
   CheckCircle2,
 } from "lucide-react";
-import { SidebarTrigger } from "@/components/Sidebar";
+import { SidebarTrigger, MobileSidebarTrigger } from "@/components/Sidebar";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -72,7 +72,7 @@ interface Assignment {
   courses: Course;
 }
 
-export default function AssignmentsPage() {
+export default function Assignments() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState("all");
@@ -242,24 +242,44 @@ export default function AssignmentsPage() {
   };
 
   const handleProgressUpdate = (assignmentId: string, progress: number) => {
-      const updates: { progress: number; status?: string } = { progress };
-      if (progress === 100) updates.status = "completed";
-      else if (progress > 0) updates.status = "in-progress";
-      handleUpdateAssignment(assignmentId, updates);
+    const updates: { progress: number; status?: string } = { progress };
+    if (progress === 100) updates.status = "completed";
+    else if (progress > 0) updates.status = "in-progress";
+    handleUpdateAssignment(assignmentId, updates);
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "completed":
-        return <Badge variant="default">Submitted</Badge>;
+        return (
+          <Badge variant="default" className="text-xs">
+            Submitted
+          </Badge>
+        );
       case "in-progress":
-        return <Badge variant="secondary">In Progress</Badge>;
+        return (
+          <Badge variant="secondary" className="text-xs">
+            In Progress
+          </Badge>
+        );
       case "pending":
-        return <Badge variant="outline">Not Started</Badge>;
+        return (
+          <Badge variant="outline" className="text-xs">
+            Not Started
+          </Badge>
+        );
       case "overdue":
-        return <Badge variant="destructive">Overdue</Badge>;
+        return (
+          <Badge variant="destructive" className="text-xs">
+            Overdue
+          </Badge>
+        );
       default:
-        return <Badge variant="outline">Unknown</Badge>;
+        return (
+          <Badge variant="outline" className="text-xs">
+            Unknown
+          </Badge>
+        );
     }
   };
 
@@ -329,36 +349,47 @@ export default function AssignmentsPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-16 items-center gap-4 px-6">
-          <SidebarTrigger />
+        <div className="flex h-14 sm:h-16 items-center gap-4 px-4 sm:px-6">
+          {/* Mobile trigger */}
+          <div className="lg:hidden">
+            <MobileSidebarTrigger />
+          </div>
+          {/* Desktop trigger */}
+          <div className="hidden lg:block">
+            <SidebarTrigger />
+          </div>
           <div className="flex-1">
-            <h1 className="text-xl font-semibold">Assignments</h1>
+            <h1 className="text-lg sm:text-xl font-semibold">Assignments</h1>
           </div>
           <Button
             onClick={() => setShowAddModal(true)}
             variant={"outline"}
-            className="flex items-center gap-2 cursor-pointer transition-none"
+            className="flex items-center gap-2 cursor-pointer transition-none text-xs sm:text-sm h-9 sm:h-10"
           >
-            <Plus className="h-4 w-4" />
-            Add Assignment
+            <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Add Assignment</span>
+            <span className="sm:hidden">Add</span>
           </Button>
         </div>
       </header>
 
-      <main className="p-6 space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <main className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {stats.map((stat, index) => (
             <Card key={index}>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
+              <CardContent className="p-3 sm:p-4">
+                <div className="flex items-center gap-2 sm:gap-3">
                   <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-500/10">
-                    <stat.icon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                    <stat.icon className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 dark:text-purple-400" />
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs sm:text-sm text-muted-foreground">
                       {stat.label}
                     </p>
-                    <p className="text-2xl font-bold">{stat.value}</p>
+                    <p className="text-xl sm:text-2xl font-bold">
+                      {stat.value}
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -366,76 +397,111 @@ export default function AssignmentsPage() {
           ))}
         </div>
 
+        {/* Filters Card */}
         <Card>
-          <CardContent className="p-4">
-            <div className="flex flex-col md:flex-row gap-4">
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex flex-col sm:flex-row gap-3">
+              {/* Search */}
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                 <input
                   type="text"
                   placeholder="Search assignments..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-10 pl-10 pr-4 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full h-9 sm:h-10 pl-8 sm:pl-10 pr-3 sm:pr-4 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring text-xs sm:text-sm"
                 />
               </div>
 
+              {/* Status Filter */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
-                    className="flex cursor-pointer transition-none items-center gap-2 h-10"
+                    className="flex cursor-pointer transition-none items-center gap-2 h-9 sm:h-10 text-xs sm:text-sm"
                   >
-                    <Filter className="h-4 w-4" />
-                    {filterStatus === "all"
-                      ? "All Status"
-                      : filterStatus.replace("-", " ")}
+                    <Filter className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden sm:inline">
+                      {filterStatus === "all"
+                        ? "All Status"
+                        : filterStatus.replace("-", " ")}
+                    </span>
+                    <span className="sm:hidden">Status</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={() => setFilterStatus("all")}>
+                  <DropdownMenuItem
+                    onClick={() => setFilterStatus("all")}
+                    className="text-xs sm:text-sm"
+                  >
                     All Status
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setFilterStatus("pending")}>
+                  <DropdownMenuItem
+                    onClick={() => setFilterStatus("pending")}
+                    className="text-xs sm:text-sm"
+                  >
                     Pending
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => setFilterStatus("in-progress")}
+                    className="text-xs sm:text-sm"
                   >
                     In Progress
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => setFilterStatus("completed")}
+                    className="text-xs sm:text-sm"
                   >
                     Completed
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setFilterStatus("overdue")}>
+                  <DropdownMenuItem
+                    onClick={() => setFilterStatus("overdue")}
+                    className="text-xs sm:text-sm"
+                  >
                     Overdue
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
 
+              {/* Priority Filter */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
-                    className="flex items-center transition-none gap-2 cursor-pointer h-10"
+                    className="flex items-center transition-none gap-2 cursor-pointer h-9 sm:h-10 text-xs sm:text-sm"
                   >
-                    <Filter className="h-4 w-4" />
-                    {filterPriority === "all" ? "All Priority" : filterPriority}
+                    <Filter className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden sm:inline">
+                      {filterPriority === "all"
+                        ? "All Priority"
+                        : filterPriority}
+                    </span>
+                    <span className="sm:hidden">Priority</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={() => setFilterPriority("all")}>
+                  <DropdownMenuItem
+                    onClick={() => setFilterPriority("all")}
+                    className="text-xs sm:text-sm"
+                  >
                     All Priority
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setFilterPriority("high")}>
+                  <DropdownMenuItem
+                    onClick={() => setFilterPriority("high")}
+                    className="text-xs sm:text-sm"
+                  >
                     High
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setFilterPriority("medium")}>
+                  <DropdownMenuItem
+                    onClick={() => setFilterPriority("medium")}
+                    className="text-xs sm:text-sm"
+                  >
                     Medium
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setFilterPriority("low")}>
+                  <DropdownMenuItem
+                    onClick={() => setFilterPriority("low")}
+                    className="text-xs sm:text-sm"
+                  >
                     Low
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -444,15 +510,16 @@ export default function AssignmentsPage() {
           </CardContent>
         </Card>
 
-        <div className="space-y-4">
+        {/* Assignments List */}
+        <div className="space-y-3 sm:space-y-4">
           {filteredAssignments.length === 0 ? (
             <Card>
-              <CardContent className="p-12 text-center">
-                <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                <CardTitle className="text-lg font-medium mb-2">
+              <CardContent className="p-8 sm:p-12 text-center">
+                <FileText className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-muted-foreground" />
+                <CardTitle className="text-base sm:text-lg font-medium mb-2">
                   No assignments found
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-xs sm:text-sm">
                   {assignments.length === 0
                     ? "You don't have any assignments yet"
                     : "Try adjusting your filters or search query"}
@@ -478,6 +545,7 @@ export default function AssignmentsPage() {
         </div>
       </main>
 
+      {/* Add/Edit Modals */}
       {showAddModal && (
         <AssignmentModal
           title="Add New Assignment"
@@ -510,25 +578,30 @@ export default function AssignmentsPage() {
         />
       )}
 
+      {/* Delete Confirmation Dialog */}
       <AlertDialog
         open={!!deleteConfirm}
         onOpenChange={() => setDeleteConfirm(null)}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="max-w-[95vw] sm:max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Assignment</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-sm sm:text-base">
+              Delete Assignment
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-xs sm:text-sm">
               Are you sure you want to delete this assignment? This action
               cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="text-xs sm:text-sm h-9 sm:h-10">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={() =>
                 deleteConfirm && handleDeleteAssignment(deleteConfirm)
               }
-              className="bg-destructive hover:bg-destructive/90"
+              className="bg-destructive hover:bg-destructive/90 text-xs sm:text-sm h-9 sm:h-10"
             >
               Delete
             </AlertDialogAction>
@@ -557,17 +630,17 @@ function AssignmentCard({
   getDaysUntilDue: (dueDate: string) => string;
 }) {
   return (
-    <Card className="hover:bg-accent/50">
-      <CardHeader>
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-          <div className="flex-1">
-            <div className="flex items-start gap-3 mb-2">
-              <CheckSquare className="h-5 w-5 mt-0.5 flex-shrink-0 text-purple-600 dark:text-purple-400" />
-              <div>
-                <CardTitle className="text-lg mb-1">
+    <Card className="hover:bg-accent/50 transition-colors">
+      <CardHeader className="p-3 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start gap-2 sm:gap-3 mb-2">
+              <CheckSquare className="h-4 w-4 sm:h-5 sm:w-5 mt-0.5 flex-shrink-0 text-purple-600 dark:text-purple-400" />
+              <div className="min-w-0 flex-1">
+                <CardTitle className="text-base sm:text-lg mb-1 truncate">
                   {assignment.title}
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-xs sm:text-sm truncate">
                   {assignment.courses.course_code} •{" "}
                   {assignment.courses.course_name}
                 </CardDescription>
@@ -582,37 +655,39 @@ function AssignmentCard({
                 size="sm"
                 onClick={onEdit}
                 title="Edit assignment"
+                className="h-7 w-7 sm:h-9 sm:w-9 p-0"
               >
-                <Edit className="h-4 w-4" />
+                <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={onDelete}
                 title="Delete assignment"
+                className="h-7 w-7 sm:h-9 sm:w-9 p-0"
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
             </div>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent>
-        <p className="text-sm mb-4 text-muted-foreground">
+      <CardContent className="p-3 sm:p-6 pt-0">
+        <p className="text-xs sm:text-sm mb-3 sm:mb-4 text-muted-foreground line-clamp-2">
           {assignment.description}
         </p>
 
         {assignment.status !== "completed" && (
-          <div className="mb-4">
-            <div className="flex justify-between text-xs mb-2">
+          <div className="mb-3 sm:mb-4">
+            <div className="flex justify-between text-xs mb-1 sm:mb-2">
               <span className="text-muted-foreground">Progress</span>
               <span className="text-muted-foreground">
                 {assignment.progress}%
               </span>
             </div>
-            <Progress value={assignment.progress} className="h-2" />
-            <div className="flex gap-1 mt-2">
+            <Progress value={assignment.progress} className="h-1 sm:h-2" />
+            <div className="flex gap-1 mt-2 flex-wrap">
               {[0, 25, 50, 75, 100].map((value) => (
                 <Button
                   key={value}
@@ -621,7 +696,7 @@ function AssignmentCard({
                   }
                   size="sm"
                   onClick={() => onProgressUpdate(assignment.id, value)}
-                  className="h-6 px-2 text-xs cursor-pointer"
+                  className="h-6 px-2 text-xs cursor-pointer min-w-[40px]"
                 >
                   {value}%
                 </Button>
@@ -631,17 +706,17 @@ function AssignmentCard({
         )}
       </CardContent>
 
-      <CardFooter>
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 w-full">
-          <div className="flex items-center gap-4 text-sm">
+      <CardFooter className="p-3 sm:p-6 pt-0">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 w-full">
+          <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm flex-wrap">
             <div className="flex items-center gap-1">
-              <CalendarIcon className="h-4 w-4" />
-              <span>
+              <CalendarIcon className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="whitespace-nowrap">
                 Due: {new Date(assignment.due_date).toLocaleDateString()}
               </span>
             </div>
             <span
-              className={`font-medium ${
+              className={`font-medium whitespace-nowrap ${
                 getDaysUntilDue(assignment.due_date) === "Overdue"
                   ? "text-red-500"
                   : getDaysUntilDue(assignment.due_date).includes("today") ||
@@ -659,7 +734,7 @@ function AssignmentCard({
               <Button
                 size="sm"
                 onClick={() => onProgressUpdate(assignment.id, 100)}
-                className="cursor-pointer"
+                className="cursor-pointer text-xs h-8 sm:h-9"
               >
                 Mark Complete
               </Button>
@@ -687,25 +762,27 @@ function AssignmentModal({
   onChange: (assignment: any) => void;
 }) {
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <Card className="w-full max-w-md">
-        <CardHeader>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-3 sm:p-4 z-50">
+      <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <CardHeader className="p-4 sm:p-6">
           <div className="flex items-center justify-between">
-            <CardTitle>{title}</CardTitle>
+            <CardTitle className="text-lg sm:text-xl">{title}</CardTitle>
             <Button
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="cursor-pointer"
+              className="cursor-pointer h-8 w-8 sm:h-9 sm:w-9 p-0"
             >
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
           </div>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={onSubmit} className="space-y-4">
+        <CardContent className="p-4 sm:p-6 pt-0">
+          <form onSubmit={onSubmit} className="space-y-3 sm:space-y-4">
             <div>
-              <label className="text-sm font-medium mb-1 block">Title</label>
+              <label className="text-xs sm:text-sm font-medium mb-1 block">
+                Title
+              </label>
               <input
                 type="text"
                 required
@@ -713,12 +790,12 @@ function AssignmentModal({
                 onChange={(e) =>
                   onChange({ ...assignment, title: e.target.value })
                 }
-                className="w-full px-3 py-2 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full px-3 py-2 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring text-xs sm:text-sm"
                 placeholder="Assignment title"
               />
             </div>
             <div>
-              <label className="text-sm font-medium mb-1 block">
+              <label className="text-xs sm:text-sm font-medium mb-1 block">
                 Description
               </label>
               <textarea
@@ -726,25 +803,31 @@ function AssignmentModal({
                 onChange={(e) =>
                   onChange({ ...assignment, description: e.target.value })
                 }
-                className="w-full px-3 py-2 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full px-3 py-2 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring text-xs sm:text-sm"
                 placeholder="Assignment description"
                 rows={3}
               />
             </div>
             <div>
-              <label className="text-sm font-medium mb-1 block">Course</label>
+              <label className="text-xs sm:text-sm font-medium mb-1 block">
+                Course
+              </label>
               <Select
                 value={assignment.course_id}
                 onValueChange={(value) =>
                   onChange({ ...assignment, course_id: value })
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="text-xs sm:text-sm h-9 sm:h-10">
                   <SelectValue placeholder="Select a course" />
                 </SelectTrigger>
                 <SelectContent>
                   {courses.map((course) => (
-                    <SelectItem key={course.id} value={course.id}>
+                    <SelectItem
+                      key={course.id}
+                      value={course.id}
+                      className="text-xs sm:text-sm"
+                    >
                       {course.course_code} - {course.course_name}
                     </SelectItem>
                   ))}
@@ -752,34 +835,45 @@ function AssignmentModal({
               </Select>
             </div>
             <div>
-              <label className="text-sm font-medium mb-1 block">Priority</label>
+              <label className="text-xs sm:text-sm font-medium mb-1 block">
+                Priority
+              </label>
               <Select
                 value={assignment.priority}
                 onValueChange={(value) =>
                   onChange({ ...assignment, priority: value })
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="text-xs sm:text-sm h-9 sm:h-10">
                   <SelectValue placeholder="Select priority" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="low" className="text-xs sm:text-sm">
+                    Low
+                  </SelectItem>
+                  <SelectItem value="medium" className="text-xs sm:text-sm">
+                    Medium
+                  </SelectItem>
+                  <SelectItem value="high" className="text-xs sm:text-sm">
+                    High
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </form>
         </CardContent>
-        <CardFooter className="flex gap-2">
+        <CardFooter className="p-4 sm:p-6 pt-0 flex gap-2">
           <Button
             variant="outline"
-            className="flex-1 cursor-pointer"
+            className="flex-1 cursor-pointer text-xs sm:text-sm h-9 sm:h-10"
             onClick={onClose}
           >
             Cancel
           </Button>
-          <Button className="flex-1 cursor-pointer" onClick={onSubmit}>
+          <Button
+            className="flex-1 cursor-pointer text-xs sm:text-sm h-9 sm:h-10"
+            onClick={onSubmit}
+          >
             {title.includes("Add") ? "Add Assignment" : "Save Changes"}
           </Button>
         </CardFooter>
@@ -792,60 +886,69 @@ function AssignmentsSkeleton() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-16 items-center gap-4 px-6">
-          <Skeleton className="w-8 h-8 rounded" />
-          <div className="flex-1">
-            <Skeleton className="h-6 w-32 rounded" />
+        <div className="flex h-14 sm:h-16 items-center gap-4 px-4 sm:px-6">
+          <div className="lg:hidden">
+            <Skeleton className="w-7 h-7 sm:w-8 sm:h-8 rounded" />
           </div>
+          <div className="hidden lg:block">
+            <Skeleton className="w-7 h-7 sm:w-8 sm:h-8 rounded" />
+          </div>
+          <div className="flex-1">
+            <Skeleton className="h-5 w-24 sm:h-6 sm:w-32 rounded" />
+          </div>
+          <Skeleton className="h-9 w-16 sm:h-10 sm:w-32 rounded" />
         </div>
       </header>
-      <main className="p-6 space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <main className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="rounded-xl border border-border bg-card p-4"
+              className="rounded-xl border border-border bg-card p-3 sm:p-4"
             >
-              <div className="flex items-center gap-3">
-                <Skeleton className="w-10 h-10 rounded-lg" />
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Skeleton className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg" />
                 <div className="space-y-2">
-                  <Skeleton className="h-4 w-20 rounded" />
-                  <Skeleton className="h-6 w-8 rounded" />
+                  <Skeleton className="h-3 w-16 sm:h-4 sm:w-20 rounded" />
+                  <Skeleton className="h-5 w-6 sm:h-6 sm:w-8 rounded" />
                 </div>
               </div>
             </div>
           ))}
         </div>
-        <div className="rounded-xl border border-border bg-card p-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            <Skeleton className="h-10 flex-1 rounded-lg" />
-            <Skeleton className="h-10 w-32 rounded-lg" />
-            <Skeleton className="h-10 w-32 rounded-lg" />
+        <div className="rounded-xl border border-border bg-card p-3 sm:p-4">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Skeleton className="h-9 sm:h-10 flex-1 rounded-lg" />
+            <Skeleton className="h-9 sm:h-10 w-20 sm:w-32 rounded-lg" />
+            <Skeleton className="h-9 sm:h-10 w-20 sm:w-32 rounded-lg" />
           </div>
         </div>
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {[1, 2, 3, 4].map((i) => (
             <Card key={i}>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-2">
-                    <Skeleton className="h-6 w-3/4 rounded" />
-                    <Skeleton className="h-4 w-1/2 rounded" />
+              <CardHeader className="p-3 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="space-y-2 flex-1">
+                    <Skeleton className="h-5 w-3/4 rounded" />
+                    <Skeleton className="h-3 w-1/2 rounded" />
                   </div>
-                  <Skeleton className="h-6 w-20 rounded" />
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-5 w-16 rounded" />
+                    <div className="flex gap-1">
+                      <Skeleton className="h-7 w-7 rounded" />
+                      <Skeleton className="h-7 w-7 rounded" />
+                    </div>
+                  </div>
                 </div>
               </CardHeader>
-              <CardContent>
-                <Skeleton className="h-4 w-full rounded mb-4" />
-                <Skeleton className="h-2 w-full rounded" />
+              <CardContent className="p-3 sm:p-6 pt-0">
+                <Skeleton className="h-3 w-full rounded mb-3" />
+                <Skeleton className="h-1 w-full rounded" />
               </CardContent>
-              <CardFooter>
-                <div className="flex justify-between w-full">
-                  <Skeleton className="h-4 w-48 rounded" />
-                  <div className="flex gap-2">
-                    <Skeleton className="h-9 w-24 rounded" />
-                    <Skeleton className="h-9 w-32 rounded" />
-                  </div>
+              <CardFooter className="p-3 sm:p-6 pt-0">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center w-full gap-2">
+                  <Skeleton className="h-3 w-32 rounded" />
+                  <Skeleton className="h-8 w-24 rounded" />
                 </div>
               </CardFooter>
             </Card>
@@ -866,24 +969,34 @@ function ErrorState({
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-16 items-center gap-4 px-6">
-          <SidebarTrigger />
+        <div className="flex h-14 sm:h-16 items-center gap-4 px-4 sm:px-6">
+          <div className="lg:hidden">
+            <MobileSidebarTrigger />
+          </div>
+          <div className="hidden lg:block">
+            <SidebarTrigger />
+          </div>
           <div className="flex-1">
-            <h1 className="text-xl font-semibold">Assignments</h1>
+            <h1 className="text-lg sm:text-xl font-semibold">Assignments</h1>
           </div>
         </div>
       </header>
-      <main className="p-6">
-        <div className="flex items-center justify-center h-96">
+      <main className="p-4 sm:p-6">
+        <div className="flex items-center justify-center h-64 sm:h-96">
           <Card className="w-full max-w-md">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-destructive">
+              <CardTitle className="flex items-center gap-2 text-destructive text-base sm:text-lg">
                 Failed to load assignments
               </CardTitle>
-              <CardDescription>{error}</CardDescription>
+              <CardDescription className="text-xs sm:text-sm">
+                {error}
+              </CardDescription>
             </CardHeader>
             <CardFooter>
-              <Button onClick={onRetry} className="w-full cursor-pointer">
+              <Button
+                onClick={onRetry}
+                className="w-full cursor-pointer text-xs sm:text-sm h-9 sm:h-10"
+              >
                 Retry
               </Button>
             </CardFooter>

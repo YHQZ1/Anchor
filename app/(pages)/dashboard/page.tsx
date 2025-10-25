@@ -12,7 +12,7 @@ import {
   BookOpen,
   AlertCircle,
 } from "lucide-react";
-import { SidebarTrigger } from "@/components/Sidebar";
+import { SidebarTrigger, MobileSidebarTrigger } from "@/components/Sidebar";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -310,16 +310,31 @@ export default function Dashboard() {
     switch (priority) {
       case "high":
         return (
-          <Badge variant="destructive" className="text-white dark:text-white">
+          <Badge
+            variant="destructive"
+            className="text-white dark:text-white text-xs"
+          >
             High Priority
           </Badge>
         );
       case "medium":
-        return <Badge variant="secondary">Medium Priority</Badge>;
+        return (
+          <Badge variant="secondary" className="text-xs">
+            Medium Priority
+          </Badge>
+        );
       case "low":
-        return <Badge variant="outline">Low Priority</Badge>;
+        return (
+          <Badge variant="outline" className="text-xs">
+            Low Priority
+          </Badge>
+        );
       default:
-        return <Badge variant="outline">Normal</Badge>;
+        return (
+          <Badge variant="outline" className="text-xs">
+            Normal
+          </Badge>
+        );
     }
   };
 
@@ -342,24 +357,31 @@ export default function Dashboard() {
     return (
       <div className="min-h-screen bg-background text-foreground">
         <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="flex h-16 items-center gap-4 px-6">
-            <SidebarTrigger />
+          <div className="flex h-14 sm:h-16 items-center gap-4 px-4 sm:px-6">
+            <div className="lg:hidden">
+              <MobileSidebarTrigger />
+            </div>
+            <div className="hidden lg:block">
+              <SidebarTrigger />
+            </div>
             <div className="flex-1">
-              <h1 className="text-xl font-semibold">Dashboard</h1>
+              <h1 className="text-lg sm:text-xl font-semibold">Dashboard</h1>
             </div>
           </div>
         </header>
-        <main className="p-6">
-          <div className="flex items-center justify-center h-96">
+        <main className="p-4 sm:p-6">
+          <div className="flex items-center justify-center h-64 sm:h-96">
             <div className="text-center">
-              <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
-              <h2 className="text-xl font-semibold mb-2">
+              <AlertCircle className="h-8 w-8 sm:h-12 sm:w-12 text-destructive mx-auto mb-3 sm:mb-4" />
+              <h2 className="text-lg sm:text-xl font-semibold mb-2">
                 Failed to load data
               </h2>
-              <p className="text-muted-foreground mb-4">{error}</p>
+              <p className="text-muted-foreground mb-4 text-sm sm:text-base">
+                {error}
+              </p>
               <button
                 onClick={fetchDashboardData}
-                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 text-sm sm:text-base"
               >
                 Retry
               </button>
@@ -373,93 +395,118 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-16 items-center gap-4 px-6">
-          <SidebarTrigger />
+        <div className="flex h-14 sm:h-16 items-center gap-4 px-4 sm:px-6">
+          {/* Mobile trigger (visible on mobile) */}
+          <div className="lg:hidden">
+            <MobileSidebarTrigger />
+          </div>
+          {/* Desktop trigger (visible on desktop) */}
+          <div className="hidden lg:block">
+            <SidebarTrigger />
+          </div>
           <div className="flex-1">
-            <h1 className="text-xl font-semibold">Dashboard</h1>
+            <h1 className="text-lg sm:text-xl font-semibold">Dashboard</h1>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">
+            <span className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
               Welcome back, {userName}
             </span>
           </div>
         </div>
       </header>
 
-      <main className="p-6 space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <main className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {stats.map((stat, index) => (
             <div
               key={index}
-              className="rounded-xl border border-border bg-card p-6"
+              className="rounded-xl border border-border bg-card p-4 sm:p-6"
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className={`p-3 rounded-lg ${stat.bgColor}`}>
-                  <stat.icon className={`h-6 w-6 ${stat.color}`} />
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <div className={`p-2 sm:p-3 rounded-lg ${stat.bgColor}`}>
+                  <stat.icon
+                    className={`h-4 w-4 sm:h-6 sm:w-6 ${stat.color}`}
+                  />
                 </div>
               </div>
               <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground">
                   {stat.title}
                 </p>
-                <p className="text-3xl font-bold">{stat.value}</p>
+                <p className="text-2xl sm:text-3xl font-bold">{stat.value}</p>
                 <p className="text-xs text-muted-foreground">{stat.trend}</p>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 rounded-xl border border-border bg-card p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold">Upcoming Assignments</h2>
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+          {/* Upcoming Assignments */}
+          <div className="lg:col-span-2 rounded-xl border border-border bg-card p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <h2 className="text-lg sm:text-xl font-semibold">
+                Upcoming Assignments
+              </h2>
               <a
                 href="/assignments"
-                className="text-sm font-medium text-primary hover:text-primary/80"
+                className="text-xs sm:text-sm font-medium text-primary hover:text-primary/80"
               >
                 View all →
               </a>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {upcomingAssignments.length > 0 ? (
                 upcomingAssignments.map((assignment) => (
                   <div
                     key={assignment.id}
-                    className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-accent/50 cursor-pointer"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 rounded-lg border border-border hover:bg-accent/50 cursor-pointer gap-2 sm:gap-0"
                   >
-                    <div className="flex-1">
-                      <h3 className="font-medium mb-1">{assignment.title}</h3>
-                      <p className="text-sm text-muted-foreground">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-sm sm:text-base mb-1 truncate">
+                        {assignment.title}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground">
                         {assignment.courses.course_code}
                       </p>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                       {getPriorityBadge(assignment.priority)}
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                        <Clock className="h-4 w-4" />
+                      <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
+                        <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
                         <span>{formatDueDate(assignment.due_date)}</span>
                       </div>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <CheckSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>No upcoming assignments</p>
-                  <p className="text-sm">You&apos;re all caught up!</p>
+                <div className="text-center py-6 sm:py-8 text-muted-foreground">
+                  <CheckSquare className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 opacity-50" />
+                  <p className="text-sm sm:text-base">
+                    No upcoming assignments
+                  </p>
+                  <p className="text-xs sm:text-sm">
+                    You&apos;re all caught up!
+                  </p>
                 </div>
               )}
             </div>
           </div>
 
-          <div className="rounded-xl border border-border bg-card p-6">
-            <h2 className="text-xl font-semibold mb-6">Recent Activity</h2>
-            <div className="space-y-4">
+          {/* Recent Activity */}
+          <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6">
+              Recent Activity
+            </h2>
+            <div className="space-y-3 sm:space-y-4">
               {recentActivity.map((activity) => (
                 <div key={activity.id} className="flex gap-3">
                   <div className="flex-shrink-0 w-2 h-2 rounded-full mt-2 bg-primary" />
-                  <div>
-                    <p className="font-medium text-sm">{activity.title}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-xs sm:text-sm truncate">
+                      {activity.title}
+                    </p>
                     <p className="text-xs mt-1 text-muted-foreground">
                       {activity.time}
                     </p>
@@ -470,33 +517,42 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-6">
-          <h2 className="text-xl font-semibold mb-6">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Quick Actions */}
+        <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6">
+            Quick Actions
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
             <button
               onClick={() => (window.location.href = "/assignments")}
-              className="p-4 rounded-lg border border-border hover:bg-accent/50 text-left"
+              className="p-3 sm:p-4 rounded-lg border border-border hover:bg-accent/50 text-left transition-colors"
             >
-              <CheckSquare className="h-6 w-6 mb-2 text-primary" />
-              <h3 className="font-medium mb-1">Add Assignment</h3>
-              <p className="text-sm text-muted-foreground">
+              <CheckSquare className="h-5 w-5 sm:h-6 sm:w-6 mb-2 text-primary" />
+              <h3 className="font-medium text-sm sm:text-base mb-1">
+                Add Assignment
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 Track a new assignment
               </p>
             </button>
             <button
               onClick={() => (window.location.href = "/attendance")}
-              className="p-4 rounded-lg border border-border hover:bg-accent/50 text-left"
+              className="p-3 sm:p-4 rounded-lg border border-border hover:bg-accent/50 text-left transition-colors"
             >
-              <Calendar className="h-6 w-6 mb-2 text-primary" />
-              <h3 className="font-medium mb-1">Mark Attendance</h3>
-              <p className="text-sm text-muted-foreground">
+              <Calendar className="h-5 w-5 sm:h-6 sm:w-6 mb-2 text-primary" />
+              <h3 className="font-medium text-sm sm:text-base mb-1">
+                Mark Attendance
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 Update the attendance for today
               </p>
             </button>
-            <button className="p-4 rounded-lg border border-border hover:bg-accent/50 text-left">
-              <TrendingUp className="h-6 w-6 mb-2 text-primary" />
-              <h3 className="font-medium mb-1">View Analytics</h3>
-              <p className="text-sm text-muted-foreground">
+            <button className="p-3 sm:p-4 rounded-lg border border-border hover:bg-accent/50 text-left transition-colors">
+              <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 mb-2 text-primary" />
+              <h3 className="font-medium text-sm sm:text-base mb-1">
+                View Analytics
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 Check your progress
               </p>
             </button>
@@ -511,69 +567,76 @@ function DashboardSkeleton() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-16 items-center gap-4 px-6">
-          <Skeleton className="w-8 h-8 rounded" />
-          <div className="flex-1">
-            <Skeleton className="h-6 w-32 rounded" />
+        <div className="flex h-14 sm:h-16 items-center gap-4 px-4 sm:px-6">
+          <div className="lg:hidden">
+            <Skeleton className="w-7 h-7 sm:w-8 sm:h-8 rounded" />
           </div>
-          <Skeleton className="h-6 w-24 rounded" />
+          <div className="hidden lg:block">
+            <Skeleton className="w-7 h-7 sm:w-8 sm:h-8 rounded" />
+          </div>
+          <div className="flex-1">
+            <Skeleton className="h-5 w-24 sm:h-6 sm:w-32 rounded" />
+          </div>
+          <Skeleton className="h-5 w-16 sm:h-6 sm:w-24 rounded hidden sm:block" />
         </div>
       </header>
-      <main className="p-6 space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <main className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+        {/* Stats Grid Skeleton */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="rounded-xl border border-border bg-card p-6"
+              className="rounded-xl border border-border bg-card p-4 sm:p-6"
             >
-              <div className="flex items-center justify-between mb-4">
-                <Skeleton className="w-12 h-12 rounded-lg" />
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg" />
               </div>
               <div className="space-y-2">
-                <Skeleton className="h-4 w-24 rounded" />
-                <Skeleton className="h-8 w-16 rounded" />
-                <Skeleton className="h-3 w-32 rounded" />
+                <Skeleton className="h-3 w-20 sm:h-4 sm:w-24 rounded" />
+                <Skeleton className="h-6 w-12 sm:h-8 sm:w-16 rounded" />
+                <Skeleton className="h-2 w-24 sm:h-3 sm:w-32 rounded" />
               </div>
             </div>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 rounded-xl border border-border bg-card p-6">
-            <div className="flex items-center justify-between mb-6">
-              <Skeleton className="h-6 w-48 rounded" />
-              <Skeleton className="h-4 w-16 rounded" />
+        {/* Main Content Grid Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="lg:col-span-2 rounded-xl border border-border bg-card p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <Skeleton className="h-5 w-36 sm:h-6 sm:w-48 rounded" />
+              <Skeleton className="h-4 w-12 sm:h-4 sm:w-16 rounded" />
             </div>
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {[1, 2, 3, 4].map((i) => (
                 <div
                   key={i}
-                  className="flex items-center justify-between p-4 rounded-lg border border-border"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 rounded-lg border border-border gap-2 sm:gap-0"
                 >
-                  <div className="flex-1 space-y-2">
-                    <Skeleton className="h-5 w-3/4 rounded" />
-                    <Skeleton className="h-4 w-20 rounded" />
+                  <div className="flex-1 space-y-2 min-w-0">
+                    <Skeleton className="h-4 w-3/4 rounded" />
+                    <Skeleton className="h-3 w-16 rounded" />
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Skeleton className="h-6 w-20 rounded" />
+                  <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                    <Skeleton className="h-5 w-16 rounded" />
                     <div className="flex items-center gap-1">
-                      <Skeleton className="h-4 w-4 rounded" />
-                      <Skeleton className="h-4 w-16 rounded" />
+                      <Skeleton className="h-3 w-3 sm:h-4 sm:w-4 rounded" />
+                      <Skeleton className="h-3 w-12 sm:h-4 sm:w-16 rounded" />
                     </div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
-          <div className="rounded-xl border border-border bg-card p-6">
-            <Skeleton className="h-6 w-32 rounded mb-6" />
-            <div className="space-y-4">
+          <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
+            <Skeleton className="h-5 w-28 sm:h-6 sm:w-32 rounded mb-4 sm:mb-6" />
+            <div className="space-y-3 sm:space-y-4">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="flex gap-3">
                   <Skeleton className="w-2 h-2 rounded-full mt-2" />
-                  <div className="flex-1 space-y-2">
-                    <Skeleton className="h-4 w-full rounded" />
-                    <Skeleton className="h-3 w-24 rounded" />
+                  <div className="flex-1 space-y-2 min-w-0">
+                    <Skeleton className="h-3 w-full rounded" />
+                    <Skeleton className="h-2 w-20 rounded" />
                   </div>
                 </div>
               ))}
@@ -581,14 +644,18 @@ function DashboardSkeleton() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-6">
-          <Skeleton className="h-6 w-32 rounded mb-6" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Quick Actions Skeleton */}
+        <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
+          <Skeleton className="h-5 w-28 sm:h-6 sm:w-32 rounded mb-4 sm:mb-6" />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="p-4 rounded-lg border border-border">
-                <Skeleton className="h-6 w-6 rounded mb-2" />
-                <Skeleton className="h-5 w-32 rounded mb-1" />
-                <Skeleton className="h-4 w-48 rounded" />
+              <div
+                key={i}
+                className="p-3 sm:p-4 rounded-lg border border-border"
+              >
+                <Skeleton className="h-5 w-5 sm:h-6 sm:w-6 rounded mb-2" />
+                <Skeleton className="h-4 w-24 sm:h-5 sm:w-32 rounded mb-1" />
+                <Skeleton className="h-3 w-32 sm:h-4 sm:w-48 rounded" />
               </div>
             ))}
           </div>

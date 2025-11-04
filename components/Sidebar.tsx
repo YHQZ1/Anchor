@@ -121,7 +121,6 @@ export function MobileSidebarTrigger() {
       onClick={toggleMobileSidebar}
       className="lg:hidden inline-flex items-center justify-center rounded-md text-sm font-medium h-9 w-9 hover:bg-accent cursor-pointer transition-none"
     >
-      {/* Use the same rectangle icon for mobile too */}
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
@@ -330,7 +329,7 @@ export function AppSidebar() {
 
   const sidebarContent = (
     <>
-      <div className="flex h-14 sm:h-16 items-center border-b border-sidebar-border px-3 sm:px-4">
+      <div className="flex h-14 sm:h-16 items-center border-b border-sidebar-border px-4">
         <div
           className={`flex items-center ${
             open ? "justify-start gap-2 w-full" : "justify-center"
@@ -338,7 +337,7 @@ export function AppSidebar() {
         >
           <ThemeAwareLogo />
           {open && (
-            <span className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight">
+            <span className="text-lg sm:text-xl md:text-2xl font-semibold tracking-tight">
               Anchor
             </span>
           )}
@@ -351,22 +350,22 @@ export function AppSidebar() {
         </button>
       </div>
 
-      <div className="flex flex-col h-[calc(100vh-10rem)] sm:h-[calc(100vh-8rem)] overflow-y-auto px-2 sm:px-3 py-4">
+      <div className="flex flex-col flex-1 overflow-y-auto px-3 py-4">
         <nav className="space-y-1">
           {MENU_ITEMS.map((item) => (
             <Link
               key={item.title}
               href={item.url}
               onClick={() => setMobileOpen(false)}
-              className={`flex items-center gap-3 rounded-lg px-2 sm:px-3 py-2.5 text-sm font-medium transition-none ${
+              className={`flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-none ${
                 isActive(item.url)
                   ? "bg-sidebar-accent text-sidebar-accent-foreground"
                   : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               }`}
             >
-              <item.icon className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
+              <item.icon className="h-5 w-5 shrink-0" />
               {open && (
-                <span className="truncate text-xs sm:text-sm">
+                <span className="truncate text-sm">
                   {item.title}
                 </span>
               )}
@@ -375,14 +374,14 @@ export function AppSidebar() {
         </nav>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 border-t border-sidebar-border p-2 sm:p-3">
+      <div className="border-t border-sidebar-border p-3">
         <SSRSafeDropdownMenu open={open}>
           <DropdownMenuTrigger asChild>
-            <div className="flex items-center gap-3 rounded-lg px-2 sm:px-3 py-2.5 text-sm font-medium cursor-pointer text-sidebar-foreground hover:bg-sidebar-accent transition-none">
-              <User2 className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
+            <div className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium cursor-pointer text-sidebar-foreground hover:bg-sidebar-accent transition-none">
+              <User2 className="h-5 w-5 shrink-0" />
               {open && (
                 <div className="flex-1 truncate">
-                  <div className="font-medium text-xs sm:text-sm">
+                  <div className="font-medium text-sm">
                     {userData.name}
                   </div>
                   <div className="text-xs text-sidebar-foreground/60 truncate">
@@ -396,14 +395,14 @@ export function AppSidebar() {
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="cursor-pointer transition-none text-xs sm:text-sm"
+              className="cursor-pointer transition-none text-sm"
               onClick={() => router.push("/settings")}
             >
               <User className="h-4 w-4 mr-2" />
               View Profile
             </DropdownMenuItem>
             <DropdownMenuItem
-              className="cursor-pointer transition-none text-xs sm:text-sm"
+              className="cursor-pointer transition-none text-sm"
               onClick={() => router.push("/settings?section=account")}
             >
               <Settings className="h-4 w-4 mr-2" />
@@ -411,14 +410,14 @@ export function AppSidebar() {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="cursor-pointer transition-none text-xs sm:text-sm"
+              className="cursor-pointer transition-none text-sm"
               onClick={() => router.push("/settings?section=notifications")}
             >
               <Bell className="h-4 w-4 mr-2" />
               Notifications
             </DropdownMenuItem>
             <DropdownMenuItem
-              className="cursor-pointer transition-none text-xs sm:text-sm"
+              className="cursor-pointer transition-none text-sm"
               onClick={() => router.push("/settings?section=privacy")}
             >
               <Shield className="h-4 w-4 mr-2" />
@@ -431,12 +430,12 @@ export function AppSidebar() {
 
         <SSRSafeAlertDialog open={open}>
           <AlertDialogTrigger asChild>
-            <button className="flex cursor-pointer w-full items-center gap-3 rounded-lg px-2 sm:px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-none">
-              <LogOut className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
-              {open && <span className="text-xs sm:text-sm">Logout</span>}
+            <button className="flex cursor-pointer w-full items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-none">
+              <LogOut className="h-5 w-5 shrink-0" />
+              {open && <span className="text-sm">Logout</span>}
             </button>
           </AlertDialogTrigger>
-          <AlertDialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
+          <AlertDialogContent className="max-w-[95vw] w-[400px] mx-4" onOpenAutoFocus={(e) => e.preventDefault()}>
             <AlertDialogHeader>
               <AlertDialogTitle>
                 Are you sure you want to log out?
@@ -446,12 +445,12 @@ export function AppSidebar() {
                 will be cleared.
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel className="cursor-pointer text-xs sm:text-sm">
+            <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+              <AlertDialogCancel className="cursor-pointer text-sm m-0 w-full sm:w-auto">
                 Cancel
               </AlertDialogCancel>
               <AlertDialogAction
-                className="cursor-pointer text-xs sm:text-sm"
+                className="cursor-pointer text-sm w-full sm:w-auto"
                 onClick={() => {
                   localStorage.removeItem("jwtToken");
                   router.replace("/");
@@ -470,22 +469,24 @@ export function AppSidebar() {
     <>
       <MobileOverlay />
 
-      {/* Desktop Sidebar */}
       <aside
         className={`hidden lg:block fixed left-0 top-0 z-40 h-screen bg-sidebar border-sidebar-border border-r transition-[width] duration-300 ${
           open ? "w-64" : "w-16"
         }`}
       >
-        {sidebarContent}
+        <div className="flex flex-col h-full">
+          {sidebarContent}
+        </div>
       </aside>
 
-      {/* Mobile Sidebar */}
       <aside
         className={`lg:hidden fixed left-0 top-0 z-50 h-screen bg-sidebar border-sidebar-border border-r transition-transform duration-300 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
-        } w-64`}
+        } w-full max-w-[280px]`}
       >
-        {sidebarContent}
+        <div className="flex flex-col h-full">
+          {sidebarContent}
+        </div>
       </aside>
     </>
   );
@@ -498,11 +499,13 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
     <div className="flex h-screen overflow-hidden">
       <AppSidebar />
       <main
-        className={`flex-1 overflow-auto transition-all duration-300 ${
+        className={`flex-1 overflow-auto transition-all duration-300 w-full ${
           open ? "lg:ml-64" : "lg:ml-16"
-        } ${mobileOpen ? "ml-64" : "ml-0"}`}
+        } ${mobileOpen ? "ml-0 lg:ml-0" : "ml-0"}`}
       >
-        {children}
+        <div className="p-4 sm:p-6 w-full">
+          {children}
+        </div>
       </main>
     </div>
   );

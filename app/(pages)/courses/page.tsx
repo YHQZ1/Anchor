@@ -809,7 +809,7 @@ function CourseCard({
 
   return (
     <div
-      className="rounded-xl border border-border bg-card p-4 sm:p-6 hover:bg-accent/50 cursor-pointer transition-colors"
+      className="rounded-xl border border-border bg-card p-4 sm:p-6 hover:bg-accent/50 cursor-pointer transition-none"
       onClick={onView}
     >
       <div className="flex items-start justify-between mb-3 sm:mb-4">

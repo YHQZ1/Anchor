@@ -630,7 +630,7 @@ function AssignmentCard({
   getDaysUntilDue: (dueDate: string) => string;
 }) {
   return (
-    <Card className="hover:bg-accent/50 transition-colors">
+    <Card className="hover:bg-accent/50 transition-none">
       <CardHeader className="p-3 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
           <div className="flex-1 min-w-0">

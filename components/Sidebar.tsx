@@ -93,7 +93,7 @@ export function SidebarTrigger() {
   return (
     <button
       onClick={toggleSidebar}
-      className="hidden lg:inline-flex items-center justify-center rounded-md text-sm font-medium h-9 w-9 hover:bg-accent cursor-pointer transition-colors"
+      className="hidden lg:inline-flex items-center justify-center rounded-md text-sm font-medium h-9 w-9 hover:bg-accent cursor-pointer transition-none"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -119,7 +119,7 @@ export function MobileSidebarTrigger() {
   return (
     <button
       onClick={toggleMobileSidebar}
-      className="lg:hidden inline-flex items-center justify-center rounded-md text-sm font-medium h-9 w-9 hover:bg-accent cursor-pointer transition-colors"
+      className="lg:hidden inline-flex items-center justify-center rounded-md text-sm font-medium h-9 w-9 hover:bg-accent cursor-pointer transition-none"
     >
       {/* Use the same rectangle icon for mobile too */}
       <svg
@@ -250,7 +250,7 @@ function ThemeToggleButton({ open }: { open: boolean }) {
 
   if (!mounted) {
     return (
-      <button className="flex w-full items-center gap-3 cursor-pointer rounded-lg px-3 py-2.5 text-sm font-medium mb-2 text-sidebar-foreground hover:bg-sidebar-accent transition-colors">
+      <button className="flex w-full items-center gap-3 cursor-pointer rounded-lg px-3 py-2.5 text-sm font-medium mb-2 text-sidebar-foreground hover:bg-sidebar-accent transition-none">
         <div className="h-5 w-5 shrink-0" />
         {open && <span>Toggle Theme</span>}
       </button>
@@ -263,7 +263,7 @@ function ThemeToggleButton({ open }: { open: boolean }) {
   return (
     <button
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="flex w-full items-center gap-3 cursor-pointer rounded-lg px-3 py-2.5 text-sm font-medium mb-2 text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+      className="flex w-full items-center gap-3 cursor-pointer rounded-lg px-3 py-2.5 text-sm font-medium mb-2 text-sidebar-foreground hover:bg-sidebar-accent transition-none"
     >
       {isDark ? (
         <Sun className="h-5 w-5 shrink-0" />
@@ -345,7 +345,7 @@ export function AppSidebar() {
         </div>
         <button
           onClick={() => setMobileOpen(false)}
-          className="lg:hidden ml-auto p-1 hover:bg-sidebar-accent rounded-md transition-colors"
+          className="lg:hidden ml-auto p-1 hover:bg-sidebar-accent rounded-md transition-none"
         >
           <X className="h-5 w-5" />
         </button>
@@ -358,7 +358,7 @@ export function AppSidebar() {
               key={item.title}
               href={item.url}
               onClick={() => setMobileOpen(false)}
-              className={`flex items-center gap-3 rounded-lg px-2 sm:px-3 py-2.5 text-sm font-medium transition-colors ${
+              className={`flex items-center gap-3 rounded-lg px-2 sm:px-3 py-2.5 text-sm font-medium transition-none ${
                 isActive(item.url)
                   ? "bg-sidebar-accent text-sidebar-accent-foreground"
                   : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
@@ -378,7 +378,7 @@ export function AppSidebar() {
       <div className="absolute bottom-0 left-0 right-0 border-t border-sidebar-border p-2 sm:p-3">
         <SSRSafeDropdownMenu open={open}>
           <DropdownMenuTrigger asChild>
-            <div className="flex items-center gap-3 rounded-lg px-2 sm:px-3 py-2.5 text-sm font-medium cursor-pointer text-sidebar-foreground hover:bg-sidebar-accent transition-colors">
+            <div className="flex items-center gap-3 rounded-lg px-2 sm:px-3 py-2.5 text-sm font-medium cursor-pointer text-sidebar-foreground hover:bg-sidebar-accent transition-none">
               <User2 className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
               {open && (
                 <div className="flex-1 truncate">
@@ -431,7 +431,7 @@ export function AppSidebar() {
 
         <SSRSafeAlertDialog open={open}>
           <AlertDialogTrigger asChild>
-            <button className="flex cursor-pointer w-full items-center gap-3 rounded-lg px-2 sm:px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-colors">
+            <button className="flex cursor-pointer w-full items-center gap-3 rounded-lg px-2 sm:px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-none">
               <LogOut className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
               {open && <span className="text-xs sm:text-sm">Logout</span>}
             </button>

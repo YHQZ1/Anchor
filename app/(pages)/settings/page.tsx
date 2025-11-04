@@ -301,7 +301,7 @@ export default function SettingsPage() {
           <div className="flex items-center">
             <button
               onClick={() => handleToggleChange(activeSection, toggleKey)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-none ${
                 setting.value ? "bg-purple-600" : "bg-muted"
               }`}
             >
@@ -324,7 +324,7 @@ export default function SettingsPage() {
             onChange={(e) =>
               handleSelectChange(activeSection, selectKey, e.target.value)
             }
-            className="px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
+            className="px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm transition-none focus:outline-none focus:ring-2 focus:ring-ring"
           >
             {setting.options?.map((option: string) => (
               <option key={option} value={option}>
@@ -339,7 +339,7 @@ export default function SettingsPage() {
           <div className="flex gap-2">
             <button
               onClick={() => setTheme("light")}
-              className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
+              className={`px-4 py-2 rounded-lg border text-sm font-medium transition-none ${
                 theme === "light"
                   ? "bg-purple-600 border-purple-600 text-white"
                   : "border-input bg-background text-foreground hover:bg-accent cursor-pointer"
@@ -349,7 +349,7 @@ export default function SettingsPage() {
             </button>
             <button
               onClick={() => setTheme("dark")}
-              className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
+              className={`px-4 py-2 rounded-lg border text-sm font-medium transition-none ${
                 theme === "dark"
                   ? "bg-purple-600 border-purple-600 text-white"
                   : "border-input bg-background text-foreground hover:bg-accent cursor-pointer"
@@ -366,7 +366,7 @@ export default function SettingsPage() {
             onClick={() => {
               console.log(`Action: ${setting.action}`);
             }}
-            className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
+            className={`px-4 py-2 rounded-lg border text-sm font-medium transition-none ${
               setting.destructive
                 ? "bg-red-50 border-red-200 text-red-700 hover:bg-red-100 dark:bg-red-500/10 dark:border-red-500/20 dark:text-red-400 dark:hover:bg-red-500/20 cursor-pointer"
                 : "border-input bg-background text-foreground hover:bg-accent cursor-pointer"
@@ -398,7 +398,7 @@ export default function SettingsPage() {
         {currentSettings.map((setting: Setting, index: number) => (
           <div
             key={index}
-            className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-lg border border-border bg-card transition-colors gap-3 sm:gap-0"
+            className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-lg border border-border bg-card transition-none gap-3 sm:gap-0"
           >
             <div className="flex-1 min-w-0">
               <h3 className="font-medium text-sm sm:text-base mb-1">
@@ -437,7 +437,7 @@ export default function SettingsPage() {
           <div className="flex items-center gap-4">
             <button
               onClick={handleSaveChanges}
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white transition-none cursor-pointer"
             >
               <Save className="h-4 w-4 inline mr-2" />
               Save Changes
@@ -473,7 +473,7 @@ export default function SettingsPage() {
                 <NavigationMenuItem key={section.id}>
                   <NavigationMenuTrigger
                     onClick={() => setActiveSection(section.id)}
-                    className={`cursor-pointer transition-colors hover:bg-accent text-xs sm:text-sm ${
+                    className={`cursor-pointer transition-none hover:bg-accent text-xs sm:text-sm ${
                       activeSection === section.id
                         ? "font-medium bg-accent"
                         : "text-muted-foreground"

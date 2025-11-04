@@ -51,19 +51,19 @@ export default function Header() {
           <div className="flex items-center space-x-3 sm:space-x-4 lg:space-x-6">
             <Link
               href="/auth?mode=signin"
-              className="hidden md:block text-sm lg:text-base font-medium transition-colors text-muted-foreground hover:text-purple-600 dark:hover:text-purple-400"
+              className="hidden md:block text-sm lg:text-base font-medium transition-none text-muted-foreground hover:text-purple-600 dark:hover:text-purple-400"
             >
               Sign In
             </Link>
             <Link
               href="/auth?mode=signup"
-              className="hidden md:block text-sm lg:text-base font-medium transition-colors text-muted-foreground hover:text-purple-600 dark:hover:text-purple-400"
+              className="hidden md:block text-sm lg:text-base font-medium transition-none text-muted-foreground hover:text-purple-600 dark:hover:text-purple-400"
             >
               Sign Up
             </Link>
 
             <button
-              className="cursor-pointer p-2 rounded-lg transition-colors text-muted-foreground hover:text-purple-600 dark:hover:text-purple-400 hover:bg-accent/50"
+              className="cursor-pointer p-2 rounded-lg transition-none text-muted-foreground hover:text-purple-600 dark:hover:text-purple-400 hover:bg-accent/50"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               aria-label="Toggle theme"
             >
@@ -77,7 +77,7 @@ export default function Header() {
             </button>
 
             <button
-              className="lg:hidden p-2 rounded-lg transition-colors hover:bg-accent text-muted-foreground"
+              className="lg:hidden p-2 rounded-lg transition-none hover:bg-accent text-muted-foreground"
               onClick={toggleMobileMenu}
               aria-label="Toggle menu"
             >
@@ -106,19 +106,19 @@ export default function Header() {
         <div className="flex flex-col h-full p-6 space-y-6">
           <div className="space-y-2">
             <button
-              className="w-full text-left text-lg font-medium py-3 px-4 rounded-lg transition-colors text-foreground hover:bg-accent hover:text-purple-600 dark:hover:text-purple-400"
+              className="w-full text-left text-lg font-medium py-3 px-4 rounded-lg transition-none text-foreground hover:bg-accent hover:text-purple-600 dark:hover:text-purple-400"
               onClick={toggleMobileMenu}
             >
               Features
             </button>
             <button
-              className="w-full text-left text-lg font-medium py-3 px-4 rounded-lg transition-colors text-foreground hover:bg-accent hover:text-purple-600 dark:hover:text-purple-400"
+              className="w-full text-left text-lg font-medium py-3 px-4 rounded-lg transition-none text-foreground hover:bg-accent hover:text-purple-600 dark:hover:text-purple-400"
               onClick={toggleMobileMenu}
             >
               About
             </button>
             <button
-              className="w-full text-left text-lg font-medium py-3 px-4 rounded-lg transition-colors text-foreground hover:bg-accent hover:text-purple-600 dark:hover:text-purple-400"
+              className="w-full text-left text-lg font-medium py-3 px-4 rounded-lg transition-none text-foreground hover:bg-accent hover:text-purple-600 dark:hover:text-purple-400"
               onClick={toggleMobileMenu}
             >
               Docs
@@ -130,14 +130,14 @@ export default function Header() {
           <div className="space-y-3">
             <Link
               href="/auth?mode=signin"
-              className="block w-full text-center text-base font-medium py-3 px-4 rounded-lg transition-colors text-foreground hover:bg-accent hover:text-purple-600 dark:hover:text-purple-400 border border-border"
+              className="block w-full text-center text-base font-medium py-3 px-4 rounded-lg transition-none text-foreground hover:bg-accent hover:text-purple-600 dark:hover:text-purple-400 border border-border"
               onClick={toggleMobileMenu}
             >
               Sign In
             </Link>
             <Link
               href="/auth?mode=signup"
-              className="block w-full text-center text-base font-semibold py-3 px-4 rounded-lg transition-colors text-white bg-purple-600 hover:bg-purple-700"
+              className="block w-full text-center text-base font-semibold py-3 px-4 rounded-lg transition-none text-white bg-purple-600 hover:bg-purple-700"
               onClick={toggleMobileMenu}
             >
               Sign Up

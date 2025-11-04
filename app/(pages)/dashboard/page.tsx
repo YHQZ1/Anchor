@@ -525,7 +525,7 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
             <button
               onClick={() => (window.location.href = "/assignments")}
-              className="p-3 sm:p-4 rounded-lg border border-border hover:bg-accent/50 text-left transition-colors"
+              className="p-3 sm:p-4 rounded-lg border border-border hover:bg-accent/50 text-left transition-none"
             >
               <CheckSquare className="h-5 w-5 sm:h-6 sm:w-6 mb-2 text-primary" />
               <h3 className="font-medium text-sm sm:text-base mb-1">
@@ -537,7 +537,7 @@ export default function Dashboard() {
             </button>
             <button
               onClick={() => (window.location.href = "/attendance")}
-              className="p-3 sm:p-4 rounded-lg border border-border hover:bg-accent/50 text-left transition-colors"
+              className="p-3 sm:p-4 rounded-lg border border-border hover:bg-accent/50 text-left transition-none"
             >
               <Calendar className="h-5 w-5 sm:h-6 sm:w-6 mb-2 text-primary" />
               <h3 className="font-medium text-sm sm:text-base mb-1">
@@ -547,7 +547,7 @@ export default function Dashboard() {
                 Update the attendance for today
               </p>
             </button>
-            <button className="p-3 sm:p-4 rounded-lg border border-border hover:bg-accent/50 text-left transition-colors">
+            <button className="p-3 sm:p-4 rounded-lg border border-border hover:bg-accent/50 text-left transition-none">
               <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 mb-2 text-primary" />
               <h3 className="font-medium text-sm sm:text-base mb-1">
                 View Analytics

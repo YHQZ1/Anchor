@@ -2,83 +2,97 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabaseClient";
 import { withAuth } from "@/lib/apiHandler";
+import redis from "@/lib/redis";
+import { withCache } from "@/utils/cache";
 
 export async function GET(request: NextRequest) {
   return withAuth(async (request, user) => {
-    const supabaseAdmin = getSupabaseAdmin();
     const { searchParams } = new URL(request.url);
     const courseId = searchParams.get("course_id");
     const startDate = searchParams.get("start_date");
     const endDate = searchParams.get("end_date");
     const summaryOnly = searchParams.get("summary_only");
 
-    if (summaryOnly === "true") return await getAttendanceSummary(user.id);
+    if (summaryOnly === "true") return await getAttendanceSummary(user.id, courseId, startDate, endDate);
 
+    const cacheKey = `attendance:${user.id}:${courseId || 'all'}:${startDate || 'all'}:${endDate || 'all'}`;
+
+    const { data: attendance, cached } = await withCache(cacheKey, async () => {
+      const supabaseAdmin = getSupabaseAdmin();
+      
+      let query = supabaseAdmin
+        .from("attendance")
+        .select(`*, courses!inner (course_code, course_name, color, archived)`)
+        .eq("user_id", user.id)
+        .eq("courses.archived", false);
+
+      if (courseId) query = query.eq("course_id", courseId);
+      if (startDate) query = query.gte("class_date", startDate);
+      if (endDate) query = query.lte("class_date", endDate);
+
+      const { data, error } = await query.order("class_date", {
+        ascending: false,
+      });
+
+      if (error) throw new Error("Failed to fetch attendance");
+
+      return data;
+    });
+
+    return NextResponse.json({ attendance, cached }, { status: 200 });
+  }, request);
+}
+
+async function getAttendanceSummary(userId: string, courseId?: string | null, startDate?: string | null, endDate?: string | null) {
+  const cacheKey = `attendance_summary:${userId}:${courseId || 'all'}:${startDate || 'all'}:${endDate || 'all'}`;
+
+  const { data: summary, cached } = await withCache(cacheKey, async () => {
+    const supabaseAdmin = getSupabaseAdmin();
     let query = supabaseAdmin
       .from("attendance")
-      .select(`*, courses!inner (course_code, course_name, color, archived)`)
-      .eq("user_id", user.id)
+      .select(`class_date, status, courses!inner (course_code, course_name, color, archived)`)
+      .eq("user_id", userId)
       .eq("courses.archived", false);
 
     if (courseId) query = query.eq("course_id", courseId);
     if (startDate) query = query.gte("class_date", startDate);
     if (endDate) query = query.lte("class_date", endDate);
 
-    const { data: attendance, error } = await query.order("class_date", {
-      ascending: false,
-    });
+    const { data: attendance, error } = await query;
 
-    if (error)
-      return NextResponse.json(
-        { error: "Failed to fetch attendance" },
-        { status: 500 }
-      );
-    return NextResponse.json({ attendance });
-  }, request);
-}
+    if (error) throw error;
 
-async function getAttendanceSummary(userId: string) {
-  const supabaseAdmin = getSupabaseAdmin();
-  const { data: attendance, error } = await supabaseAdmin
-    .from("attendance")
-    .select(
-      `class_date, status, courses!inner (course_code, course_name, color, archived)`
-    )
-    .eq("user_id", userId)
-    .eq("courses.archived", false);
+    const summary = attendance?.reduce((acc: any, record: any) => {
+      const courseCode = record.courses.course_code;
+      if (!acc[courseCode]) {
+        acc[courseCode] = {
+          course_code: courseCode,
+          course_name: record.courses.course_name,
+          color: record.courses.color,
+          total_classes: 0,
+          present: 0,
+          absent: 0,
+          late: 0,
+          excused: 0,
+          attendance_percentage: 0,
+        };
+      }
 
-  if (error) throw error;
+      acc[courseCode].total_classes++;
+      acc[courseCode][record.status]++;
 
-  const summary = attendance?.reduce((acc: any, record: any) => {
-    const courseCode = record.courses.course_code;
-    if (!acc[courseCode]) {
-      acc[courseCode] = {
-        course_code: courseCode,
-        course_name: record.courses.course_name,
-        color: record.courses.color,
-        total_classes: 0,
-        present: 0,
-        absent: 0,
-        late: 0,
-        excused: 0,
-        attendance_percentage: 0,
-      };
-    }
+      const attended = acc[courseCode].present + acc[courseCode].late;
+      const totalCounted = acc[courseCode].total_classes - acc[courseCode].excused;
 
-    acc[courseCode].total_classes++;
-    acc[courseCode][record.status]++;
+      acc[courseCode].attendance_percentage = totalCounted > 0 ? Math.round((attended / totalCounted) * 100) : 100;
 
-    const attended = acc[courseCode].present + acc[courseCode].late;
-    const totalCounted =
-      acc[courseCode].total_classes - acc[courseCode].excused;
+      return acc;
+    }, {});
 
-    acc[courseCode].attendance_percentage =
-      totalCounted > 0 ? Math.round((attended / totalCounted) * 100) : 100;
+    return Object.values(summary || {});
+  });
 
-    return acc;
-  }, {});
-
-  return NextResponse.json({ summary: Object.values(summary || {}) });
+  return NextResponse.json({ summary, cached });
 }
 
 export async function POST(request: NextRequest) {
@@ -108,6 +122,8 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    await clearAttendanceCache(user.id);
 
     const { data: existingAttendance } = await supabaseAdmin
       .from("attendance")
@@ -162,6 +178,8 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
+    await clearAttendanceCache(user.id);
+
     const { data: attendance, error } = await supabaseAdmin
       .from("attendance")
       .update({
@@ -200,6 +218,8 @@ export async function DELETE(request: NextRequest) {
         { status: 400 }
       );
 
+    await clearAttendanceCache(user.id);
+
     const { error } = await supabaseAdmin
       .from("attendance")
       .delete()
@@ -213,4 +233,15 @@ export async function DELETE(request: NextRequest) {
       message: "Attendance record deleted successfully",
     });
   }, request);
+}
+
+async function clearAttendanceCache(userId: string) {
+  const pattern = `attendance*:${userId}:*`;
+  const keys = await redis.keys(pattern);
+  
+  if (keys.length > 0) {
+    for (const key of keys) {
+      await redis.del(key);
+    }
+  }
 }

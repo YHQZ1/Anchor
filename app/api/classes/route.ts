@@ -2,24 +2,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabaseClient";
 import { withAuth } from "@/lib/apiHandler";
+import redis from "@/lib/redis";
+import { withCache } from "@/utils/cache";
 
 export async function GET(request: NextRequest) {
   return withAuth(async (request, user) => {
-    const supabaseAdmin = getSupabaseAdmin();
-    const { data: classes, error } = await supabaseAdmin
-      .from("classes")
-      .select(`*, courses!inner (course_code, course_name, color, archived)`)
-      .eq("user_id", user.id)
-      .eq("courses.archived", false)
-      .order("day_of_week", { ascending: true })
-      .order("start_time", { ascending: true });
+    const cacheKey = `classes:${user.id}`;
 
-    if (error)
-      return NextResponse.json(
-        { error: "Failed to fetch classes" },
-        { status: 500 }
-      );
-    return NextResponse.json({ classes });
+    const { data: classes, cached } = await withCache(cacheKey, async () => {
+      const supabaseAdmin = getSupabaseAdmin();
+      const { data, error } = await supabaseAdmin
+        .from("classes")
+        .select(`*, courses!inner (course_code, course_name, color, archived)`)
+        .eq("user_id", user.id)
+        .eq("courses.archived", false)
+        .order("day_of_week", { ascending: true })
+        .order("start_time", { ascending: true });
+
+      if (error) throw new Error("Failed to fetch classes");
+
+      return data;
+    });
+
+    return NextResponse.json({ classes, cached }, { status: 200 });
   }, request);
 }
 
@@ -49,6 +54,8 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    await clearClassesCache(user.id);
 
     const { data: conflictingClasses } = await supabaseAdmin
       .from("classes")
@@ -125,6 +132,8 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
+    await clearClassesCache(user.id);
+
     const updates: any = { updated_at: new Date().toISOString() };
     if (course_id) updates.course_id = course_id;
     if (day_of_week !== undefined) updates.day_of_week = day_of_week;
@@ -165,6 +174,8 @@ export async function DELETE(request: NextRequest) {
         { status: 400 }
       );
 
+    await clearClassesCache(user.id);
+
     const { error } = await supabaseAdmin
       .from("classes")
       .delete()
@@ -176,4 +187,15 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ message: "Class deleted successfully" });
   }, request);
+}
+
+async function clearClassesCache(userId: string) {
+  const pattern = `classes:${userId}:*`;
+  const keys = await redis.keys(pattern);
+  
+  if (keys.length > 0) {
+    for (const key of keys) {
+      await redis.del(key);
+    }
+  }
 }

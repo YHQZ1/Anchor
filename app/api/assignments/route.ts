@@ -2,40 +2,46 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabaseClient";
 import { withAuth } from "@/lib/apiHandler";
+import redis from "@/lib/redis";
+import { withCache } from "@/utils/cache";
 
 export async function GET(request: NextRequest) {
   return withAuth(async (request, user) => {
-    const supabaseAdmin = getSupabaseAdmin();
     const { searchParams } = new URL(request.url);
     const courseId = searchParams.get("course_id");
     const status = searchParams.get("status");
     const priority = searchParams.get("priority");
     const upcomingOnly = searchParams.get("upcoming_only");
 
-    let query = supabaseAdmin
-      .from("assignments")
-      .select(
-        `*, courses!inner (id, course_code, course_name, color, archived)`
-      )
-      .eq("user_id", user.id)
-      .eq("courses.archived", false);
+    const cacheKey = `assignments:${user.id}:${courseId || 'all'}:${status || 'all'}:${priority || 'all'}:${upcomingOnly || 'false'}`;
 
-    if (courseId) query = query.eq("course_id", courseId);
-    if (status) query = query.eq("status", status);
-    if (priority) query = query.eq("priority", priority);
-    if (upcomingOnly === "true")
-      query = query.gte("due_date", new Date().toISOString());
+    const { data: assignments, cached } = await withCache(cacheKey, async () => {
+      const supabaseAdmin = getSupabaseAdmin();
+      
+      let query = supabaseAdmin
+        .from("assignments")
+        .select(
+          `*, courses!inner (id, course_code, course_name, color, archived)`
+        )
+        .eq("user_id", user.id)
+        .eq("courses.archived", false);
 
-    const { data: assignments, error } = await query.order("due_date", {
-      ascending: true,
+      if (courseId) query = query.eq("course_id", courseId);
+      if (status) query = query.eq("status", status);
+      if (priority) query = query.eq("priority", priority);
+      if (upcomingOnly === "true")
+        query = query.gte("due_date", new Date().toISOString());
+
+      const { data, error } = await query.order("due_date", {
+        ascending: true,
+      });
+
+      if (error) throw new Error("Failed to fetch assignments");
+
+      return data;
     });
 
-    if (error)
-      return NextResponse.json(
-        { error: "Failed to fetch assignments" },
-        { status: 500 }
-      );
-    return NextResponse.json({ assignments });
+    return NextResponse.json({ assignments, cached }, { status: 200 });
   }, request);
 }
 
@@ -67,6 +73,8 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    await clearAssignmentsCache(user.id);
 
     const { data: assignment, error } = await supabaseAdmin
       .from("assignments")
@@ -154,6 +162,8 @@ export async function PATCH(request: NextRequest) {
       else if (progress > 0) updates.status = "in-progress";
     }
 
+    await clearAssignmentsCache(user.id);
+
     const { data: assignment, error } = await supabaseAdmin
       .from("assignments")
       .update(updates)
@@ -189,6 +199,8 @@ export async function DELETE(request: NextRequest) {
         { status: 400 }
       );
 
+    await clearAssignmentsCache(user.id);
+
     const { error } = await supabaseAdmin
       .from("assignments")
       .delete()
@@ -200,4 +212,15 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ message: "Assignment deleted successfully" });
   }, request);
+}
+
+async function clearAssignmentsCache(userId: string) {
+  const pattern = `assignments:${userId}:*`;
+  const keys = await redis.keys(pattern);
+  
+  if (keys.length > 0) {
+    for (const key of keys) {
+      await redis.del(key);
+    }
+  }
 }

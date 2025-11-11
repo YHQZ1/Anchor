@@ -1,34 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabaseClient'
 import { withAuth } from '@/lib/apiHandler'
+import redis from '@/lib/redis'
+import { withCache } from '@/utils/cache'
 
 export async function GET(request: NextRequest) {
   return withAuth(async (request, user) => {
-    const supabaseAdmin = getSupabaseAdmin()
-    
-    const { data: profile, error } = await supabaseAdmin
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single()
+    const cacheKey = `profile:${user.id}`
 
-    if (error) {
-      return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
-    }
+    const { data: profile, cached } = await withCache(cacheKey, async () => {
+      const supabaseAdmin = getSupabaseAdmin()
+      
+      const { data: profileData, error } = await supabaseAdmin
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
 
-    const { data: userData } = await supabaseAdmin
-      .from('users')
-      .select('email, username')
-      .eq('id', user.id)
-      .single()
+      if (error) {
+        throw new Error('Profile not found')
+      }
 
-    return NextResponse.json({
-      profile: {
-        ...profile,
+      const { data: userData } = await supabaseAdmin
+        .from('users')
+        .select('email, username')
+        .eq('id', user.id)
+        .single()
+
+      return {
+        ...profileData,
         email: userData?.email,
         username: userData?.username
       }
     })
+
+    return NextResponse.json({ profile, cached })
   }, request)
 }
 
@@ -60,6 +66,8 @@ export async function POST(request: NextRequest) {
     if (min_attendance_percentage && (min_attendance_percentage < 50 || min_attendance_percentage > 100)) {
       return NextResponse.json({ error: 'Minimum attendance percentage must be between 50 and 100' }, { status: 400 })
     }
+
+    await redis.del(`profile:${user.id}`)
 
     const { data: profile, error } = await supabaseAdmin
       .from('profiles')
@@ -97,6 +105,8 @@ export async function PATCH(request: NextRequest) {
         (updates.min_attendance_percentage < 50 || updates.min_attendance_percentage > 100)) {
       return NextResponse.json({ error: 'Minimum attendance percentage must be between 50 and 100' }, { status: 400 })
     }
+
+    await redis.del(`profile:${user.id}`)
 
     const { data: profile, error } = await supabaseAdmin
       .from('profiles')

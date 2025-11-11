@@ -1,30 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabaseClient";
 import { withAuth } from "@/lib/apiHandler";
+import redis from "@/lib/redis";
+import { withCache } from "@/utils/cache";
 
 export async function GET(request: NextRequest) {
-  return withAuth(async (request, user) => {
-    const supabaseAdmin = getSupabaseAdmin();
-    const { data: archives, error } = await supabaseAdmin
-      .from("archives")
-      .select(
-        `*, courses!inner (id, course_code, course_name, instructor, credits, color, created_at)`
-      )
-      .eq("user_id", user.id)
-      .order("archived_at", { ascending: false });
+  return withAuth(async (_, user) => {
+    const cacheKey = `archives:${user.id}`;
 
-    if (error)
-      return NextResponse.json(
-        { error: "Failed to fetch archived courses" },
-        { status: 500 }
-      );
-    return NextResponse.json({ archives });
+    const { data: archives, cached } = await withCache(cacheKey, async () => {
+      const supabaseAdmin = getSupabaseAdmin();
+      const { data, error } = await supabaseAdmin
+        .from("archives")
+        .select(
+          `*, courses!inner (id, course_code, course_name, instructor, credits, color, created_at)`
+        )
+        .eq("user_id", user.id)
+        .order("archived_at", { ascending: false });
+
+      if (error) throw new Error("Failed to fetch archives");
+
+      return data;
+    });
+
+    return NextResponse.json({ archives, cached }, { status: 200 });
   }, request);
 }
 
 export async function POST(request: NextRequest) {
   return withAuth(async (request, user) => {
-    const supabaseAdmin = getSupabaseAdmin();
     const { course_id, reason, notes } = await request.json();
 
     if (!course_id)
@@ -32,6 +36,13 @@ export async function POST(request: NextRequest) {
         { error: "Course ID is required" },
         { status: 400 }
       );
+
+    await Promise.all([
+      redis.del(`courses:${user.id}`),
+      redis.del(`archives:${user.id}`)
+    ]);
+
+    const supabaseAdmin = getSupabaseAdmin();
 
     const { error: archiveError } = await supabaseAdmin
       .from("courses")
@@ -112,6 +123,11 @@ export async function DELETE(request: NextRequest) {
       }
       targetCourseId = archive.course_id;
     }
+
+    await Promise.all([
+      redis.del(`courses:${user.id}`),
+      redis.del(`archives:${user.id}`)
+    ]);
 
     let query = supabaseAdmin.from("archives").delete().eq("user_id", user.id);
     if (archiveId) query = query.eq("id", archiveId);

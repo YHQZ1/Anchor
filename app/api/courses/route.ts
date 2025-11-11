@@ -2,25 +2,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabaseClient";
 import { withAuth } from "@/lib/apiHandler";
-
+import redis from "@/lib/redis";
+import { withCache } from "@/utils/cache";
 export async function GET(request: NextRequest) {
-  return withAuth(async (request, user) => {
-    const supabaseAdmin = getSupabaseAdmin();
-    const { data: courses, error } = await supabaseAdmin
-      .from("courses")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("archived", false)
-      .order("created_at", { ascending: true });
+  return withAuth(async (_, user) => {
+    const cacheKey = `courses:${user.id}`;
 
-    if (error)
-      return NextResponse.json(
-        { error: "Failed to fetch courses" },
-        { status: 500 }
-      );
-    return NextResponse.json({ courses });
+    const { data: courses, cached } = await withCache(cacheKey, async () => {
+      const supabaseAdmin = getSupabaseAdmin();
+      const { data, error } = await supabaseAdmin
+        .from("courses")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("archived", false)
+        .order("created_at", { ascending: true });
+
+      if (error) throw new Error("Failed to fetch courses");
+
+      return data;
+    });
+
+    return NextResponse.json({ courses, cached }, { status: 200 });
   }, request);
 }
+
 
 export async function POST(request: NextRequest) {
   return withAuth(async (request, user) => {
@@ -57,6 +62,7 @@ export async function POST(request: NextRequest) {
 
     if (error)
       return NextResponse.json({ error: error.message }, { status: 400 });
+    await redis.del(`courses:${user.id}`);
 
     return NextResponse.json({ message: "Course added successfully", course });
   }, request);
@@ -103,6 +109,8 @@ export async function PATCH(request: NextRequest) {
     if (!course)
       return NextResponse.json({ error: "Course not found" }, { status: 404 });
 
+    await redis.del(`courses:${user.id}`);
+
     return NextResponse.json({
       message: "Course updated successfully",
       course,
@@ -130,6 +138,8 @@ export async function DELETE(request: NextRequest) {
 
     if (error)
       return NextResponse.json({ error: error.message }, { status: 400 });
+
+    await redis.del(`courses:${user.id}`);
 
     return NextResponse.json({ message: "Course deleted successfully" });
   }, request);

@@ -503,7 +503,7 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
           open ? "lg:ml-64" : "lg:ml-16"
         } ${mobileOpen ? "ml-0 lg:ml-0" : "ml-0"}`}
       >
-        <div className="p-4 sm:p-6 w-full">
+        <div className="px-2 sm:px-4 w-full">
           {children}
         </div>
       </main>

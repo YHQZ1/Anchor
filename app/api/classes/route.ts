@@ -62,14 +62,16 @@ export async function POST(request: NextRequest) {
       .select("id")
       .eq("user_id", user.id)
       .eq("day_of_week", day_of_week)
-      .or(`start_time.lte.${end_time},end_time.gte.${start_time}`)
-      .neq("course_id", course_id);
+      .eq("course_id", course_id)
+      .or(
+        `and(start_time.lte.${start_time},end_time.gte.${start_time}),and(start_time.lte.${end_time},end_time.gte.${end_time}),and(start_time.gte.${start_time},end_time.lte.${end_time})`
+      );
 
     if (conflictingClasses && conflictingClasses.length > 0) {
       return NextResponse.json(
         {
           error:
-            "Schedule conflict: This time slot overlaps with another class",
+            "Schedule conflict: This course already has a class at this time",
         },
         { status: 409 }
       );
@@ -192,7 +194,7 @@ export async function DELETE(request: NextRequest) {
 async function clearClassesCache(userId: string) {
   const pattern = `classes:${userId}:*`;
   const keys = await redis.keys(pattern);
-  
+
   if (keys.length > 0) {
     for (const key of keys) {
       await redis.del(key);

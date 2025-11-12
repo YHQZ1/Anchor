@@ -16,6 +16,7 @@ import {
   Bell,
   Shield,
   Archive,
+  Clock,
   X,
 } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -145,6 +146,7 @@ const MENU_ITEMS = [
   { title: "Assignments", url: "/assignments", icon: CheckSquare },
   { title: "Attendance", url: "/attendance", icon: Calendar },
   { title: "Courses", url: "/courses", icon: BookOpen },
+  { title: "Classes", url: "/classes", icon: Clock },
   { title: "Archives", url: "/archives", icon: Archive },
   { title: "Settings", url: "/settings", icon: Settings },
 ];

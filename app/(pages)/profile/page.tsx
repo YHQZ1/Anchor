@@ -702,9 +702,9 @@ export default function ProfilePage() {
                       min={50}
                       step={1}
                       disabled={!editing}
-                      className="w-full cursor-pointer"
+                      className="w-full cursor-pointer transition-none"
                     />
-                    <div className="flex justify-between text-xs text-muted-foreground">
+                    <div className="flex justify-between text-xs text-muted-foreground transition-none">
                       <span>50%</span>
                       <span>75%</span>
                       <span>100%</span>
@@ -722,6 +722,7 @@ export default function ProfilePage() {
                     </p>
                   </div>
                   <Switch
+                    className="transition-none"
                     checked={formData.enable_attendance_warnings}
                     onCheckedChange={(value: any) =>
                       handleInputChange("enable_attendance_warnings", value)
@@ -814,7 +815,7 @@ function FormField({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         disabled={disabled}
-        className="text-xs sm:text-sm"
+        className="text-xs sm:text-sm transition-none"
       />
     </div>
   );

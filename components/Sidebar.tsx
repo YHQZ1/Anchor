@@ -14,7 +14,6 @@ import {
   User2,
   LogOut,
   Bell,
-  Shield,
   Archive,
   Clock,
   X,
@@ -392,7 +391,10 @@ export function AppSidebar() {
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="cursor-pointer transition-none text-sm"
-              onClick={() => router.push("/profile")}
+              onClick={() => {
+                router.push("/profile");
+                setMobileOpen(false);
+              }}
             >
               <User className="h-4 w-4 mr-2" />
               View Profile
@@ -400,17 +402,13 @@ export function AppSidebar() {
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="cursor-pointer transition-none text-sm"
-              onClick={() => router.push("/settings?section=notifications")}
+              onClick={() => {
+                router.push("/settings?section=notifications");
+                setMobileOpen(false);
+              }}
             >
               <Bell className="h-4 w-4 mr-2" />
               Notifications
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="cursor-pointer transition-none text-sm"
-              onClick={() => router.push("/settings?section=privacy")}
-            >
-              <Shield className="h-4 w-4 mr-2" />
-              Privacy & Security
             </DropdownMenuItem>
           </DropdownMenuContent>
         </SSRSafeDropdownMenu>

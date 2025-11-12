@@ -259,7 +259,7 @@ export default function Classes() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-14 sm:h-16 items-center gap-4 px-4 sm:px-6">
+        <div className="flex h-14 sm:h-16 items-center gap-3 px-4 sm:px-6">
           <div className="lg:hidden">
             <MobileSidebarTrigger />
           </div>
@@ -271,7 +271,7 @@ export default function Classes() {
           </div>
           <Button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 cursor-pointer text-xs sm:text-sm h-9 sm:h-10"
+            className="flex items-center gap-2 cursor-pointer text-xs sm:text-sm h-9 sm:h-10 px-2 sm:px-4"
             variant={"outline"}
           >
             <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -281,11 +281,11 @@ export default function Classes() {
         </div>
       </header>
 
-      <main className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+      <main className="p-3 sm:p-6 space-y-4 sm:space-y-6">
         <StatsGrid stats={stats} />
 
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-          <div className="flex-1 flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg border border-input bg-background">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg border border-input bg-background">
             <Search className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             <Input
               type="text"
@@ -309,7 +309,7 @@ export default function Classes() {
               <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
                 All Classes
               </h2>
-              <div className="space-y-3 sm:space-y-4">
+              <div className="space-y-3">
                 {filteredClasses.length > 0 ? (
                   filteredClasses.map((cls) => (
                     <ClassCard
@@ -389,7 +389,7 @@ export default function Classes() {
         open={!!deleteConfirm}
         onOpenChange={() => setDeleteConfirm(null)}
       >
-        <AlertDialogContent className="max-w-[95vw] sm:max-w-md">
+        <AlertDialogContent className="max-w-[95vw] sm:max-w-md mx-2">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-sm sm:text-base">
               Delete Class
@@ -400,12 +400,12 @@ export default function Classes() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="text-xs cursor-pointer sm:text-sm h-9 sm:h-10">
+            <AlertDialogCancel className="text-xs cursor-pointer sm:text-sm h-9">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => deleteConfirm && handleDeleteClass(deleteConfirm)}
-              className="bg-destructive cursor-pointer hover:bg-destructive/90 text-xs sm:text-sm h-9 sm:h-10"
+              className="bg-destructive cursor-pointer hover:bg-destructive/90 text-xs sm:text-sm h-9"
             >
               Delete
             </AlertDialogAction>
@@ -537,25 +537,27 @@ function getColorClass(color: string) {
 
 function StatsGrid({ stats }: { stats: any[] }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3">
       {stats.map((stat, index) => (
         <div
           key={index}
           className="rounded-xl border border-border bg-card p-3 sm:p-4"
         >
-          <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <div className={`p-2 sm:p-3 rounded-lg ${stat.bgColor}`}>
-              <stat.icon className={`h-4 w-4 sm:h-6 sm:w-6 ${stat.color}`} />
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <div className={`p-2 rounded-lg ${stat.bgColor}`}>
+              <stat.icon className={`h-4 w-4 ${stat.color}`} />
             </div>
           </div>
           <div className="space-y-1">
-            <p className="text-xs sm:text-sm font-medium text-muted-foreground">
+            <p className="text-xs font-medium text-muted-foreground line-clamp-1">
               {stat.title}
             </p>
-            <p className="text-xl sm:text-2xl lg:text-3xl font-bold">
+            <p className="text-lg sm:text-xl lg:text-2xl font-bold">
               {stat.value}
             </p>
-            <p className="text-xs text-muted-foreground">{stat.trend}</p>
+            <p className="text-xs text-muted-foreground line-clamp-1">
+              {stat.trend}
+            </p>
           </div>
         </div>
       ))}
@@ -579,20 +581,20 @@ function ClassCard({
       className="rounded-xl border border-border bg-card p-4 sm:p-6 hover:bg-accent/50 cursor-pointer transition-none"
       onClick={onView}
     >
-      <div className="flex items-start justify-between mb-3 sm:mb-4">
-        <div className="flex items-start gap-3 sm:gap-4">
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex items-start gap-3">
           <div
             className={`p-2 sm:p-3 rounded-lg ${getColorClass(
               classItem.courses.color
             )}`}
           >
-            <BookOpen className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
+            <BookOpen className="h-4 w-4 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-base sm:text-lg mb-1 truncate">
+            <h3 className="font-semibold text-base mb-1 truncate">
               {classItem.courses.course_name}
             </h3>
-            <p className="text-xs sm:text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {classItem.courses.course_code} •{" "}
               {getDayName(classItem.day_of_week)}
             </p>
@@ -601,64 +603,64 @@ function ClassCard({
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-            <Button variant="ghost" className="h-7 w-7 sm:h-8 sm:w-8 p-0 cursor-pointer">
-              <MoreVertical className="h-3 w-3 sm:h-4 sm:w-4" />
+            <Button variant="ghost" className="h-7 w-7 p-0 cursor-pointer">
+              <MoreVertical className="h-3 w-3" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuItem
-              className="cursor-pointer text-xs sm:text-sm"
+              className="cursor-pointer text-xs"
               onClick={(e) => {
                 e.stopPropagation();
                 onView();
               }}
             >
-              <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+              <Eye className="h-3 w-3 mr-2" />
               View Details
             </DropdownMenuItem>
             <DropdownMenuItem
-              className="cursor-pointer text-xs sm:text-sm"
+              className="cursor-pointer text-xs"
               onClick={(e) => {
                 e.stopPropagation();
                 onEdit();
               }}
             >
-              <Edit className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+              <Edit className="h-3 w-3 mr-2" />
               Edit Class
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="cursor-pointer text-red-600 focus:text-red-600 text-xs sm:text-sm"
+              className="cursor-pointer text-red-600 focus:text-red-600 text-xs"
               onClick={(e) => {
                 e.stopPropagation();
                 onDelete();
               }}
             >
-              <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+              <Trash2 className="h-3 w-3 mr-2" />
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
+      <div className="grid grid-cols-2 gap-3 mb-3">
         <div className="p-2 sm:p-3 rounded-lg bg-accent">
-          <div className="flex items-center gap-1 sm:gap-2 mb-1">
-            <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+          <div className="flex items-center gap-1 mb-1">
+            <Clock className="h-3 w-3 text-muted-foreground" />
             <span className="text-xs text-muted-foreground">Time</span>
           </div>
-          <p className="text-xs sm:text-sm font-medium">
+          <p className="text-xs font-medium">
             {formatTime(classItem.start_time)} -{" "}
             {formatTime(classItem.end_time)}
           </p>
         </div>
 
         <div className="p-2 sm:p-3 rounded-lg bg-accent">
-          <div className="flex items-center gap-1 sm:gap-2 mb-1">
-            <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+          <div className="flex items-center gap-1 mb-1">
+            <MapPin className="h-3 w-3 text-muted-foreground" />
             <span className="text-xs text-muted-foreground">Location</span>
           </div>
-          <p className="text-xs sm:text-sm font-medium truncate">
+          <p className="text-xs font-medium truncate">
             {classItem.room || "TBA"}
           </p>
         </div>
@@ -670,7 +672,7 @@ function ClassCard({
         </Badge>
         <Button
           variant="ghost"
-          className="text-xs cursor-pointer sm:text-sm font-medium text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 h-8 sm:h-9"
+          className="text-xs cursor-pointer font-medium text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 h-8"
           onClick={onView}
         >
           View Details →
@@ -726,21 +728,21 @@ function WeeklySchedule({
         </div>
       </CardHeader>
       <CardContent className="p-4 sm:p-6 pt-0">
-        <div className="grid grid-cols-7 gap-1 sm:gap-2">
+        <div className="grid grid-cols-7 gap-1">
           {weeklySchedule.map((day, index) => (
             <div
               key={index}
-              className={`p-2 sm:p-3 rounded-lg text-center ${
+              className={`p-2 rounded-lg text-center ${
                 isToday(day.date)
                   ? "bg-purple-100 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/20"
                   : "bg-accent"
               }`}
             >
-              <div className="text-xs sm:text-sm font-medium text-muted-foreground">
+              <div className="text-xs font-medium text-muted-foreground">
                 {day.dayName}
               </div>
               <div
-                className={`text-lg sm:text-xl font-bold ${
+                className={`text-base font-bold ${
                   isToday(day.date)
                     ? "text-purple-600 dark:text-purple-400"
                     : "text-foreground"
@@ -755,24 +757,24 @@ function WeeklySchedule({
           ))}
         </div>
 
-        <div className="mt-4 sm:mt-6 space-y-2 sm:space-y-3">
+        <div className="mt-4 space-y-2">
           {weeklySchedule.map((day) =>
             day.classes.map((cls: Class) => (
               <div
                 key={cls.id}
-                className="flex items-center justify-between p-3 sm:p-4 rounded-lg border border-border bg-card"
+                className="flex items-center justify-between p-3 rounded-lg border border-border bg-card"
               >
-                <div className="flex items-center gap-3 sm:gap-4">
+                <div className="flex items-center gap-3">
                   <div
                     className={`w-3 h-3 rounded-full ${getColorClass(
                       cls.courses.color
                     )}`}
                   />
                   <div>
-                    <h4 className="font-medium text-sm sm:text-base">
+                    <h4 className="font-medium text-sm">
                       {cls.courses.course_code}
                     </h4>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       {formatTime(cls.start_time)} - {formatTime(cls.end_time)}
                     </p>
                   </div>
@@ -822,22 +824,22 @@ function Sidebar({
             Today's Classes
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-4 sm:p-6 pt-0 space-y-3 sm:space-y-4">
+        <CardContent className="p-4 sm:p-6 pt-0 space-y-3">
           {todayClasses.length > 0 ? (
             todayClasses.map((cls, index) => (
               <div
                 key={index}
-                className="p-3 sm:p-4 rounded-lg border border-border bg-accent"
+                className="p-3 rounded-lg border border-border bg-accent"
               >
                 <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-medium text-sm sm:text-base">
+                  <h3 className="font-medium text-sm">
                     {cls.courses.course_code}
                   </h3>
                   <Badge variant="secondary" className="text-xs capitalize">
                     {cls.class_type}
                   </Badge>
                 </div>
-                <div className="space-y-1 text-xs sm:text-sm text-muted-foreground">
+                <div className="space-y-1 text-xs text-muted-foreground">
                   <div className="flex items-center gap-2">
                     <Clock className="h-3 w-3" />
                     <span>
@@ -852,9 +854,9 @@ function Sidebar({
               </div>
             ))
           ) : (
-            <div className="text-center py-6 sm:py-8 text-muted-foreground">
-              <Calendar className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 opacity-50" />
-              <p className="text-xs sm:text-sm">No classes today</p>
+            <div className="text-center py-6 text-muted-foreground">
+              <Calendar className="h-6 w-6 mx-auto mb-2 opacity-50" />
+              <p className="text-xs">No classes today</p>
             </div>
           )}
         </CardContent>
@@ -864,10 +866,10 @@ function Sidebar({
         <CardHeader className="p-4 sm:p-6">
           <CardTitle className="text-base sm:text-lg">Quick Stats</CardTitle>
         </CardHeader>
-        <CardContent className="p-4 sm:p-6 pt-0 space-y-3 sm:space-y-4">
-          <div className="p-3 sm:p-4 rounded-lg bg-accent">
+        <CardContent className="p-4 sm:p-6 pt-0 space-y-3">
+          <div className="p-3 rounded-lg bg-accent">
             <div className="flex items-center justify-between">
-              <span className="text-xs sm:text-sm text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 Weekly Hours
               </span>
               <span className="font-semibold">{quickStats.totalHours}h</span>
@@ -875,9 +877,9 @@ function Sidebar({
             <p className="text-xs mt-1 text-muted-foreground">Estimated</p>
           </div>
 
-          <div className="p-3 sm:p-4 rounded-lg bg-accent">
+          <div className="p-3 rounded-lg bg-accent">
             <div className="flex items-center justify-between">
-              <span className="text-xs sm:text-sm text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 Different Rooms
               </span>
               <span className="font-semibold text-purple-600 dark:text-purple-400">
@@ -887,9 +889,9 @@ function Sidebar({
             <p className="text-xs mt-1 text-muted-foreground">This semester</p>
           </div>
 
-          <div className="p-3 sm:p-4 rounded-lg bg-accent">
+          <div className="p-3 rounded-lg bg-accent">
             <div className="flex items-center justify-between">
-              <span className="text-xs sm:text-sm text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 Earliest Class
               </span>
               <span className="font-semibold">{quickStats.earliestClass}</span>
@@ -910,19 +912,17 @@ function EmptyState({
   hasSearchQuery: boolean;
 }) {
   return (
-    <div className="text-center py-8 sm:py-12">
-      <Calendar className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-muted-foreground opacity-50" />
-      <h3 className="text-base sm:text-lg font-medium mb-2">
-        No classes found
-      </h3>
-      <p className="text-xs sm:text-sm text-muted-foreground mb-4">
+    <div className="text-center py-8">
+      <Calendar className="h-8 w-8 mx-auto mb-3 text-muted-foreground opacity-50" />
+      <h3 className="text-base font-medium mb-2">No classes found</h3>
+      <p className="text-xs text-muted-foreground mb-4">
         {hasSearchQuery
           ? "Try adjusting your search terms"
           : "Get started by adding your first class"}
       </p>
       <Button
         onClick={onAddClass}
-        className="px-4 py-2 cursor-pointer text-xs sm:text-sm h-9 sm:h-10"
+        className="px-4 py-2 cursor-pointer text-xs h-9"
       >
         Add Your First Class
       </Button>
@@ -946,7 +946,7 @@ function ClassModal({
   onChange: (classItem: any) => void;
 }) {
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-3 sm:p-4 z-50">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-3 z-50">
       <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
         <CardHeader className="p-4 sm:p-6">
           <div className="flex items-center justify-between">
@@ -955,14 +955,14 @@ function ClassModal({
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="cursor-pointer h-8 w-8 sm:h-9 sm:w-9 p-0"
+              className="cursor-pointer h-8 w-8 p-0"
             >
-              <X className="h-4 w-4 sm:h-5 sm:w-5" />
+              <X className="h-4 w-4" />
             </Button>
           </div>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
-          <form onSubmit={onSubmit} className="space-y-3 sm:space-y-4">
+          <form onSubmit={onSubmit} className="space-y-3">
             <div>
               <Label className="mb-2 text-xs sm:text-sm">Course *</Label>
               <Select
@@ -972,7 +972,7 @@ function ClassModal({
                 }
                 required
               >
-                <SelectTrigger className="text-xs sm:text-sm h-9 sm:h-10">
+                <SelectTrigger className="text-xs sm:text-sm h-9">
                   <SelectValue placeholder="Select a course" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1007,7 +1007,7 @@ function ClassModal({
                 }
                 required
               >
-                <SelectTrigger className="text-xs sm:text-sm h-9 sm:h-10">
+                <SelectTrigger className="text-xs sm:text-sm h-9">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -1036,7 +1036,7 @@ function ClassModal({
               </Select>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label className="mb-2 text-xs sm:text-sm">Start Time *</Label>
                 <Input
@@ -1084,7 +1084,7 @@ function ClassModal({
                   onChange({ ...classItem, class_type: value })
                 }
               >
-                <SelectTrigger className="text-xs sm:text-sm h-9 sm:h-10">
+                <SelectTrigger className="text-xs sm:text-sm h-9">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -1108,13 +1108,13 @@ function ClassModal({
         <CardFooter className="p-4 sm:p-6 pt-0 flex gap-2">
           <Button
             variant="outline"
-            className="flex-1 cursor-pointer text-xs sm:text-sm h-9 sm:h-10"
+            className="flex-1 cursor-pointer text-xs sm:text-sm h-9"
             onClick={onClose}
           >
             Cancel
           </Button>
           <Button
-            className="flex-1 cursor-pointer text-xs sm:text-sm h-9 sm:h-10"
+            className="flex-1 cursor-pointer text-xs sm:text-sm h-9"
             onClick={onSubmit}
           >
             {title.includes("Add") ? "Add Class" : "Save Changes"}
@@ -1135,7 +1135,7 @@ function ClassDetailsModal({
   onEdit: () => void;
 }) {
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-3 sm:p-4 z-50">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-3 z-50">
       <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
         <CardHeader className="p-4 sm:p-6">
           <div className="flex items-center justify-between">
@@ -1144,40 +1144,38 @@ function ClassDetailsModal({
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="cursor-pointer h-8 w-8 sm:h-9 sm:w-9 p-0"
+              className="cursor-pointer h-8 w-8 p-0"
             >
-              <X className="h-4 w-4 sm:h-5 sm:w-5" />
+              <X className="h-4 w-4" />
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="p-4 sm:p-6 pt-0 space-y-4 sm:space-y-6">
-          <div className="flex items-start gap-3 sm:gap-4">
+        <CardContent className="p-4 sm:p-6 pt-0 space-y-4">
+          <div className="flex items-start gap-3">
             <div
-              className={`p-3 sm:p-4 rounded-lg ${getColorClass(
+              className={`p-3 rounded-lg ${getColorClass(
                 classItem.courses.color
               )}`}
             >
-              <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+              <BookOpen className="h-6 w-6 text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-xl sm:text-2xl font-bold mb-2">
+              <h3 className="text-xl font-bold mb-2">
                 {classItem.courses.course_name}
               </h3>
-              <p className="text-base sm:text-lg text-muted-foreground">
+              <p className="text-base text-muted-foreground">
                 {classItem.courses.course_code}
               </p>
             </div>
           </div>
 
-          <div className="space-y-3 sm:space-y-4">
-            <div className="p-3 sm:p-4 rounded-lg bg-accent">
+          <div className="space-y-3">
+            <div className="p-3 rounded-lg bg-accent">
               <div className="flex items-center gap-2 mb-2">
-                <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
-                <span className="font-medium text-sm sm:text-base">
-                  Schedule
-                </span>
+                <Calendar className="h-4 w-4 text-purple-600" />
+                <span className="font-medium text-sm">Schedule</span>
               </div>
-              <div className="space-y-2 text-sm sm:text-base">
+              <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Day:</span>
                   <span className="font-medium">
@@ -1194,24 +1192,20 @@ function ClassDetailsModal({
               </div>
             </div>
 
-            <div className="p-3 sm:p-4 rounded-lg bg-accent">
+            <div className="p-3 rounded-lg bg-accent">
               <div className="flex items-center gap-2 mb-2">
-                <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
-                <span className="font-medium text-sm sm:text-base">
-                  Location
-                </span>
+                <MapPin className="h-4 w-4 text-purple-600" />
+                <span className="font-medium text-sm">Location</span>
               </div>
-              <p className="text-sm sm:text-base font-medium">
+              <p className="text-sm font-medium">
                 {classItem.room || "Location not specified"}
               </p>
             </div>
 
-            <div className="p-3 sm:p-4 rounded-lg bg-accent">
+            <div className="p-3 rounded-lg bg-accent">
               <div className="flex items-center gap-2 mb-2">
-                <Users className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
-                <span className="font-medium text-sm sm:text-base">
-                  Class Type
-                </span>
+                <Users className="h-4 w-4 text-purple-600" />
+                <span className="font-medium text-sm">Class Type</span>
               </div>
               <Badge variant="secondary" className="text-sm capitalize">
                 {classItem.class_type}
@@ -1222,13 +1216,13 @@ function ClassDetailsModal({
         <CardFooter className="p-4 sm:p-6 pt-0 flex gap-2">
           <Button
             variant="outline"
-            className="flex-1 cursor-pointer text-xs sm:text-sm h-9 sm:h-10"
+            className="flex-1 cursor-pointer text-xs sm:text-sm h-9"
             onClick={onClose}
           >
             Close
           </Button>
           <Button
-            className="flex-1 cursor-pointer text-xs sm:text-sm h-9 sm:h-10"
+            className="flex-1 cursor-pointer text-xs sm:text-sm h-9"
             onClick={onEdit}
           >
             Edit Class
@@ -1243,69 +1237,69 @@ function ClassesSkeleton() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-14 sm:h-16 items-center gap-4 px-4 sm:px-6">
+        <div className="flex h-14 sm:h-16 items-center gap-3 px-4 sm:px-6">
           <div className="lg:hidden">
-            <Skeleton className="w-7 h-7 sm:w-8 sm:h-8 rounded" />
+            <Skeleton className="w-7 h-7 rounded" />
           </div>
           <div className="hidden lg:block">
-            <Skeleton className="w-7 h-7 sm:w-8 sm:h-8 rounded" />
+            <Skeleton className="w-7 h-7 rounded" />
           </div>
           <div className="flex-1">
-            <Skeleton className="h-5 w-24 sm:h-6 sm:w-32 rounded" />
+            <Skeleton className="h-5 w-24 sm:w-32 rounded" />
           </div>
-          <Skeleton className="h-9 w-16 sm:h-10 sm:w-32 rounded" />
+          <Skeleton className="h-9 w-16 sm:w-20 rounded" />
         </div>
       </header>
-      <main className="p-4 sm:p-6 space-y-4 sm:space-y-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <main className="p-3 sm:p-6 space-y-4 sm:space-y-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="rounded-xl border border-border bg-card p-3 sm:p-4"
+              className="rounded-xl border border-border bg-card p-3"
             >
-              <div className="flex items-center justify-between mb-3 sm:mb-4">
-                <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg" />
+              <div className="flex items-center justify-between mb-2">
+                <Skeleton className="w-8 h-8 rounded-lg" />
               </div>
               <div className="space-y-2">
-                <Skeleton className="h-3 w-20 sm:h-4 sm:w-24 rounded" />
-                <Skeleton className="h-6 w-12 sm:h-8 sm:w-16 rounded" />
-                <Skeleton className="h-2 w-24 sm:h-3 sm:w-32 rounded" />
+                <Skeleton className="h-3 w-16 rounded" />
+                <Skeleton className="h-5 w-10 rounded" />
+                <Skeleton className="h-2 w-20 rounded" />
               </div>
             </div>
           ))}
         </div>
-        <Skeleton className="h-9 sm:h-10 w-full rounded-lg" />
+        <Skeleton className="h-9 w-full rounded-lg" />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-          <div className="lg:col-span-2 space-y-3 sm:space-y-4">
+          <div className="lg:col-span-2 space-y-3">
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="rounded-xl border border-border bg-card p-4 sm:p-6"
+                className="rounded-xl border border-border bg-card p-4"
               >
-                <div className="flex items-start justify-between mb-3 sm:mb-4">
-                  <div className="flex items-start gap-3 sm:gap-4">
-                    <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg" />
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-start gap-3">
+                    <Skeleton className="w-10 h-10 rounded-lg" />
                     <div className="flex-1 space-y-2 min-w-0">
-                      <Skeleton className="h-5 w-32 sm:h-6 sm:w-48 rounded" />
-                      <Skeleton className="h-3 w-24 sm:h-4 sm:w-32 rounded" />
+                      <Skeleton className="h-5 w-32 rounded" />
+                      <Skeleton className="h-3 w-24 rounded" />
                     </div>
                   </div>
-                  <Skeleton className="w-7 h-7 sm:w-8 sm:h-8 rounded" />
+                  <Skeleton className="w-7 h-7 rounded" />
                 </div>
-                <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
-                  <Skeleton className="h-12 sm:h-16 rounded-lg" />
-                  <Skeleton className="h-12 sm:h-16 rounded-lg" />
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  <Skeleton className="h-12 rounded-lg" />
+                  <Skeleton className="h-12 rounded-lg" />
                 </div>
                 <div className="flex items-center justify-between">
                   <Skeleton className="h-5 w-16 rounded" />
-                  <Skeleton className="h-8 w-24 rounded" />
+                  <Skeleton className="h-8 w-20 rounded" />
                 </div>
               </div>
             ))}
           </div>
-          <div className="space-y-4 sm:space-y-6">
-            <Skeleton className="h-48 sm:h-64 rounded-xl" />
-            <Skeleton className="h-48 sm:h-64 rounded-xl" />
+          <div className="space-y-4">
+            <Skeleton className="h-48 rounded-xl" />
+            <Skeleton className="h-48 rounded-xl" />
           </div>
         </div>
       </main>
@@ -1323,7 +1317,7 @@ function ErrorState({
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-14 sm:h-16 items-center gap-4 px-4 sm:px-6">
+        <div className="flex h-14 sm:h-16 items-center gap-3 px-4 sm:px-6">
           <div className="lg:hidden">
             <MobileSidebarTrigger />
           </div>
@@ -1336,18 +1330,14 @@ function ErrorState({
         </div>
       </header>
       <main className="p-4 sm:p-6">
-        <div className="flex items-center justify-center h-64 sm:h-96">
+        <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <AlertCircle className="h-8 w-8 sm:h-12 sm:w-12 text-destructive mx-auto mb-3 sm:mb-4" />
-            <h2 className="text-lg sm:text-xl font-semibold mb-2">
-              Failed to load data
-            </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground mb-4">
-              {error}
-            </p>
+            <AlertCircle className="h-8 w-8 text-destructive mx-auto mb-3" />
+            <h2 className="text-lg font-semibold mb-2">Failed to load data</h2>
+            <p className="text-xs text-muted-foreground mb-4">{error}</p>
             <button
               onClick={onRetry}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 text-xs sm:text-sm h-9 sm:h-10"
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 text-xs h-9"
             >
               Retry
             </button>

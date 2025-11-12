@@ -38,6 +38,7 @@ import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Setting {
   title: string;
@@ -264,21 +265,7 @@ export default function SettingsPage() {
   };
 
   if (!mounted) {
-    return (
-      <div className="min-h-screen bg-background text-foreground">
-        <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="flex h-14 sm:h-16 items-center gap-4 px-4 sm:px-6">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 bg-muted rounded animate-pulse"></div>
-            <div className="flex-1">
-              <div className="h-5 w-24 sm:h-6 sm:w-32 bg-muted rounded animate-pulse"></div>
-            </div>
-          </div>
-        </header>
-        <main className="p-4 sm:p-6">
-          <div className="h-64 sm:h-96 bg-muted/20 rounded-xl animate-pulse"></div>
-        </main>
-      </div>
-    );
+    return <SettingsSkeleton />;
   }
 
   const settingsSections = [
@@ -826,3 +813,91 @@ const TrendingUp = (props: LucideProps) => (
     <polyline points="17 6 23 6 23 12" />
   </svg>
 );
+
+function SettingsSkeleton() {
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex h-14 lg:h-16 items-center gap-4 px-4 lg:px-6">
+          <div className="lg:hidden">
+            <Skeleton className="w-7 h-7 rounded" />
+          </div>
+          <div className="hidden lg:block">
+            <Skeleton className="w-7 h-7 rounded" />
+          </div>
+          <div className="flex-1">
+            <Skeleton className="h-6 w-24 rounded" />
+          </div>
+          <Skeleton className="h-9 w-28 rounded hidden sm:block" />
+        </div>
+      </header>
+
+      <main className="p-4 lg:p-6 space-y-6">
+        {/* Breadcrumb Skeleton */}
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-4 w-20 rounded" />
+          <Skeleton className="h-4 w-4 rounded" />
+          <Skeleton className="h-4 w-24 rounded" />
+        </div>
+
+        {/* Navigation Menu Skeleton */}
+        <div className="rounded-xl border border-border p-0 lg:p-3">
+          <div className="overflow-x-auto">
+            <div className="flex flex-nowrap gap-2 w-max min-w-full pt-2 px-2 pb-3 lg:p-0">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <Skeleton
+                  key={i}
+                  className="h-9 w-24 rounded-md flex-shrink-0"
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Settings Content Skeleton */}
+        <div className="rounded-xl border border-border bg-card p-4 lg:p-6">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6 gap-4">
+            <div className="space-y-2">
+              <Skeleton className="h-7 w-48 rounded" />
+              <Skeleton className="h-4 w-64 rounded" />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="flex flex-col lg:flex-row lg:items-center justify-between p-4 rounded-lg border border-border bg-card gap-4"
+              >
+                <div className="flex-1 min-w-0 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-5 w-40 rounded" />
+                    <Skeleton className="h-4 w-4 rounded" />
+                  </div>
+                  <Skeleton className="h-4 w-56 rounded" />
+                </div>
+                <div className="flex-shrink-0 w-full lg:w-auto">
+                  {i % 3 === 0 ? (
+                    <div className="space-y-2 w-full sm:w-64">
+                      <Skeleton className="h-5 w-12 rounded ml-auto" />
+                      <Skeleton className="h-2 w-full rounded" />
+                      <div className="flex justify-between">
+                        <Skeleton className="h-3 w-8 rounded" />
+                        <Skeleton className="h-3 w-8 rounded" />
+                        <Skeleton className="h-3 w-8 rounded" />
+                      </div>
+                    </div>
+                  ) : i % 3 === 1 ? (
+                    <Skeleton className="h-9 w-full sm:w-48 rounded" />
+                  ) : (
+                    <Skeleton className="h-6 w-11 rounded-full" />
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}

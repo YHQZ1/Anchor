@@ -470,9 +470,13 @@ export function AppSidebar() {
       </aside>
 
       <aside
-        className={`lg:hidden fixed left-0 top-0 z-50 h-screen bg-sidebar border-sidebar-border border-r transition-transform duration-300 ${
+        className={`lg:hidden fixed left-0 top-0 z-50 h-[100dvh] bg-sidebar border-sidebar-border border-r transition-transform duration-300 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
-        } w-full max-w-[280px] pb-[env(safe-area-inset-bottom)]`}
+        } w-full max-w-[280px]`}
+        style={{
+          paddingBottom: "env(safe-area-inset-bottom)",
+          height: "calc(100dvh - env(safe-area-inset-bottom, 0px))",
+        }}
       >
         <div className="flex flex-col h-full">{sidebarContent}</div>
       </aside>

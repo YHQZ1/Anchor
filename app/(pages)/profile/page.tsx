@@ -329,7 +329,7 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen bg-background text-foreground">
         <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="flex h-14 sm:h-16 items-center gap-4 px-4 sm:px-6">
+          <div className="flex h-14 items-center gap-3 px-4 sm:px-6">
             <div className="lg:hidden">
               <MobileSidebarTrigger />
             </div>
@@ -337,23 +337,21 @@ export default function ProfilePage() {
               <SidebarTrigger />
             </div>
             <div className="flex-1">
-              <h1 className="text-lg sm:text-xl font-semibold">Profile</h1>
+              <h1 className="text-lg font-semibold">Profile</h1>
             </div>
           </div>
         </header>
         <main className="p-4 sm:p-6">
-          <div className="flex items-center justify-center h-64 sm:h-96">
+          <div className="flex items-center justify-center h-48 sm:h-64">
             <div className="text-center">
-              <AlertCircle className="h-8 w-8 sm:h-12 sm:w-12 text-destructive mx-auto mb-3 sm:mb-4" />
-              <h2 className="text-lg sm:text-xl font-semibold mb-2">
+              <AlertCircle className="h-8 w-8 sm:h-10 sm:w-10 text-destructive mx-auto mb-3" />
+              <h2 className="text-lg font-semibold mb-2">
                 Failed to load profile
               </h2>
-              <p className="text-muted-foreground mb-4 text-sm sm:text-base">
-                {error}
-              </p>
+              <p className="text-muted-foreground mb-4 text-sm">{error}</p>
               <button
                 onClick={fetchProfile}
-                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 text-sm sm:text-base"
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 text-sm"
               >
                 Retry
               </button>
@@ -370,7 +368,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-14 sm:h-16 items-center gap-4 px-4 sm:px-6">
+        <div className="flex h-14 items-center gap-3 px-4 sm:px-6">
           <div className="lg:hidden">
             <MobileSidebarTrigger />
           </div>
@@ -378,67 +376,64 @@ export default function ProfilePage() {
             <SidebarTrigger />
           </div>
           <div className="flex-1">
-            <h1 className="text-lg sm:text-xl font-semibold">Profile</h1>
+            <h1 className="text-lg font-semibold">Profile</h1>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
+            <span className="text-xs text-muted-foreground hidden xs:block">
               {profile?.full_name || "Profile"}
             </span>
           </div>
         </div>
       </header>
 
-      <main className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+      <main className="p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6">
         {/* Header Card */}
         <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
-          <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-4 mb-4 sm:mb-6">
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="p-2 sm:p-3 rounded-lg bg-purple-100 dark:bg-purple-500/10">
                 <User className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600 dark:text-purple-400" />
               </div>
-              <div>
-                <h2 className="text-xl sm:text-2xl font-bold">
+              <div className="min-w-0 flex-1">
+                <h2 className="text-xl sm:text-2xl font-bold truncate">
                   {profile?.full_name || "Student"}
                 </h2>
-                <p className="text-sm sm:text-base text-muted-foreground">
+                <p className="text-sm text-muted-foreground truncate">
                   {profile?.student_id || "No student ID"} • {profile?.email}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 self-start xs:self-auto">
               {!editing ? (
                 <Button
                   onClick={() => setEditing(true)}
-                  className="cursor-pointer text-xs sm:text-sm"
+                  className="cursor-pointer text-xs sm:text-sm w-full xs:w-auto"
                   variant="outline"
                 >
                   <Edit3 className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                   Edit Profile
                 </Button>
               ) : (
-                <div className="flex gap-2">
+                <div className="flex gap-2 w-full xs:w-auto">
                   <Button
                     onClick={handleCancel}
                     variant="outline"
-                    className="cursor-pointer text-xs sm:text-sm"
+                    className="cursor-pointer text-xs sm:text-sm flex-1 xs:flex-none"
                     disabled={saving}
                   >
                     Cancel
                   </Button>
                   <Button
                     onClick={handleSave}
-                    className="cursor-pointer text-xs sm:text-sm"
+                    className="cursor-pointer text-xs sm:text-sm flex-1 xs:flex-none"
                     disabled={saving}
                   >
                     {saving ? (
-                      <>
-                        <span className="animate-spin mr-2">⏳</span>
-                        Saving...
-                      </>
+                      "Saving..."
                     ) : (
                       <>
                         <Save className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
-                        Save Changes
+                        Save
                       </>
                     )}
                   </Button>
@@ -456,9 +451,9 @@ export default function ProfilePage() {
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
           {/* Academic Information & Timetable */}
-          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+          <div className="xl:col-span-2 space-y-4 sm:space-y-6">
             <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
               <div className="flex items-center gap-2 mb-4 sm:mb-6">
                 <GraduationCap className="h-5 w-5 text-primary" />
@@ -467,7 +462,7 @@ export default function ProfilePage() {
                 </h3>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <FormField
                   label="Full Name"
                   value={formData.full_name}
@@ -530,11 +525,11 @@ export default function ProfilePage() {
 
               {hasUploadedTimetable ? (
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 rounded-lg border border-border bg-muted/50">
-                    <div className="flex items-center gap-3">
-                      <FileText className="h-8 w-8 text-primary" />
-                      <div>
-                        <p className="font-medium text-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 rounded-lg border border-border bg-muted/50 gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-primary flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-sm truncate">
                           {timetableData.timetable_upload.file_name}
                         </p>
                         <p className="text-xs text-muted-foreground">
@@ -557,30 +552,27 @@ export default function ProfilePage() {
                           "_blank"
                         )
                       }
-                      className="cursor-pointer"
+                      className="cursor-pointer w-full sm:w-auto"
                     >
                       <Download className="h-3 w-3 mr-2" />
                       Download
                     </Button>
                   </div>
 
-                  <div className="flex gap-3">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <Button
                       onClick={() =>
                         document.getElementById("timetable-upload")?.click()
                       }
                       disabled={uploadingTimetable}
-                      className="cursor-pointer flex-1 text-xs sm:text-sm"
+                      className="cursor-pointer text-xs sm:text-sm"
                     >
                       {uploadingTimetable ? (
-                        <>
-                          <span className="animate-spin mr-2">⏳</span>
-                          Uploading...
-                        </>
+                        "Uploading..."
                       ) : (
                         <>
                           <Upload className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
-                          Upload New Timetable
+                          Upload New
                         </>
                       )}
                     </Button>
@@ -591,17 +583,7 @@ export default function ProfilePage() {
                       variant="outline"
                       className="cursor-pointer text-xs sm:text-sm"
                     >
-                      {deletingTimetable ? (
-                        <>
-                          <span className="animate-spin mr-2">⏳</span>
-                          Deleting...
-                        </>
-                      ) : (
-                        <>
-                          <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
-                          Delete
-                        </>
-                      )}
+                      {deletingTimetable ? "Deleting..." : "Delete"}
                     </Button>
                   </div>
 
@@ -615,7 +597,7 @@ export default function ProfilePage() {
                 </div>
               ) : hasManualClasses ? (
                 <div className="text-center py-6">
-                  <FileText className="h-12 w-12 mx-auto mb-3 text-muted-foreground opacity-50" />
+                  <FileText className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-3 text-muted-foreground opacity-50" />
                   <h4 className="font-medium mb-2">Manual Classes Detected</h4>
                   <p className="text-sm text-muted-foreground mb-4">
                     You added classes manually during setup. Edit them in the
@@ -631,7 +613,7 @@ export default function ProfilePage() {
                 </div>
               ) : (
                 <div className="text-center py-6">
-                  <FileText className="h-12 w-12 mx-auto mb-3 text-muted-foreground opacity-50" />
+                  <FileText className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-3 text-muted-foreground opacity-50" />
                   <h4 className="font-medium mb-2">No Timetable Uploaded</h4>
                   <p className="text-sm text-muted-foreground mb-4">
                     Upload your timetable to automatically manage your class
@@ -645,10 +627,7 @@ export default function ProfilePage() {
                     className="cursor-pointer"
                   >
                     {uploadingTimetable ? (
-                      <>
-                        <span className="animate-spin mr-2">⏳</span>
-                        Uploading...
-                      </>
+                      "Uploading..."
                     ) : (
                       <>
                         <Upload className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
@@ -713,7 +692,7 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <div>
+                  <div className="flex-1 min-w-0">
                     <Label className="text-sm font-medium">
                       Attendance Warnings
                     </Label>
@@ -722,7 +701,7 @@ export default function ProfilePage() {
                     </p>
                   </div>
                   <Switch
-                    className="transition-none"
+                    className="transition-none flex-shrink-0 ml-3"
                     checked={formData.enable_attendance_warnings}
                     onCheckedChange={(value: any) =>
                       handleInputChange("enable_attendance_warnings", value)
@@ -946,46 +925,46 @@ function ProfileSkeleton() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-14 sm:h-16 items-center gap-4 px-4 sm:px-6">
+        <div className="flex h-14 items-center gap-3 px-4 sm:px-6">
           <div className="lg:hidden">
-            <Skeleton className="w-7 h-7 sm:w-8 sm:h-8 rounded" />
+            <Skeleton className="w-7 h-7 rounded" />
           </div>
           <div className="hidden lg:block">
-            <Skeleton className="w-7 h-7 sm:w-8 sm:h-8 rounded" />
+            <Skeleton className="w-7 h-7 rounded" />
           </div>
           <div className="flex-1">
-            <Skeleton className="h-5 w-24 sm:h-6 sm:w-32 rounded" />
+            <Skeleton className="h-5 w-24 rounded" />
           </div>
-          <Skeleton className="h-5 w-16 sm:h-6 sm:w-24 rounded hidden sm:block" />
+          <Skeleton className="h-5 w-16 rounded hidden xs:block" />
         </div>
       </header>
 
-      <main className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+      <main className="p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6">
         {/* Header Card Skeleton */}
         <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
-          <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-4 mb-4 sm:mb-6">
             <div className="flex items-center gap-3 sm:gap-4">
               <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg" />
-              <div className="space-y-2">
+              <div className="space-y-2 min-w-0 flex-1">
                 <Skeleton className="h-6 w-32 sm:h-7 sm:w-48 rounded" />
                 <Skeleton className="h-4 w-48 sm:h-5 sm:w-64 rounded" />
               </div>
             </div>
-            <Skeleton className="h-9 w-24 sm:h-10 sm:w-28 rounded" />
+            <Skeleton className="h-9 w-full xs:w-24 sm:h-10 sm:w-28 rounded" />
           </div>
           <Skeleton className="h-5 w-32 rounded" />
         </div>
 
         {/* Main Content Grid Skeleton */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
           {/* Academic Information & Timetable Skeleton */}
-          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+          <div className="xl:col-span-2 space-y-4 sm:space-y-6">
             <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
               <div className="flex items-center gap-2 mb-4 sm:mb-6">
                 <Skeleton className="h-5 w-5 rounded" />
                 <Skeleton className="h-6 w-48 rounded" />
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
                   <div key={i} className="space-y-2">
                     <Skeleton className="h-4 w-24 rounded" />
@@ -1002,9 +981,9 @@ function ProfileSkeleton() {
               </div>
               <div className="space-y-4">
                 <Skeleton className="h-20 w-full rounded-lg" />
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Skeleton className="h-9 flex-1 rounded" />
-                  <Skeleton className="h-9 w-20 rounded" />
+                  <Skeleton className="h-9 w-full sm:w-20 rounded" />
                 </div>
               </div>
             </div>
@@ -1031,11 +1010,11 @@ function ProfileSkeleton() {
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="space-y-1">
+                  <div className="space-y-1 flex-1">
                     <Skeleton className="h-4 w-32 rounded" />
                     <Skeleton className="h-3 w-48 rounded" />
                   </div>
-                  <Skeleton className="h-6 w-11 rounded-full" />
+                  <Skeleton className="h-6 w-11 rounded-full ml-3" />
                 </div>
               </div>
             </div>

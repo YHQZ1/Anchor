@@ -43,6 +43,7 @@ import {
 } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 
 interface Profile {
   id: string;
@@ -862,6 +863,29 @@ function SemesterSelect({
   );
 }
 
+function GraduationCalendar({
+  selected,
+  onSelect,
+  disabled,
+}: {
+  selected: Date | undefined;
+  onSelect: (date: Date | undefined) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <CalendarComponent
+      mode="single"
+      selected={selected}
+      onSelect={onSelect}
+      disabled={disabled}
+      className="rounded-md border shadow-sm"
+      captionLayout="dropdown"
+      fromYear={new Date().getFullYear() - 5}
+      toYear={new Date().getFullYear() + 5}
+    />
+  );
+}
+
 function GraduationDatePicker({
   value,
   onChange,
@@ -885,19 +909,31 @@ function GraduationDatePicker({
           <Button
             variant="outline"
             disabled={disabled}
-            className="w-full justify-start text-left font-normal text-xs sm:text-sm h-9 sm:h-10"
+            className={cn(
+              "w-full justify-start text-left font-normal text-xs sm:text-sm h-9 sm:h-10",
+              !safeValue && "text-muted-foreground"
+            )}
           >
             <Calendar className="mr-2 h-3 w-3 sm:h-4 sm:w-4 opacity-70" />
             {safeValue ? format(safeValue, "PPP") : "Pick a date"}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
-          <CalendarComponent
-            mode="single"
+        <PopoverContent
+          className="w-auto p-0"
+          side="bottom"
+          align="start"
+          sideOffset={4}
+          avoidCollisions={false}
+          collisionPadding={20}
+        >
+          <GraduationCalendar
             selected={safeValue}
-            onSelect={(date) => date && onChange(date)}
+            onSelect={(date) => {
+              if (date) {
+                onChange(date);
+              }
+            }}
             disabled={disabled}
-            initialFocus
           />
         </PopoverContent>
       </Popover>

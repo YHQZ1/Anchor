@@ -38,6 +38,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface Course {
   code: string;
@@ -78,6 +79,7 @@ export default function OnboardingWizard() {
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [hasUploadedTimetable, setHasUploadedTimetable] = useState(false);
+  const [uploadingTimetable, setUploadingTimetable] = useState(false);
   const [timetableUploadId, setTimetableUploadId] = useState<
     string | undefined
   >();
@@ -397,6 +399,8 @@ export default function OnboardingWizard() {
   ) => {
     const file = event.target.files?.[0];
     if (file) {
+      setUploadingTimetable(true);
+
       try {
         const token = localStorage.getItem("jwtToken");
         if (!token) throw new Error("No authentication token found");
@@ -425,6 +429,8 @@ export default function OnboardingWizard() {
         toast.success(`Timetable ${file.name} uploaded successfully!`);
       } catch (error: any) {
         toast.error("Failed to upload timetable");
+      } finally {
+        setUploadingTimetable(false);
       }
     }
   };
@@ -483,7 +489,7 @@ export default function OnboardingWizard() {
             </p>
           </div>
           <Badge variant="secondary" className="text-xs sm:text-sm">
-            Step {currentStep} of {totalVisibleSteps}
+            Step {currentStep} of {visibleSteps.length}
           </Badge>
         </div>
 
@@ -492,42 +498,43 @@ export default function OnboardingWizard() {
         </div>
 
         <div className="flex justify-center px-4 sm:px-6 py-4 flex-shrink-0">
-          <div className="flex items-center gap-4 sm:gap-6 overflow-x-auto pb-2 w-full justify-center">
+          <div className="flex items-center w-full max-w-4xl mx-auto">
             {visibleSteps.map((step, index) => (
-              <div
-                key={step.number}
-                className="flex items-center gap-2 sm:gap-3 flex-shrink-0"
-              >
-                <div
-                  className={`flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 ${
-                    currentStep >= step.number
-                      ? "bg-primary border-primary text-primary-foreground"
-                      : "border-muted text-muted-foreground"
-                  }`}
-                >
-                  {currentStep > step.number ? (
-                    <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                  ) : (
-                    <step.icon className="h-3 w-3 sm:h-4 sm:w-4" />
-                  )}
+              <React.Fragment key={step.number}>
+                <div className="flex items-center justify-center flex-1">
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <div
+                      className={`flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full border-2 text-xs ${
+                        currentStep >= step.number
+                          ? "bg-primary border-primary text-primary-foreground"
+                          : "border-muted text-muted-foreground"
+                      }`}
+                    >
+                      {currentStep > step.number ? (
+                        <CheckCircle2 className="h-3 w-3" />
+                      ) : (
+                        <step.icon className="h-3 w-3" />
+                      )}
+                    </div>
+                    <span
+                      className={`text-xs font-medium whitespace-nowrap hidden sm:block ${
+                        currentStep >= step.number
+                          ? "text-primary"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {step.title}
+                    </span>
+                  </div>
                 </div>
-                <span
-                  className={`text-xs sm:text-sm font-medium whitespace-nowrap ${
-                    currentStep >= step.number
-                      ? "text-primary"
-                      : "text-muted-foreground"
-                  }`}
-                >
-                  {step.title}
-                </span>
                 {index < visibleSteps.length - 1 && (
                   <div
-                    className={`w-4 sm:w-8 h-0.5 ${
+                    className={`w-14 sm:w-28 h-0.5 mx-2 ${
                       currentStep > step.number ? "bg-primary" : "bg-muted"
                     }`}
                   />
                 )}
-              </div>
+              </React.Fragment>
             ))}
           </div>
         </div>
@@ -543,6 +550,7 @@ export default function OnboardingWizard() {
             <TimetableStep
               hasUploadedTimetable={hasUploadedTimetable}
               onFileUpload={handleFileUpload}
+              uploadingTimetable={uploadingTimetable}
             />
           )}
           {currentStep === 3 && (
@@ -667,9 +675,11 @@ function AcademicProfileStep({
 function TimetableStep({
   hasUploadedTimetable,
   onFileUpload,
+  uploadingTimetable,
 }: {
   hasUploadedTimetable: boolean;
   onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  uploadingTimetable: boolean;
 }) {
   if (hasUploadedTimetable) {
     return (
@@ -697,7 +707,10 @@ function TimetableStep({
           manual entry.
         </p>
       </div>
-      <FileUploadSection onFileUpload={onFileUpload} />
+      <FileUploadSection
+        onFileUpload={onFileUpload}
+        uploadingTimetable={uploadingTimetable}
+      />
     </div>
   );
 }
@@ -887,39 +900,55 @@ function PreferencesStep({
 
 function FileUploadSection({
   onFileUpload,
+  uploadingTimetable,
 }: {
   onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  uploadingTimetable: boolean;
 }) {
   return (
     <div className="p-4 sm:p-6 rounded-lg border border-border bg-card">
       <div className="text-center">
-        <Upload className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-primary" />
-        <h3 className="text-base sm:text-lg font-semibold mb-2">
-          Upload Your Timetable
-        </h3>
-        <p className="text-xs sm:text-sm mb-3 sm:mb-4 text-muted-foreground">
-          Upload your Excel or PDF timetable to automatically import your
-          schedule
-        </p>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Button
-            type="button"
-            variant="outline"
-            className="relative text-xs sm:text-sm"
-          >
-            <Upload className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
-            Choose File
-            <Input
-              type="file"
-              accept=".xlsx,.xls,.pdf"
-              onChange={onFileUpload}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            />
-          </Button>
-          <Button variant="outline" disabled className="text-xs sm:text-sm">
-            Download Template
-          </Button>
-        </div>
+        {uploadingTimetable ? (
+          <>
+            <div className="animate-spin h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 border-4 border-primary border-t-transparent rounded-full" />
+            <h3 className="text-base sm:text-lg font-semibold mb-2">
+              Uploading Timetable...
+            </h3>
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Please wait while we process your timetable
+            </p>
+          </>
+        ) : (
+          <>
+            <Upload className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-primary" />
+            <h3 className="text-base sm:text-lg font-semibold mb-2">
+              Upload Your Timetable
+            </h3>
+            <p className="text-xs sm:text-sm mb-3 sm:mb-4 text-muted-foreground">
+              Upload your Excel or PDF timetable to automatically import your
+              schedule
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button
+                type="button"
+                variant="outline"
+                className="relative text-xs sm:text-sm"
+              >
+                <Upload className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+                Choose File
+                <Input
+                  type="file"
+                  accept=".xlsx,.xls,.pdf"
+                  onChange={onFileUpload}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+              </Button>
+              <Button variant="outline" disabled className="text-xs sm:text-sm">
+                Download Template
+              </Button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -997,6 +1026,26 @@ function SemesterSelect({
   );
 }
 
+function GraduationCalendar({
+  selected,
+  onSelect,
+}: {
+  selected: Date | undefined;
+  onSelect: (date: Date | undefined) => void;
+}) {
+  return (
+    <Calendar
+      mode="single"
+      selected={selected}
+      onSelect={onSelect}
+      className="rounded-md border shadow-sm"
+      captionLayout="dropdown"
+      fromYear={new Date().getFullYear() - 5}
+      toYear={new Date().getFullYear() + 5}
+    />
+  );
+}
+
 function GraduationDatePicker({
   value,
   onChange,
@@ -1013,18 +1062,29 @@ function GraduationDatePicker({
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className="w-full justify-start text-left font-normal text-xs sm:text-sm h-9 sm:h-10"
+            className={cn(
+              "w-full justify-start text-left font-normal text-xs sm:text-sm h-9 sm:h-10",
+              !value && "text-muted-foreground"
+            )}
           >
             <CalendarIcon className="mr-2 h-3 w-3 sm:h-4 sm:w-4 opacity-70" />
             {value ? format(value, "PPP") : "Pick a date"}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
-          <Calendar
-            mode="single"
+        <PopoverContent
+          className="w-auto p-0"
+          side="bottom"
+          align="start"
+          sideOffset={4}
+          avoidCollisions={false}
+        >
+          <GraduationCalendar
             selected={value}
-            onSelect={(date) => date && onChange(date)}
-            initialFocus
+            onSelect={(date) => {
+              if (date) {
+                onChange(date);
+              }
+            }}
           />
         </PopoverContent>
       </Popover>

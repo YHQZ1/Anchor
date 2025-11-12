@@ -259,7 +259,7 @@ export default function Classes() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-14 sm:h-16 items-center gap-3 px-4 sm:px-6">
+        <div className="flex h-14 items-center gap-3 px-4">
           <div className="lg:hidden">
             <MobileSidebarTrigger />
           </div>
@@ -267,38 +267,37 @@ export default function Classes() {
             <SidebarTrigger />
           </div>
           <div className="flex-1">
-            <h1 className="text-lg sm:text-xl font-semibold">Classes</h1>
+            <h1 className="text-lg font-semibold">Classes</h1>
           </div>
           <Button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 cursor-pointer text-xs sm:text-sm h-9 sm:h-10 px-2 sm:px-4"
+            className="flex items-center gap-1 cursor-pointer text-xs h-8 px-2"
             variant={"outline"}
           >
-            <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">Add Class</span>
-            <span className="sm:hidden">Add</span>
+            <Plus className="h-3 w-3" />
+            <span className="hidden xs:inline">Add Class</span>
           </Button>
         </div>
       </header>
 
-      <main className="p-3 sm:p-6 space-y-4 sm:space-y-6">
+      <main className="p-3 space-y-4">
         <StatsGrid stats={stats} />
 
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg border border-input bg-background">
-            <Search className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search classes by course, room, or type..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground text-xs sm:text-sm"
-            />
-          </div>
+        {/* Search Bar */}
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-input bg-background">
+          <Search className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+          <Input
+            type="text"
+            placeholder="Search classes..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground text-xs"
+          />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+          {/* Main Content */}
+          <div className="xl:col-span-2 space-y-4">
             <WeeklySchedule
               weeklySchedule={weeklySchedule}
               currentWeek={currentWeek}
@@ -306,9 +305,7 @@ export default function Classes() {
             />
 
             <div>
-              <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
-                All Classes
-              </h2>
+              <h2 className="text-lg font-semibold mb-3">All Classes</h2>
               <div className="space-y-3">
                 {filteredClasses.length > 0 ? (
                   filteredClasses.map((cls) => (
@@ -336,7 +333,10 @@ export default function Classes() {
             </div>
           </div>
 
-          <Sidebar todayClasses={todayClasses} classes={classes} />
+          {/* Sidebar */}
+          <div className="space-y-4">
+            <Sidebar todayClasses={todayClasses} classes={classes} />
+          </div>
         </div>
       </main>
 
@@ -537,25 +537,23 @@ function getColorClass(color: string) {
 
 function StatsGrid({ stats }: { stats: any[] }) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+    <div className="grid grid-cols-2 xs:grid-cols-2 lg:grid-cols-4 gap-2">
       {stats.map((stat, index) => (
         <div
           key={index}
-          className="rounded-xl border border-border bg-card p-3 sm:p-4"
+          className="rounded-lg border border-border bg-card p-3"
         >
-          <div className="flex items-center justify-between mb-2 sm:mb-3">
-            <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-              <stat.icon className={`h-4 w-4 ${stat.color}`} />
+          <div className="flex items-center justify-between mb-2">
+            <div className={`p-1.5 rounded-md ${stat.bgColor}`}>
+              <stat.icon className={`h-3 w-3 ${stat.color}`} />
             </div>
           </div>
           <div className="space-y-1">
-            <p className="text-xs font-medium text-muted-foreground line-clamp-1">
+            <p className="text-[10px] font-medium text-muted-foreground line-clamp-1">
               {stat.title}
             </p>
-            <p className="text-lg sm:text-xl lg:text-2xl font-bold">
-              {stat.value}
-            </p>
-            <p className="text-xs text-muted-foreground line-clamp-1">
+            <p className="text-sm font-bold">{stat.value}</p>
+            <p className="text-[10px] text-muted-foreground line-clamp-1">
               {stat.trend}
             </p>
           </div>
@@ -578,23 +576,23 @@ function ClassCard({
 }) {
   return (
     <div
-      className="rounded-xl border border-border bg-card p-4 sm:p-6 hover:bg-accent/50 cursor-pointer transition-none"
+      className="rounded-lg border border-border bg-card p-3 hover:bg-accent/50 cursor-pointer transition-none"
       onClick={onView}
     >
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex items-start gap-3">
+      <div className="flex items-start justify-between mb-2">
+        <div className="flex items-start gap-2 flex-1 min-w-0">
           <div
-            className={`p-2 sm:p-3 rounded-lg ${getColorClass(
+            className={`p-2 rounded-md ${getColorClass(
               classItem.courses.color
-            )}`}
+            )} flex-shrink-0`}
           >
-            <BookOpen className="h-4 w-4 text-white" />
+            <BookOpen className="h-3 w-3 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-base mb-1 truncate">
+            <h3 className="font-semibold text-sm mb-1 truncate">
               {classItem.courses.course_name}
             </h3>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground truncate">
               {classItem.courses.course_code} •{" "}
               {getDayName(classItem.day_of_week)}
             </p>
@@ -603,11 +601,14 @@ function ClassCard({
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-            <Button variant="ghost" className="h-7 w-7 p-0 cursor-pointer">
+            <Button
+              variant="ghost"
+              className="h-6 w-6 p-0 cursor-pointer flex-shrink-0"
+            >
               <MoreVertical className="h-3 w-3" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuContent align="end" className="w-40">
             <DropdownMenuItem
               className="cursor-pointer text-xs"
               onClick={(e) => {
@@ -643,11 +644,11 @@ function ClassCard({
         </DropdownMenu>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 mb-3">
-        <div className="p-2 sm:p-3 rounded-lg bg-accent">
+      <div className="grid grid-cols-2 gap-2 mb-2">
+        <div className="p-2 rounded-md bg-accent">
           <div className="flex items-center gap-1 mb-1">
             <Clock className="h-3 w-3 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">Time</span>
+            <span className="text-[10px] text-muted-foreground">Time</span>
           </div>
           <p className="text-xs font-medium">
             {formatTime(classItem.start_time)} -{" "}
@@ -655,10 +656,10 @@ function ClassCard({
           </p>
         </div>
 
-        <div className="p-2 sm:p-3 rounded-lg bg-accent">
+        <div className="p-2 rounded-md bg-accent">
           <div className="flex items-center gap-1 mb-1">
             <MapPin className="h-3 w-3 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">Location</span>
+            <span className="text-[10px] text-muted-foreground">Location</span>
           </div>
           <p className="text-xs font-medium truncate">
             {classItem.room || "TBA"}
@@ -667,15 +668,15 @@ function ClassCard({
       </div>
 
       <div className="flex items-center justify-between pt-2 border-t border-border">
-        <Badge variant="secondary" className="text-xs capitalize">
+        <Badge variant="secondary" className="text-[10px] capitalize">
           {classItem.class_type}
         </Badge>
         <Button
           variant="ghost"
-          className="text-xs cursor-pointer font-medium text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 h-8"
+          className="text-xs cursor-pointer font-medium text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 h-6 px-2"
           onClick={onView}
         >
-          View Details →
+          View →
         </Button>
       </div>
     </div>
@@ -702,47 +703,45 @@ function WeeklySchedule({
 
   return (
     <Card>
-      <CardHeader className="p-4 sm:p-6">
+      <CardHeader className="p-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base sm:text-lg">
-            Weekly Schedule
-          </CardTitle>
-          <div className="flex items-center gap-2">
+          <CardTitle className="text-base">Weekly Schedule</CardTitle>
+          <div className="flex items-center gap-1">
             <Button
               variant="outline"
               size="sm"
               onClick={() => navigateWeek("prev")}
-              className="h-8 w-8 p-0 cursor-pointer"
+              className="h-7 w-7 p-0 cursor-pointer"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-3 w-3" />
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => navigateWeek("next")}
-              className="h-8 w-8 p-0 cursor-pointer"
+              className="h-7 w-7 p-0 cursor-pointer"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-3 w-3" />
             </Button>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-4 sm:p-6 pt-0">
-        <div className="grid grid-cols-7 gap-1">
+      <CardContent className="p-3 pt-0">
+        <div className="grid grid-cols-7 gap-1 mb-3">
           {weeklySchedule.map((day, index) => (
             <div
               key={index}
-              className={`p-2 rounded-lg text-center ${
+              className={`p-1.5 rounded text-center ${
                 isToday(day.date)
                   ? "bg-purple-100 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/20"
                   : "bg-accent"
               }`}
             >
-              <div className="text-xs font-medium text-muted-foreground">
+              <div className="text-[10px] font-medium text-muted-foreground">
                 {day.dayName}
               </div>
               <div
-                className={`text-base font-bold ${
+                className={`text-sm font-bold ${
                   isToday(day.date)
                     ? "text-purple-600 dark:text-purple-400"
                     : "text-foreground"
@@ -750,43 +749,45 @@ function WeeklySchedule({
               >
                 {day.dayNumber}
               </div>
-              <div className="text-xs text-muted-foreground mt-1">
-                {day.classes.length} class{day.classes.length !== 1 ? "es" : ""}
+              <div className="text-[10px] text-muted-foreground mt-0.5">
+                {day.classes.length}
               </div>
             </div>
           ))}
         </div>
 
-        <div className="mt-4 space-y-2">
+        <div className="space-y-2">
           {weeklySchedule.map((day) =>
             day.classes.map((cls: Class) => (
               <div
                 key={cls.id}
-                className="flex items-center justify-between p-3 rounded-lg border border-border bg-card"
+                className="flex items-center justify-between p-2 rounded border border-border bg-card"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
                   <div
-                    className={`w-3 h-3 rounded-full ${getColorClass(
+                    className={`w-2 h-2 rounded-full ${getColorClass(
                       cls.courses.color
-                    )}`}
+                    )} flex-shrink-0`}
                   />
-                  <div>
-                    <h4 className="font-medium text-sm">
+                  <div className="min-w-0 flex-1">
+                    <h4 className="font-medium text-xs truncate">
                       {cls.courses.course_code}
                     </h4>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-[10px] text-muted-foreground">
                       {formatTime(cls.start_time)} - {formatTime(cls.end_time)}
                     </p>
                   </div>
                 </div>
-                <div className="text-right">
+                <div className="text-right flex-shrink-0 ml-2">
                   <Badge
                     variant="secondary"
-                    className="text-xs mb-1 capitalize"
+                    className="text-[10px] mb-0.5 capitalize"
                   >
                     {cls.class_type}
                   </Badge>
-                  <p className="text-xs text-muted-foreground">{cls.room}</p>
+                  <p className="text-[10px] text-muted-foreground truncate max-w-[60px]">
+                    {cls.room}
+                  </p>
                 </div>
               </div>
             ))
@@ -817,45 +818,43 @@ function Sidebar({
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-4">
       <Card>
-        <CardHeader className="p-4 sm:p-6">
-          <CardTitle className="text-base sm:text-lg">
-            Today's Classes
-          </CardTitle>
+        <CardHeader className="p-3">
+          <CardTitle className="text-base">Today's Classes</CardTitle>
         </CardHeader>
-        <CardContent className="p-4 sm:p-6 pt-0 space-y-3">
+        <CardContent className="p-3 pt-0 space-y-2">
           {todayClasses.length > 0 ? (
             todayClasses.map((cls, index) => (
               <div
                 key={index}
-                className="p-3 rounded-lg border border-border bg-accent"
+                className="p-2 rounded border border-border bg-accent"
               >
-                <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-medium text-sm">
+                <div className="flex items-start justify-between mb-1">
+                  <h3 className="font-medium text-xs">
                     {cls.courses.course_code}
                   </h3>
-                  <Badge variant="secondary" className="text-xs capitalize">
+                  <Badge variant="secondary" className="text-[10px] capitalize">
                     {cls.class_type}
                   </Badge>
                 </div>
-                <div className="space-y-1 text-xs text-muted-foreground">
-                  <div className="flex items-center gap-2">
+                <div className="space-y-1 text-[10px] text-muted-foreground">
+                  <div className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
                     <span>
                       {formatTime(cls.start_time)} - {formatTime(cls.end_time)}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
                     <MapPin className="h-3 w-3" />
-                    <span>{cls.room || "TBA"}</span>
+                    <span className="truncate">{cls.room || "TBA"}</span>
                   </div>
                 </div>
               </div>
             ))
           ) : (
-            <div className="text-center py-6 text-muted-foreground">
-              <Calendar className="h-6 w-6 mx-auto mb-2 opacity-50" />
+            <div className="text-center py-4 text-muted-foreground">
+              <Calendar className="h-5 w-5 mx-auto mb-1 opacity-50" />
               <p className="text-xs">No classes today</p>
             </div>
           )}
@@ -863,40 +862,50 @@ function Sidebar({
       </Card>
 
       <Card>
-        <CardHeader className="p-4 sm:p-6">
-          <CardTitle className="text-base sm:text-lg">Quick Stats</CardTitle>
+        <CardHeader className="p-3">
+          <CardTitle className="text-base">Quick Stats</CardTitle>
         </CardHeader>
-        <CardContent className="p-4 sm:p-6 pt-0 space-y-3">
-          <div className="p-3 rounded-lg bg-accent">
+        <CardContent className="p-3 pt-0 space-y-2">
+          <div className="p-2 rounded bg-accent">
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">
                 Weekly Hours
               </span>
-              <span className="font-semibold">{quickStats.totalHours}h</span>
+              <span className="font-semibold text-sm">
+                {quickStats.totalHours}h
+              </span>
             </div>
-            <p className="text-xs mt-1 text-muted-foreground">Estimated</p>
+            <p className="text-[10px] mt-0.5 text-muted-foreground">
+              Estimated
+            </p>
           </div>
 
-          <div className="p-3 rounded-lg bg-accent">
+          <div className="p-2 rounded bg-accent">
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">
                 Different Rooms
               </span>
-              <span className="font-semibold text-purple-600 dark:text-purple-400">
+              <span className="font-semibold text-sm text-purple-600 dark:text-purple-400">
                 {quickStats.differentRooms}
               </span>
             </div>
-            <p className="text-xs mt-1 text-muted-foreground">This semester</p>
+            <p className="text-[10px] mt-0.5 text-muted-foreground">
+              This semester
+            </p>
           </div>
 
-          <div className="p-3 rounded-lg bg-accent">
+          <div className="p-2 rounded bg-accent">
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">
                 Earliest Class
               </span>
-              <span className="font-semibold">{quickStats.earliestClass}</span>
+              <span className="font-semibold text-sm">
+                {quickStats.earliestClass}
+              </span>
             </div>
-            <p className="text-xs mt-1 text-muted-foreground">Start time</p>
+            <p className="text-[10px] mt-0.5 text-muted-foreground">
+              Start time
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -912,18 +921,15 @@ function EmptyState({
   hasSearchQuery: boolean;
 }) {
   return (
-    <div className="text-center py-8">
-      <Calendar className="h-8 w-8 mx-auto mb-3 text-muted-foreground opacity-50" />
-      <h3 className="text-base font-medium mb-2">No classes found</h3>
-      <p className="text-xs text-muted-foreground mb-4">
+    <div className="text-center py-6">
+      <Calendar className="h-6 w-6 mx-auto mb-2 text-muted-foreground opacity-50" />
+      <h3 className="text-sm font-medium mb-1">No classes found</h3>
+      <p className="text-xs text-muted-foreground mb-3">
         {hasSearchQuery
           ? "Try adjusting your search terms"
           : "Get started by adding your first class"}
       </p>
-      <Button
-        onClick={onAddClass}
-        className="px-4 py-2 cursor-pointer text-xs h-9"
-      >
+      <Button onClick={onAddClass} className="cursor-pointer text-xs h-8">
         Add Your First Class
       </Button>
     </div>
@@ -948,9 +954,9 @@ function ClassModal({
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-3 z-50">
       <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <CardHeader className="p-4 sm:p-6">
+        <CardHeader className="p-4">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg sm:text-xl">{title}</CardTitle>
+            <CardTitle className="text-lg">{title}</CardTitle>
             <Button
               variant="ghost"
               size="sm"
@@ -961,10 +967,10 @@ function ClassModal({
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="p-4 sm:p-6 pt-0">
+        <CardContent className="p-4 pt-0">
           <form onSubmit={onSubmit} className="space-y-3">
             <div>
-              <Label className="mb-2 text-xs sm:text-sm">Course *</Label>
+              <Label className="mb-2 text-xs">Course *</Label>
               <Select
                 value={classItem.course_id}
                 onValueChange={(value) =>
@@ -972,7 +978,7 @@ function ClassModal({
                 }
                 required
               >
-                <SelectTrigger className="text-xs sm:text-sm h-9">
+                <SelectTrigger className="text-xs h-9">
                   <SelectValue placeholder="Select a course" />
                 </SelectTrigger>
                 <SelectContent>
@@ -980,17 +986,13 @@ function ClassModal({
                     <SelectItem
                       key={course.id}
                       value={course.id}
-                      className="text-xs sm:text-sm"
+                      className="text-xs"
                     >
                       {course.course_code} - {course.course_name}
                     </SelectItem>
                   ))}
                   {courses.length === 0 && (
-                    <SelectItem
-                      value="no-courses"
-                      disabled
-                      className="text-xs sm:text-sm"
-                    >
+                    <SelectItem value="no-courses" disabled className="text-xs">
                       No courses available
                     </SelectItem>
                   )}
@@ -999,7 +1001,7 @@ function ClassModal({
             </div>
 
             <div>
-              <Label className="mb-2 text-xs sm:text-sm">Day of Week *</Label>
+              <Label className="mb-2 text-xs">Day of Week *</Label>
               <Select
                 value={classItem.day_of_week.toString()}
                 onValueChange={(value) =>
@@ -1007,38 +1009,38 @@ function ClassModal({
                 }
                 required
               >
-                <SelectTrigger className="text-xs sm:text-sm h-9">
+                <SelectTrigger className="text-xs h-9">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="0" className="text-xs sm:text-sm">
+                  <SelectItem value="0" className="text-xs">
                     Sunday
                   </SelectItem>
-                  <SelectItem value="1" className="text-xs sm:text-sm">
+                  <SelectItem value="1" className="text-xs">
                     Monday
                   </SelectItem>
-                  <SelectItem value="2" className="text-xs sm:text-sm">
+                  <SelectItem value="2" className="text-xs">
                     Tuesday
                   </SelectItem>
-                  <SelectItem value="3" className="text-xs sm:text-sm">
+                  <SelectItem value="3" className="text-xs">
                     Wednesday
                   </SelectItem>
-                  <SelectItem value="4" className="text-xs sm:text-sm">
+                  <SelectItem value="4" className="text-xs">
                     Thursday
                   </SelectItem>
-                  <SelectItem value="5" className="text-xs sm:text-sm">
+                  <SelectItem value="5" className="text-xs">
                     Friday
                   </SelectItem>
-                  <SelectItem value="6" className="text-xs sm:text-sm">
+                  <SelectItem value="6" className="text-xs">
                     Saturday
                   </SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2">
               <div>
-                <Label className="mb-2 text-xs sm:text-sm">Start Time *</Label>
+                <Label className="mb-2 text-xs">Start Time *</Label>
                 <Input
                   type="time"
                   required
@@ -1046,11 +1048,11 @@ function ClassModal({
                   onChange={(e) =>
                     onChange({ ...classItem, start_time: e.target.value })
                   }
-                  className="text-xs sm:text-sm"
+                  className="text-xs"
                 />
               </div>
               <div>
-                <Label className="mb-2 text-xs sm:text-sm">End Time *</Label>
+                <Label className="mb-2 text-xs">End Time *</Label>
                 <Input
                   type="time"
                   required
@@ -1058,13 +1060,13 @@ function ClassModal({
                   onChange={(e) =>
                     onChange({ ...classItem, end_time: e.target.value })
                   }
-                  className="text-xs sm:text-sm"
+                  className="text-xs"
                 />
               </div>
             </div>
 
             <div>
-              <Label className="mb-2 text-xs sm:text-sm">Room/Location</Label>
+              <Label className="mb-2 text-xs">Room/Location</Label>
               <Input
                 type="text"
                 value={classItem.room}
@@ -1072,32 +1074,32 @@ function ClassModal({
                   onChange({ ...classItem, room: e.target.value })
                 }
                 placeholder="e.g., Room 301, Lab A"
-                className="text-xs sm:text-sm"
+                className="text-xs"
               />
             </div>
 
             <div>
-              <Label className="mb-2 text-xs sm:text-sm">Class Type</Label>
+              <Label className="mb-2 text-xs">Class Type</Label>
               <Select
                 value={classItem.class_type}
                 onValueChange={(value) =>
                   onChange({ ...classItem, class_type: value })
                 }
               >
-                <SelectTrigger className="text-xs sm:text-sm h-9">
+                <SelectTrigger className="text-xs h-9">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="lecture" className="text-xs sm:text-sm">
+                  <SelectItem value="lecture" className="text-xs">
                     Lecture
                   </SelectItem>
-                  <SelectItem value="lab" className="text-xs sm:text-sm">
+                  <SelectItem value="lab" className="text-xs">
                     Lab
                   </SelectItem>
-                  <SelectItem value="tutorial" className="text-xs sm:text-sm">
+                  <SelectItem value="tutorial" className="text-xs">
                     Tutorial
                   </SelectItem>
-                  <SelectItem value="seminar" className="text-xs sm:text-sm">
+                  <SelectItem value="seminar" className="text-xs">
                     Seminar
                   </SelectItem>
                 </SelectContent>
@@ -1105,16 +1107,16 @@ function ClassModal({
             </div>
           </form>
         </CardContent>
-        <CardFooter className="p-4 sm:p-6 pt-0 flex gap-2">
+        <CardFooter className="p-4 pt-0 flex gap-2">
           <Button
             variant="outline"
-            className="flex-1 cursor-pointer text-xs sm:text-sm h-9"
+            className="flex-1 cursor-pointer text-xs h-9"
             onClick={onClose}
           >
             Cancel
           </Button>
           <Button
-            className="flex-1 cursor-pointer text-xs sm:text-sm h-9"
+            className="flex-1 cursor-pointer text-xs h-9"
             onClick={onSubmit}
           >
             {title.includes("Add") ? "Add Class" : "Save Changes"}
@@ -1137,9 +1139,9 @@ function ClassDetailsModal({
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-3 z-50">
       <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <CardHeader className="p-4 sm:p-6">
+        <CardHeader className="p-4">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg sm:text-xl">Class Details</CardTitle>
+            <CardTitle className="text-lg">Class Details</CardTitle>
             <Button
               variant="ghost"
               size="sm"
@@ -1150,32 +1152,32 @@ function ClassDetailsModal({
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="p-4 sm:p-6 pt-0 space-y-4">
+        <CardContent className="p-4 pt-0 space-y-3">
           <div className="flex items-start gap-3">
             <div
               className={`p-3 rounded-lg ${getColorClass(
                 classItem.courses.color
               )}`}
             >
-              <BookOpen className="h-6 w-6 text-white" />
+              <BookOpen className="h-5 w-5 text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-xl font-bold mb-2">
+              <h3 className="text-lg font-bold mb-1">
                 {classItem.courses.course_name}
               </h3>
-              <p className="text-base text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 {classItem.courses.course_code}
               </p>
             </div>
           </div>
 
-          <div className="space-y-3">
-            <div className="p-3 rounded-lg bg-accent">
-              <div className="flex items-center gap-2 mb-2">
-                <Calendar className="h-4 w-4 text-purple-600" />
-                <span className="font-medium text-sm">Schedule</span>
+          <div className="space-y-2">
+            <div className="p-2 rounded bg-accent">
+              <div className="flex items-center gap-2 mb-1">
+                <Calendar className="h-3 w-3 text-purple-600" />
+                <span className="font-medium text-xs">Schedule</span>
               </div>
-              <div className="space-y-2 text-sm">
+              <div className="space-y-1 text-xs">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Day:</span>
                   <span className="font-medium">
@@ -1192,37 +1194,37 @@ function ClassDetailsModal({
               </div>
             </div>
 
-            <div className="p-3 rounded-lg bg-accent">
-              <div className="flex items-center gap-2 mb-2">
-                <MapPin className="h-4 w-4 text-purple-600" />
-                <span className="font-medium text-sm">Location</span>
+            <div className="p-2 rounded bg-accent">
+              <div className="flex items-center gap-2 mb-1">
+                <MapPin className="h-3 w-3 text-purple-600" />
+                <span className="font-medium text-xs">Location</span>
               </div>
-              <p className="text-sm font-medium">
+              <p className="text-xs font-medium">
                 {classItem.room || "Location not specified"}
               </p>
             </div>
 
-            <div className="p-3 rounded-lg bg-accent">
-              <div className="flex items-center gap-2 mb-2">
-                <Users className="h-4 w-4 text-purple-600" />
-                <span className="font-medium text-sm">Class Type</span>
+            <div className="p-2 rounded bg-accent">
+              <div className="flex items-center gap-2 mb-1">
+                <Users className="h-3 w-3 text-purple-600" />
+                <span className="font-medium text-xs">Class Type</span>
               </div>
-              <Badge variant="secondary" className="text-sm capitalize">
+              <Badge variant="secondary" className="text-xs capitalize">
                 {classItem.class_type}
               </Badge>
             </div>
           </div>
         </CardContent>
-        <CardFooter className="p-4 sm:p-6 pt-0 flex gap-2">
+        <CardFooter className="p-4 pt-0 flex gap-2">
           <Button
             variant="outline"
-            className="flex-1 cursor-pointer text-xs sm:text-sm h-9"
+            className="flex-1 cursor-pointer text-xs h-9"
             onClick={onClose}
           >
             Close
           </Button>
           <Button
-            className="flex-1 cursor-pointer text-xs sm:text-sm h-9"
+            className="flex-1 cursor-pointer text-xs h-9"
             onClick={onEdit}
           >
             Edit Class
@@ -1237,7 +1239,7 @@ function ClassesSkeleton() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-14 sm:h-16 items-center gap-3 px-4 sm:px-6">
+        <div className="flex h-14 items-center gap-3 px-4">
           <div className="lg:hidden">
             <Skeleton className="w-7 h-7 rounded" />
           </div>
@@ -1245,61 +1247,61 @@ function ClassesSkeleton() {
             <Skeleton className="w-7 h-7 rounded" />
           </div>
           <div className="flex-1">
-            <Skeleton className="h-5 w-24 sm:w-32 rounded" />
+            <Skeleton className="h-5 w-20 rounded" />
           </div>
-          <Skeleton className="h-9 w-16 sm:w-20 rounded" />
+          <Skeleton className="h-8 w-16 rounded" />
         </div>
       </header>
-      <main className="p-3 sm:p-6 space-y-4 sm:space-y-6">
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <main className="p-3 space-y-4">
+        <div className="grid grid-cols-2 xs:grid-cols-2 lg:grid-cols-4 gap-2">
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="rounded-xl border border-border bg-card p-3"
+              className="rounded-lg border border-border bg-card p-3"
             >
               <div className="flex items-center justify-between mb-2">
-                <Skeleton className="w-8 h-8 rounded-lg" />
+                <Skeleton className="w-6 h-6 rounded-md" />
               </div>
-              <div className="space-y-2">
-                <Skeleton className="h-3 w-16 rounded" />
-                <Skeleton className="h-5 w-10 rounded" />
-                <Skeleton className="h-2 w-20 rounded" />
+              <div className="space-y-1">
+                <Skeleton className="h-3 w-12 rounded" />
+                <Skeleton className="h-4 w-8 rounded" />
+                <Skeleton className="h-2 w-16 rounded" />
               </div>
             </div>
           ))}
         </div>
-        <Skeleton className="h-9 w-full rounded-lg" />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-          <div className="lg:col-span-2 space-y-3">
+        <Skeleton className="h-9 w-full rounded" />
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+          <div className="xl:col-span-2 space-y-3">
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="rounded-xl border border-border bg-card p-4"
+                className="rounded-lg border border-border bg-card p-3"
               >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-start gap-3">
-                    <Skeleton className="w-10 h-10 rounded-lg" />
-                    <div className="flex-1 space-y-2 min-w-0">
-                      <Skeleton className="h-5 w-32 rounded" />
-                      <Skeleton className="h-3 w-24 rounded" />
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-start gap-2">
+                    <Skeleton className="w-8 h-8 rounded-md" />
+                    <div className="flex-1 space-y-1 min-w-0">
+                      <Skeleton className="h-4 w-24 rounded" />
+                      <Skeleton className="h-3 w-20 rounded" />
                     </div>
                   </div>
-                  <Skeleton className="w-7 h-7 rounded" />
+                  <Skeleton className="w-6 h-6 rounded" />
                 </div>
-                <div className="grid grid-cols-2 gap-3 mb-3">
-                  <Skeleton className="h-12 rounded-lg" />
-                  <Skeleton className="h-12 rounded-lg" />
+                <div className="grid grid-cols-2 gap-2 mb-2">
+                  <Skeleton className="h-10 rounded" />
+                  <Skeleton className="h-10 rounded" />
                 </div>
                 <div className="flex items-center justify-between">
-                  <Skeleton className="h-5 w-16 rounded" />
-                  <Skeleton className="h-8 w-20 rounded" />
+                  <Skeleton className="h-5 w-12 rounded" />
+                  <Skeleton className="h-6 w-16 rounded" />
                 </div>
               </div>
             ))}
           </div>
           <div className="space-y-4">
-            <Skeleton className="h-48 rounded-xl" />
-            <Skeleton className="h-48 rounded-xl" />
+            <Skeleton className="h-40 rounded-lg" />
+            <Skeleton className="h-40 rounded-lg" />
           </div>
         </div>
       </main>
@@ -1317,7 +1319,7 @@ function ErrorState({
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-14 sm:h-16 items-center gap-3 px-4 sm:px-6">
+        <div className="flex h-14 items-center gap-3 px-4">
           <div className="lg:hidden">
             <MobileSidebarTrigger />
           </div>
@@ -1325,19 +1327,19 @@ function ErrorState({
             <SidebarTrigger />
           </div>
           <div className="flex-1">
-            <h1 className="text-lg sm:text-xl font-semibold">Classes</h1>
+            <h1 className="text-lg font-semibold">Classes</h1>
           </div>
         </div>
       </header>
-      <main className="p-4 sm:p-6">
-        <div className="flex items-center justify-center h-64">
+      <main className="p-4">
+        <div className="flex items-center justify-center h-48">
           <div className="text-center">
-            <AlertCircle className="h-8 w-8 text-destructive mx-auto mb-3" />
-            <h2 className="text-lg font-semibold mb-2">Failed to load data</h2>
-            <p className="text-xs text-muted-foreground mb-4">{error}</p>
+            <AlertCircle className="h-6 w-6 text-destructive mx-auto mb-2" />
+            <h2 className="text-sm font-semibold mb-1">Failed to load data</h2>
+            <p className="text-xs text-muted-foreground mb-3">{error}</p>
             <button
               onClick={onRetry}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 text-xs h-9"
+              className="px-3 py-1.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 text-xs h-8"
             >
               Retry
             </button>

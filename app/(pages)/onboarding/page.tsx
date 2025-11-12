@@ -181,7 +181,6 @@ export default function OnboardingWizard() {
 
   const handleNextStep = () => {
     saveToLocalStorage();
-
     if (currentStep === 2 && hasUploadedTimetable) {
       setCurrentStep(5);
     } else if (currentStep < 5) {
@@ -191,7 +190,6 @@ export default function OnboardingWizard() {
 
   const handleBackStep = () => {
     saveToLocalStorage();
-
     if (currentStep === 5 && hasUploadedTimetable) {
       setCurrentStep(2);
     } else if (currentStep > 1) {
@@ -211,7 +209,6 @@ export default function OnboardingWizard() {
       }
 
       const loadingToast = toast.loading("Saving your profile...");
-
       await saveProfile(token);
 
       let successfulCourses = [];
@@ -492,31 +489,34 @@ export default function OnboardingWizard() {
     }));
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-4xl h-full max-h-[90vh] sm:max-h-[80vh] overflow-hidden rounded-xl border border-border bg-background shadow-2xl flex flex-col">
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-border flex-shrink-0">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-foreground">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-2 sm:p-4">
+      <div className="relative w-full max-w-4xl h-full max-h-[95vh] sm:max-h-[90vh] md:max-h-[80vh] overflow-hidden rounded-xl border border-border bg-background shadow-2xl flex flex-col">
+        <div className="flex items-center justify-between p-3 sm:p-4 md:p-6 border-b border-border flex-shrink-0">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground truncate">
               Welcome to Anchor!
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-1 text-xs sm:text-sm text-muted-foreground truncate">
               Let&apos;s set up your academic profile to get started
             </p>
           </div>
-          <Badge variant="secondary" className="text-xs sm:text-sm">
+          <Badge
+            variant="secondary"
+            className="text-xs sm:text-sm flex-shrink-0 ml-2"
+          >
             Step {currentStepNumber} of {totalSteps}
           </Badge>
         </div>
 
-        <div className="px-4 sm:px-6 pt-4 flex-shrink-0">
-          <Progress value={progress} className="h-2" />
+        <div className="px-3 sm:px-4 md:px-6 pt-3 sm:pt-4 flex-shrink-0">
+          <Progress value={progress} className="h-1.5 sm:h-2" />
         </div>
 
-        <div className="flex justify-center px-4 sm:px-6 py-4 flex-shrink-0">
-          <div className="flex items-center w-full max-w-4xl mx-auto">
+        <div className="flex justify-center px-3 sm:px-4 md:px-6 py-3 sm:py-4 flex-shrink-0">
+          <div className="flex items-center justify-between w-full overflow-x-auto">
             {visibleSteps.map((step, index) => (
               <React.Fragment key={step.number}>
-                <div className="flex items-center justify-center flex-1">
+                <div className="flex items-center justify-center flex-shrink-0">
                   <div className="flex items-center gap-1 sm:gap-2">
                     <div
                       className={`flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full border-2 text-xs ${
@@ -532,7 +532,7 @@ export default function OnboardingWizard() {
                       )}
                     </div>
                     <span
-                      className={`text-xs font-medium whitespace-nowrap hidden sm:block ${
+                      className={`text-xs font-medium whitespace-nowrap hidden xs:block ${
                         currentStep >= step.number
                           ? "text-primary"
                           : "text-muted-foreground"
@@ -544,7 +544,7 @@ export default function OnboardingWizard() {
                 </div>
                 {index < visibleSteps.length - 1 && (
                   <div
-                    className={`w-14 sm:w-28 h-0.5 mx-2 ${
+                    className={`w-8 sm:w-14 md:w-28 h-0.5 mx-1 sm:mx-2 ${
                       currentStep > step.number ? "bg-primary" : "bg-muted"
                     }`}
                   />
@@ -554,7 +554,7 @@ export default function OnboardingWizard() {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4">
+        <div className="flex-1 overflow-y-auto px-3 sm:px-4 md:px-6 py-3 sm:py-4">
           {currentStep === 1 && (
             <AcademicProfileStep
               academicInfo={academicInfo}
@@ -586,33 +586,33 @@ export default function OnboardingWizard() {
           )}
         </div>
 
-        <div className="flex items-center justify-between p-4 sm:p-6 border-t border-border bg-background flex-shrink-0">
+        <div className="flex items-center justify-between p-3 sm:p-4 md:p-6 border-t border-border bg-background flex-shrink-0">
           <Button
             variant="outline"
-            className="cursor-pointer text-xs sm:text-sm"
+            className="cursor-pointer text-xs sm:text-sm h-9 sm:h-10 px-3 sm:px-4"
             onClick={handleBackStep}
             disabled={currentStep === 1}
           >
-            <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+            <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
             Back
           </Button>
 
           {currentStepNumber < totalSteps ? (
             <Button
               onClick={handleNextStep}
-              className="cursor-pointer text-xs sm:text-sm"
+              className="cursor-pointer text-xs sm:text-sm h-9 sm:h-10 px-3 sm:px-4"
             >
               Continue
-              <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 ml-2" />
+              <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 ml-1 sm:ml-2" />
             </Button>
           ) : (
             <Button
               onClick={handleSubmit}
               disabled={loading}
-              className="cursor-pointer text-xs sm:text-sm"
+              className="cursor-pointer text-xs sm:text-sm h-9 sm:h-10 px-3 sm:px-4"
             >
               {loading ? "Completing Setup..." : "Complete Setup"}
-              <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 ml-2" />
+              <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 ml-1 sm:ml-2" />
             </Button>
           )}
         </div>
@@ -635,13 +635,15 @@ function AcademicProfileStep({
   return (
     <div className="space-y-4 sm:space-y-6">
       <div>
-        <h2 className="text-xl sm:text-2xl font-bold mb-2">Academic Profile</h2>
+        <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-2">
+          Academic Profile
+        </h2>
         <p className="text-xs sm:text-sm text-muted-foreground">
           Tell us about your academic background
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 gap-3 sm:gap-4">
         <FormField
           label="Full Name *"
           id="fullName"
@@ -674,14 +676,16 @@ function AcademicProfileStep({
           placeholder="e.g., Computer Science"
           required
         />
-        <SemesterSelect
-          value={academicInfo.currentSemester}
-          onChange={(value) => handleChange("currentSemester", value)}
-        />
-        <GraduationDatePicker
-          value={academicInfo.expectedGraduation}
-          onChange={(value) => handleChange("expectedGraduation", value)}
-        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          <SemesterSelect
+            value={academicInfo.currentSemester}
+            onChange={(value) => handleChange("currentSemester", value)}
+          />
+          <GraduationDatePicker
+            value={academicInfo.expectedGraduation}
+            onChange={(value) => handleChange("expectedGraduation", value)}
+          />
+        </div>
       </div>
     </div>
   );
@@ -699,12 +703,12 @@ function TimetableStep({
   if (hasUploadedTimetable) {
     return (
       <div className="space-y-4 sm:space-y-6">
-        <div className="text-center py-8">
-          <CheckCircle2 className="h-16 w-16 mx-auto mb-4 text-green-500" />
-          <h2 className="text-xl sm:text-2xl font-bold mb-2">
+        <div className="text-center py-6 sm:py-8">
+          <CheckCircle2 className="h-12 w-12 sm:h-16 sm:w-16 mx-auto mb-3 sm:mb-4 text-green-500" />
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-2">
             Timetable Uploaded
           </h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             Your timetable has been successfully uploaded. You can proceed to
             preferences.
           </p>
@@ -716,7 +720,9 @@ function TimetableStep({
   return (
     <div className="space-y-4 sm:space-y-6">
       <div>
-        <h2 className="text-xl sm:text-2xl font-bold mb-2">Upload Timetable</h2>
+        <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-2">
+          Upload Timetable
+        </h2>
         <p className="text-xs sm:text-sm text-muted-foreground">
           Upload your timetable to automatically import your schedule and skip
           manual entry.
@@ -761,7 +767,9 @@ function CoursesStep({
   return (
     <div className="space-y-4 sm:space-y-6">
       <div>
-        <h2 className="text-xl sm:text-2xl font-bold mb-2">Your Courses</h2>
+        <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-2">
+          Your Courses
+        </h2>
         <p className="text-xs sm:text-sm text-muted-foreground">
           Add the courses you&apos;re taking this semester
         </p>
@@ -784,7 +792,7 @@ function CoursesStep({
         type="button"
         variant="outline"
         onClick={addCourse}
-        className="w-full cursor-pointer text-xs sm:text-sm"
+        className="w-full cursor-pointer text-xs sm:text-sm h-9 sm:h-10"
       >
         <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
         Add Another Course
@@ -839,14 +847,16 @@ function ScheduleStep({
   return (
     <div className="space-y-4 sm:space-y-6">
       <div>
-        <h2 className="text-xl sm:text-2xl font-bold mb-2">Class Schedule</h2>
+        <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-2">
+          Class Schedule
+        </h2>
         <p className="text-xs sm:text-sm text-muted-foreground">
           Set up your weekly class schedule for attendance tracking
         </p>
       </div>
 
       <div>
-        <h3 className="text-lg font-semibold mb-3 sm:mb-4">
+        <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">
           Add Classes Manually
         </h3>
         <div className="space-y-3 sm:space-y-4">
@@ -867,7 +877,7 @@ function ScheduleStep({
           type="button"
           variant="outline"
           onClick={addClass}
-          className="w-full mt-3 sm:mt-4 cursor-pointer text-xs sm:text-sm"
+          className="w-full mt-3 sm:mt-4 cursor-pointer text-xs sm:text-sm h-9 sm:h-10"
         >
           <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
           Add Another Class
@@ -887,7 +897,7 @@ function PreferencesStep({
   return (
     <div className="space-y-4 sm:space-y-6">
       <div>
-        <h2 className="text-xl sm:text-2xl font-bold mb-2">
+        <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-2">
           Attendance Preferences
         </h2>
         <p className="text-xs sm:text-sm text-muted-foreground">
@@ -947,7 +957,7 @@ function FileUploadSection({
               <Button
                 type="button"
                 variant="outline"
-                className="relative text-xs sm:text-sm"
+                className="relative text-xs sm:text-sm h-9 sm:h-10"
               >
                 <Upload className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                 Choose File
@@ -958,7 +968,11 @@ function FileUploadSection({
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
               </Button>
-              <Button variant="outline" disabled className="text-xs sm:text-sm">
+              <Button
+                variant="outline"
+                disabled
+                className="text-xs sm:text-sm h-9 sm:h-10"
+              >
                 Download Template
               </Button>
             </div>
@@ -995,7 +1009,7 @@ function FormField({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         required={required}
-        className="text-xs sm:text-sm"
+        className="text-xs sm:text-sm h-9 sm:h-10"
       />
     </div>
   );
@@ -1014,7 +1028,7 @@ function SemesterSelect({
         Current Semester *
       </Label>
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger className="text-xs sm:text-sm">
+        <SelectTrigger className="text-xs sm:text-sm h-9 sm:h-10">
           <SelectValue placeholder="Select semester" />
         </SelectTrigger>
         <SelectContent>
@@ -1087,11 +1101,10 @@ function GraduationDatePicker({
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className="w-auto p-0"
-          side="bottom"
+          className="w-auto p-0 md:top-auto md:bottom-0"
+          side="top"
           align="start"
           sideOffset={4}
-          avoidCollisions={false}
         >
           <GraduationCalendar
             selected={value}
@@ -1167,7 +1180,7 @@ function CourseForm({
             value={course.credits.toString()}
             onValueChange={(value) => onCourseChange(index, "credits", value)}
           >
-            <SelectTrigger className="text-xs sm:text-sm">
+            <SelectTrigger className="text-xs sm:text-sm h-9 sm:h-10">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -1234,7 +1247,7 @@ function ClassForm({
             value={classItem.day.toString()}
             onValueChange={(value) => onClassChange(index, "day", value)}
           >
-            <SelectTrigger className="text-xs sm:text-sm">
+            <SelectTrigger className="text-xs sm:text-sm h-9 sm:h-10">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -1269,7 +1282,7 @@ function ClassForm({
             type="time"
             value={classItem.startTime}
             onChange={(e) => onClassChange(index, "startTime", e.target.value)}
-            className="text-xs sm:text-sm"
+            className="text-xs sm:text-sm h-9 sm:h-10"
           />
         </div>
 
@@ -1279,7 +1292,7 @@ function ClassForm({
             type="time"
             value={classItem.endTime}
             onChange={(e) => onClassChange(index, "endTime", e.target.value)}
-            className="text-xs sm:text-sm"
+            className="text-xs sm:text-sm h-9 sm:h-10"
           />
         </div>
 
@@ -1289,7 +1302,7 @@ function ClassForm({
             value={classItem.course}
             onValueChange={(value) => onClassChange(index, "course", value)}
           >
-            <SelectTrigger className="text-xs sm:text-sm">
+            <SelectTrigger className="text-xs sm:text-sm h-9 sm:h-10">
               <SelectValue placeholder="Select course" />
             </SelectTrigger>
             <SelectContent>
@@ -1322,7 +1335,7 @@ function ClassForm({
             onChange={(e) => onClassChange(index, "room", e.target.value)}
             placeholder="e.g., Room 301"
             required
-            className="text-xs sm:text-sm"
+            className="text-xs sm:text-sm h-9 sm:h-10"
           />
         </div>
 
@@ -1332,7 +1345,7 @@ function ClassForm({
             value={classItem.type}
             onValueChange={(value) => onClassChange(index, "type", value)}
           >
-            <SelectTrigger className="text-xs sm:text-sm">
+            <SelectTrigger className="text-xs sm:text-sm h-9 sm:h-10">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -1406,8 +1419,8 @@ function WarningsToggle({
 }) {
   return (
     <div className="p-4 sm:p-6 rounded-lg border border-border bg-card">
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex-1">
           <Label className="text-sm sm:text-base">Attendance Warnings</Label>
           <p className="text-xs sm:text-sm mt-1 text-muted-foreground">
             Receive notifications when your attendance drops below your target
@@ -1415,7 +1428,7 @@ function WarningsToggle({
         </div>
         <Button
           variant={enableWarnings ? "default" : "outline"}
-          className="cursor-pointer text-xs sm:text-sm"
+          className="cursor-pointer text-xs sm:text-sm h-9 sm:h-10 w-full sm:w-auto"
           onClick={() => onChange(!enableWarnings)}
         >
           {enableWarnings ? "Enabled" : "Disabled"}

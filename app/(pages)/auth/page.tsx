@@ -157,7 +157,9 @@ export default function Auth() {
           description: `Welcome back!`,
         });
         setTimeout(() => {
-          router.push(data.profile.onboarding_completed ? "/dashboard" : "/onboarding");
+          router.push(
+            data.profile.onboarding_completed ? "/dashboard" : "/onboarding"
+          );
         }, 1000);
       } else {
         setAlert({
@@ -207,11 +209,11 @@ export default function Auth() {
   };
 
   return (
-    <div className="relative min-h-screen bg-background flex items-center justify-center overflow-hidden">
+    <div className="relative min-h-screen bg-background flex items-center justify-center overflow-hidden px-4 py-8">
       <AnimatePresence>
         {alert && (
           <motion.div
-            className="fixed bottom-8 right-8 z-50 w-full max-w-md px-4"
+            className="fixed bottom-4 right-4 left-4 sm:left-auto sm:right-8 sm:bottom-8 z-50 w-full max-w-md mx-auto sm:mx-0"
             initial={{ x: 400, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: 400, opacity: 0 }}
@@ -227,38 +229,39 @@ export default function Auth() {
                 <XCircle className="w-5 h-5 flex-shrink-0" />
               )}
               <div className="flex-1">
-                <AlertTitle className="mb-1 mt-1">{alert.title}</AlertTitle>
-                <AlertDescription>{alert.description}</AlertDescription>
+                <AlertTitle className="mb-1 mt-1 text-sm sm:text-base">
+                  {alert.title}
+                </AlertTitle>
+                <AlertDescription className="text-xs sm:text-sm">
+                  {alert.description}
+                </AlertDescription>
               </div>
             </Alert>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <FloatingShapes 
-        theme={theme || "light"} 
-        numberOfShapes={30} 
-      />
+      <FloatingShapes theme={theme || "light"} numberOfShapes={20} />
 
-      <Card className="relative w-full max-w-md z-10 bg-card text-card-foreground">
-        <CardHeader>
-          <CardTitle>
+      <Card className="relative w-full max-w-md z-10 bg-card text-card-foreground shadow-lg border-0 sm:border">
+        <CardHeader className="px-4 sm:px-6 pt-6 pb-4">
+          <CardTitle className="text-xl sm:text-2xl text-center">
             {authMode === "signup" ? "Create Account" : "Sign In"}
           </CardTitle>
-          <CardDescription className="text-muted-foreground">
+          <CardDescription className="text-muted-foreground text-center text-sm sm:text-base mt-2">
             {authMode === "signup"
               ? "Enter your details to create your account."
               : "Enter your credentials to sign in."}
           </CardDescription>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="px-4 sm:px-6 pb-4">
           <form
             onSubmit={
               authMode === "signup" ? handleSignUpSubmit : handleSignInSubmit
             }
           >
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {authMode === "signup" && (
                 <FormInput
                   label="Username"
@@ -317,7 +320,7 @@ export default function Auth() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 px-4 rounded-lg font-semibold bg-purple-600 hover:bg-purple-700 text-white disabled:bg-muted disabled:text-muted-foreground transition-colors cursor-pointer duration-200 flex items-center justify-center gap-2"
+                className="w-full py-3 px-4 rounded-lg font-semibold bg-purple-600 hover:bg-purple-700 text-white disabled:bg-muted disabled:text-muted-foreground transition-colors cursor-pointer duration-200 flex items-center justify-center gap-2 text-sm sm:text-base"
               >
                 {isLoading ? (
                   <>
@@ -335,9 +338,9 @@ export default function Auth() {
             </div>
           </form>
 
-          <div className="relative flex items-center justify-center mt-6 mb-4">
+          <div className="relative flex items-center justify-center mt-4 sm:mt-6 mb-3 sm:mb-4">
             <div className="flex-1 border-t border-border"></div>
-            <span className="px-4 text-sm text-muted-foreground">
+            <span className="px-3 text-xs sm:text-sm text-muted-foreground">
               or continue with
             </span>
             <div className="flex-1 border-t border-border"></div>
@@ -348,9 +351,9 @@ export default function Auth() {
               type="button"
               onClick={handleGoogleAuth}
               disabled={isLoading}
-              className="flex cursor-pointer items-center justify-center gap-3 py-3 px-6 rounded-lg font-medium transition-all duration-200 border border-input bg-background hover:bg-accent text-foreground w-full max-w-xs disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex cursor-pointer items-center justify-center gap-3 py-3 px-4 sm:px-6 rounded-lg font-medium transition-all duration-200 border border-input bg-background hover:bg-accent text-foreground w-full max-w-xs disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
             >
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24">
                 <path
                   fill="#4285F4"
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -368,14 +371,16 @@ export default function Auth() {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              <span>{isLoading ? "Redirecting..." : "Continue with Google"}</span>
+              <span>
+                {isLoading ? "Redirecting..." : "Continue with Google"}
+              </span>
             </button>
           </div>
         </CardContent>
 
-        <CardFooter className="text-center">
+        <CardFooter className="text-center px-4 sm:px-6 pb-6 pt-4">
           {authMode === "signup" ? (
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-sm sm:text-base w-full">
               Already have an account?{" "}
               <button
                 onClick={toggleAuthMode}
@@ -385,7 +390,7 @@ export default function Auth() {
               </button>
             </p>
           ) : (
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-sm sm:text-base w-full">
               Don&apos;t have an account?{" "}
               <button
                 onClick={toggleAuthMode}
@@ -426,7 +431,7 @@ const FormInput = ({
       value={value}
       onChange={onChange}
       placeholder={placeholder}
-      className="w-full px-4 py-2 rounded-lg transition-all duration-200 border border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 focus:outline-none"
+      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base rounded-lg transition-all duration-200 border border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 focus:outline-none"
       required
     />
   </div>
@@ -460,7 +465,7 @@ const PasswordInput = ({
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        className="w-full px-4 py-2 pr-10 rounded-lg transition-all duration-200 border border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 focus:outline-none"
+        className="w-full px-3 sm:px-4 py-2 pr-10 text-sm sm:text-base rounded-lg transition-all duration-200 border border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 focus:outline-none"
         required
       />
       <button
@@ -470,9 +475,9 @@ const PasswordInput = ({
         aria-label={showPassword ? "Hide password" : "Show password"}
       >
         {showPassword ? (
-          <EyeOff className="w-5 h-5" />
+          <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" />
         ) : (
-          <Eye className="w-5 h-5" />
+          <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
         )}
       </button>
     </div>

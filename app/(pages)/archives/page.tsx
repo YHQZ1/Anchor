@@ -2,13 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  Archive,
-  RotateCcw,
-  Search,
-  MoreVertical,
-  Eye,
-} from "lucide-react";
+import { Archive, RotateCcw, Search, MoreVertical, Eye } from "lucide-react";
 import { SidebarTrigger, MobileSidebarTrigger } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,6 +49,9 @@ export default function Archives() {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [unarchiveConfirm, setUnarchiveConfirm] = useState<string | null>(null);
+  const [selectedArchive, setSelectedArchive] = useState<ArchiveItem | null>(
+    null
+  );
   const router = useRouter();
 
   useEffect(() => {
@@ -111,6 +108,14 @@ export default function Archives() {
     }
   };
 
+  const handleViewDetails = (archive: ArchiveItem) => {
+    setSelectedArchive(archive);
+    // You can implement a modal or navigation to details page here
+    toast.info("View Details", {
+      description: `Details for ${archive.courses.course_code} - ${archive.courses.course_name}`,
+    });
+  };
+
   const filteredArchives = archives.filter(
     (archive) =>
       archive.courses.course_code
@@ -142,29 +147,39 @@ export default function Archives() {
             <SidebarTrigger />
           </div>
           <div className="flex-1">
-            <h1 className="text-lg sm:text-xl font-semibold">Archived Courses</h1>
+            <h1 className="text-lg sm:text-xl font-semibold">
+              Archived Courses
+            </h1>
           </div>
         </div>
       </header>
 
-      <main className="p-4 sm:p-6 space-y-4 sm:space-y-6">
-        <div className="flex-1 flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg border border-input bg-background max-w-md">
-          <Search className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Search archived courses..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1 bg-transparent border-none outline-none text-xs sm:text-sm"
-          />
+      <main className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
+        {/* Search Bar */}
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center justify-between">
+          <div className="relative w-full sm:max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search archived courses..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-4 text-xs sm:text-sm h-9 sm:h-10 bg-background"
+            />
+          </div>
+          <div className="text-xs sm:text-sm text-muted-foreground self-end sm:self-center">
+            {filteredArchives.length} of {archives.length} courses
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        {/* Archive Cards Grid */}
+        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
           {filteredArchives.map((archive) => (
             <ArchiveCard
               key={archive.id}
               archive={archive}
               onUnarchive={() => setUnarchiveConfirm(archive.id)}
+              onViewDetails={() => handleViewDetails(archive)}
               formatDate={formatDate}
             />
           ))}
@@ -189,18 +204,20 @@ export default function Archives() {
 function ArchiveCard({
   archive,
   onUnarchive,
+  onViewDetails,
   formatDate,
 }: {
   archive: ArchiveItem;
   onUnarchive: () => void;
+  onViewDetails: () => void;
   formatDate: (date: string) => string;
 }) {
   return (
-    <Card key={archive.id} className="relative">
-      <CardHeader className="p-4 sm:p-6">
+    <Card className="relative hover:shadow-md transition-shadow duration-200">
+      <CardHeader className="p-3 sm:p-4 md:p-6 pb-0">
         <div className="flex items-start justify-between">
-          <div className="min-w-0 flex-1">
-            <CardTitle className="text-base sm:text-lg truncate">
+          <div className="min-w-0 flex-1 pr-2">
+            <CardTitle className="text-sm sm:text-base md:text-lg truncate mb-1">
               {archive.courses.course_name}
             </CardTitle>
             <p className="text-xs sm:text-sm text-muted-foreground truncate">
@@ -209,12 +226,18 @@ function ArchiveCard({
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-7 w-7 sm:h-8 sm:w-8 p-0 cursor-pointer">
+              <Button
+                variant="ghost"
+                className="h-7 w-7 sm:h-8 sm:w-8 p-0 cursor-pointer flex-shrink-0"
+              >
                 <MoreVertical className="h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem className="text-xs sm:text-sm cursor-pointer">
+            <DropdownMenuContent align="end" className="w-40 sm:w-48">
+              <DropdownMenuItem
+                onClick={onViewDetails}
+                className="text-xs sm:text-sm cursor-pointer"
+              >
                 <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                 View Details
               </DropdownMenuItem>
@@ -229,23 +252,23 @@ function ArchiveCard({
           </DropdownMenu>
         </div>
       </CardHeader>
-      <CardContent className="p-4 sm:p-6 pt-0 space-y-2 sm:space-y-3">
+      <CardContent className="p-3 sm:p-4 md:p-6 pt-3 sm:pt-4 space-y-2 sm:space-y-3">
         <div className="flex items-center justify-between text-xs sm:text-sm">
-          <span>Instructor</span>
-          <span className="font-medium truncate ml-2 max-w-[120px]">
+          <span className="text-muted-foreground">Instructor</span>
+          <span className="font-medium truncate ml-2 max-w-[100px] sm:max-w-[120px]">
             {archive.courses.instructor || "N/A"}
           </span>
         </div>
         <div className="flex items-center justify-between text-xs sm:text-sm">
-          <span>Credits</span>
+          <span className="text-muted-foreground">Credits</span>
           <span className="font-medium">{archive.courses.credits}</span>
         </div>
         <div className="flex items-center justify-between text-xs sm:text-sm">
-          <span>Archived</span>
+          <span className="text-muted-foreground">Archived</span>
           <span className="font-medium">{formatDate(archive.archived_at)}</span>
         </div>
         {archive.reason && (
-          <div className="text-xs sm:text-sm">
+          <div className="text-xs sm:text-sm pt-1 sm:pt-2 border-t border-border">
             <span className="text-muted-foreground">Reason: </span>
             <span className="line-clamp-2">{archive.reason}</span>
           </div>
@@ -266,19 +289,23 @@ function UnarchiveDialog({
 }) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="max-w-[95vw] sm:max-w-md">
+      <AlertDialogContent className="max-w-[90vw] sm:max-w-md mx-4 sm:mx-auto">
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-sm sm:text-base">Restore Course</AlertDialogTitle>
+          <AlertDialogTitle className="text-sm sm:text-base">
+            Restore Course
+          </AlertDialogTitle>
           <AlertDialogDescription className="text-xs sm:text-sm">
             Are you sure you want to restore this course? It will be moved back
             to your active courses.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel className="cursor-pointer text-xs sm:text-sm h-9 sm:h-10">Cancel</AlertDialogCancel>
+        <AlertDialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0">
+          <AlertDialogCancel className="cursor-pointer text-xs sm:text-sm h-9 sm:h-10 w-full sm:w-auto mt-0">
+            Cancel
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
-            className="bg-green-600 hover:bg-green-700 cursor-pointer text-xs sm:text-sm h-9 sm:h-10"
+            className="bg-green-600 hover:bg-green-700 cursor-pointer text-xs sm:text-sm h-9 sm:h-10 w-full sm:w-auto"
           >
             Restore
           </AlertDialogAction>
@@ -290,13 +317,15 @@ function UnarchiveDialog({
 
 function EmptyState({ hasSearchQuery }: { hasSearchQuery: boolean }) {
   return (
-    <div className="text-center py-8 sm:py-12">
-      <Archive className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-muted-foreground opacity-50" />
-      <h3 className="text-base sm:text-lg font-medium mb-2">No archived courses</h3>
-      <p className="text-xs sm:text-sm text-muted-foreground">
+    <div className="text-center py-8 sm:py-12 md:py-16">
+      <Archive className="h-8 w-8 sm:h-12 sm:w-12 md:h-16 md:w-16 mx-auto mb-3 sm:mb-4 text-muted-foreground opacity-50" />
+      <h3 className="text-base sm:text-lg md:text-xl font-medium mb-2">
+        {hasSearchQuery ? "No courses found" : "No archived courses"}
+      </h3>
+      <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mx-auto">
         {hasSearchQuery
-          ? "No courses match your search"
-          : "Courses you archive will appear here"}
+          ? "Try adjusting your search terms"
+          : "Courses you archive will appear here for future reference"}
       </p>
     </div>
   );
@@ -314,24 +343,32 @@ function ArchivesSkeleton() {
             <SidebarTrigger />
           </div>
           <div className="flex-1">
-            <h1 className="text-lg sm:text-xl font-semibold">Archived Courses</h1>
+            <h1 className="text-lg sm:text-xl font-semibold">
+              Archived Courses
+            </h1>
           </div>
         </div>
       </header>
-      <main className="p-4 sm:p-6 space-y-4 sm:space-y-6">
-        <div className="h-9 sm:h-10 w-full max-w-md bg-muted rounded-lg animate-pulse" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {[1, 2, 3].map((i) => (
+      <main className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
+        {/* Search Skeleton */}
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center justify-between">
+          <div className="h-9 sm:h-10 w-full sm:max-w-md bg-muted rounded-lg animate-pulse" />
+          <div className="h-4 w-20 bg-muted rounded animate-pulse" />
+        </div>
+
+        {/* Cards Skeleton */}
+        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={i}
-              className="rounded-lg border border-border bg-card p-4 sm:p-6 animate-pulse"
+              className="rounded-lg border border-border bg-card p-3 sm:p-4 md:p-6 animate-pulse"
             >
               <div className="flex items-start justify-between mb-3 sm:mb-4">
-                <div className="space-y-2 flex-1">
-                  <div className="h-5 w-32 sm:h-6 sm:w-40 bg-muted rounded" />
-                  <div className="h-3 w-24 sm:h-4 sm:w-32 bg-muted rounded" />
+                <div className="space-y-2 flex-1 pr-2">
+                  <div className="h-4 sm:h-5 w-3/4 bg-muted rounded" />
+                  <div className="h-3 sm:h-4 w-1/2 bg-muted rounded" />
                 </div>
-                <div className="h-7 w-7 sm:h-8 sm:w-8 bg-muted rounded" />
+                <div className="h-7 w-7 sm:h-8 sm:w-8 bg-muted rounded flex-shrink-0" />
               </div>
               <div className="space-y-2 sm:space-y-3">
                 <div className="flex justify-between">
@@ -373,19 +410,28 @@ function ErrorState({
             <SidebarTrigger />
           </div>
           <div className="flex-1">
-            <h1 className="text-lg sm:text-xl font-semibold">Archived Courses</h1>
+            <h1 className="text-lg sm:text-xl font-semibold">
+              Archived Courses
+            </h1>
           </div>
         </div>
       </header>
-      <main className="p-4 sm:p-6">
-        <div className="flex items-center justify-center h-64 sm:h-96">
-          <div className="text-center">
+      <main className="p-4 sm:p-6 md:p-8">
+        <div className="flex items-center justify-center h-64 sm:h-80 md:h-96">
+          <div className="text-center max-w-sm mx-auto">
             <Archive className="h-8 w-8 sm:h-12 sm:w-12 text-destructive mx-auto mb-3 sm:mb-4" />
             <h2 className="text-lg sm:text-xl font-semibold mb-2">
               Failed to load archives
             </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground mb-4">{error}</p>
-            <Button onClick={onRetry} className="cursor-pointer text-xs sm:text-sm h-9 sm:h-10">Retry</Button>
+            <p className="text-xs sm:text-sm text-muted-foreground mb-4 px-4">
+              {error}
+            </p>
+            <Button
+              onClick={onRetry}
+              className="cursor-pointer text-xs sm:text-sm h-9 sm:h-10 px-4 sm:px-6"
+            >
+              Try Again
+            </Button>
           </div>
         </div>
       </main>

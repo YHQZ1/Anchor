@@ -374,48 +374,45 @@ export default function Courses() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-14 sm:h-16 items-center gap-4 px-4 sm:px-6">
-          {/* Mobile trigger */}
+        <div className="flex h-14 items-center gap-3 px-4">
           <div className="lg:hidden">
             <MobileSidebarTrigger />
           </div>
-          {/* Desktop trigger */}
           <div className="hidden lg:block">
             <SidebarTrigger />
           </div>
           <div className="flex-1">
-            <h1 className="text-lg sm:text-xl font-semibold">Courses</h1>
+            <h1 className="text-lg font-semibold">Courses</h1>
           </div>
           <Button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 cursor-pointer transition-none text-xs sm:text-sm h-9 sm:h-10"
+            className="flex items-center gap-1 cursor-pointer text-xs h-8 px-2"
             variant={"outline"}
           >
-            <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">Add Course</span>
-            <span className="sm:hidden">Add</span>
+            <Plus className="h-3 w-3" />
+            <span className="hidden xs:inline">Add Course</span>
           </Button>
         </div>
       </header>
 
-      <main className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+      <main className="p-3 space-y-4">
         <StatsGrid stats={stats} />
 
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-          <div className="flex-1 flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg border border-input bg-background">
-            <Search className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search courses by name, code, or instructor..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground text-xs sm:text-sm"
-            />
-          </div>
+        {/* Search Bar */}
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-input bg-background">
+          <Search className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+          <Input
+            type="text"
+            placeholder="Search courses..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground text-xs"
+          />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-          <div className="lg:col-span-2 space-y-3 sm:space-y-4">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+          {/* Main Content */}
+          <div className="xl:col-span-2 space-y-3">
             {filteredCourses.length > 0 ? (
               filteredCourses.map((course) => (
                 <CourseCard
@@ -445,7 +442,10 @@ export default function Courses() {
             )}
           </div>
 
-          <Sidebar classes={classes} assignments={assignments} />
+          {/* Sidebar */}
+          <div className="space-y-4">
+            <Sidebar classes={classes} assignments={assignments} />
+          </div>
         </div>
       </main>
 
@@ -498,19 +498,23 @@ export default function Courses() {
         open={!!deleteConfirm}
         onOpenChange={() => setDeleteConfirm(null)}
       >
-        <AlertDialogContent className="max-w-[95vw] sm:max-w-md">
+        <AlertDialogContent className="max-w-[95vw] sm:max-w-md mx-2">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-sm sm:text-base">Delete Course</AlertDialogTitle>
-            <AlertDialogDescription className="text-xs sm:text-sm">
+            <AlertDialogTitle className="text-sm">
+              Delete Course
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-xs">
               Are you sure you want to delete this course? This action will also
               delete all associated classes and attendance records.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="text-xs sm:text-sm h-9 sm:h-10">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="text-xs h-9">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => deleteConfirm && handleDeleteCourse(deleteConfirm)}
-              className="bg-destructive hover:bg-destructive/90 text-xs sm:text-sm h-9 sm:h-10"
+              className="bg-destructive hover:bg-destructive/90 text-xs h-9"
             >
               Delete
             </AlertDialogAction>
@@ -522,21 +526,25 @@ export default function Courses() {
         open={!!archiveConfirm}
         onOpenChange={() => setArchiveConfirm(null)}
       >
-        <AlertDialogContent className="max-w-[95vw] sm:max-w-md">
+        <AlertDialogContent className="max-w-[95vw] sm:max-w-md mx-2">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-sm sm:text-base">Archive Course</AlertDialogTitle>
-            <AlertDialogDescription className="text-xs sm:text-sm">
+            <AlertDialogTitle className="text-sm">
+              Archive Course
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-xs">
               Are you sure you want to archive this course? Archived courses can
               be restored later.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="text-xs sm:text-sm h-9 sm:h-10">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="text-xs h-9">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={() =>
                 archiveConfirm && handleArchiveCourse(archiveConfirm)
               }
-              className="bg-purple-600 hover:bg-purple-700 text-xs sm:text-sm h-9 sm:h-10"
+              className="bg-purple-600 hover:bg-purple-700 text-xs h-9"
             >
               Archive
             </AlertDialogAction>
@@ -625,10 +633,22 @@ function getColorClass(color: string) {
 
 function getAttendanceBadge(attendance: number, threshold: number) {
   if (attendance >= threshold + 15)
-    return <Badge variant="default" className="text-xs">Excellent</Badge>;
-  if (attendance >= threshold) return <Badge variant="secondary" className="text-xs">Good</Badge>;
+    return (
+      <Badge variant="default" className="text-[10px]">
+        Excellent
+      </Badge>
+    );
+  if (attendance >= threshold)
+    return (
+      <Badge variant="secondary" className="text-[10px]">
+        Good
+      </Badge>
+    );
   return (
-    <Badge variant="destructive" className="text-white dark:text-white text-xs">
+    <Badge
+      variant="destructive"
+      className="text-white dark:text-white text-[10px]"
+    >
       At Risk
     </Badge>
   );
@@ -757,23 +777,25 @@ function calculateQuickStats(classes: Class[], assignments: Assignment[]) {
 
 function StatsGrid({ stats }: { stats: any[] }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+    <div className="grid grid-cols-2 xs:grid-cols-2 lg:grid-cols-4 gap-2">
       {stats.map((stat, index) => (
         <div
           key={index}
-          className="rounded-xl border border-border bg-card p-3 sm:p-4"
+          className="rounded-lg border border-border bg-card p-3"
         >
-          <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <div className={`p-2 sm:p-3 rounded-lg ${stat.bgColor}`}>
-              <stat.icon className={`h-4 w-4 sm:h-6 sm:w-6 ${stat.color}`} />
+          <div className="flex items-center justify-between mb-2">
+            <div className={`p-1.5 rounded-md ${stat.bgColor}`}>
+              <stat.icon className={`h-3 w-3 ${stat.color}`} />
             </div>
           </div>
           <div className="space-y-1">
-            <p className="text-xs sm:text-sm font-medium text-muted-foreground">
+            <p className="text-[10px] font-medium text-muted-foreground line-clamp-1">
               {stat.title}
             </p>
-            <p className="text-xl sm:text-2xl lg:text-3xl font-bold">{stat.value}</p>
-            <p className="text-xs text-muted-foreground">{stat.trend}</p>
+            <p className="text-sm font-bold">{stat.value}</p>
+            <p className="text-[10px] text-muted-foreground line-clamp-1">
+              {stat.trend}
+            </p>
           </div>
         </div>
       ))}
@@ -809,17 +831,23 @@ function CourseCard({
 
   return (
     <div
-      className="rounded-xl border border-border bg-card p-4 sm:p-6 hover:bg-accent/50 cursor-pointer transition-none"
+      className="rounded-lg border border-border bg-card p-3 hover:bg-accent/50 cursor-pointer transition-none"
       onClick={onView}
     >
-      <div className="flex items-start justify-between mb-3 sm:mb-4">
-        <div className="flex items-start gap-3 sm:gap-4">
-          <div className={`p-2 sm:p-3 rounded-lg ${getColorClass(course.color)}`}>
-            <BookOpen className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
+      <div className="flex items-start justify-between mb-2">
+        <div className="flex items-start gap-2 flex-1 min-w-0">
+          <div
+            className={`p-2 rounded-md ${getColorClass(
+              course.color
+            )} flex-shrink-0`}
+          >
+            <BookOpen className="h-3 w-3 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-base sm:text-lg mb-1 truncate">{course.course_name}</h3>
-            <p className="text-xs sm:text-sm text-muted-foreground">
+            <h3 className="font-semibold text-sm mb-1 truncate">
+              {course.course_name}
+            </h3>
+            <p className="text-xs text-muted-foreground">
               {course.course_code} • {course.credits} Credits
             </p>
           </div>
@@ -827,107 +855,114 @@ function CourseCard({
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-            <Button variant="ghost" className="h-7 w-7 sm:h-8 sm:w-8 p-0">
-              <MoreVertical className="h-3 w-3 sm:h-4 sm:w-4" />
+            <Button
+              variant="ghost"
+              className="h-6 w-6 p-0 cursor-pointer flex-shrink-0"
+            >
+              <MoreVertical className="h-3 w-3" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuContent align="end" className="w-40">
             <DropdownMenuItem
-              className="cursor-pointer text-xs sm:text-sm"
+              className="cursor-pointer text-xs"
               onClick={(e) => {
                 e.stopPropagation();
                 onView();
               }}
             >
-              <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+              <Eye className="h-3 w-3 mr-2" />
               View Details
             </DropdownMenuItem>
             <DropdownMenuItem
-              className="cursor-pointer text-xs sm:text-sm"
+              className="cursor-pointer text-xs"
               onClick={(e) => {
                 e.stopPropagation();
                 onEdit();
               }}
             >
-              <Edit className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+              <Edit className="h-3 w-3 mr-2" />
               Edit Course
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="cursor-pointer text-xs sm:text-sm"
+              className="cursor-pointer text-xs"
               onClick={(e) => {
                 e.stopPropagation();
                 onArchive();
               }}
             >
-              <Archive className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+              <Archive className="h-3 w-3 mr-2" />
               Archive
             </DropdownMenuItem>
             <DropdownMenuItem
-              className="cursor-pointer text-red-600 focus:text-red-600 text-xs sm:text-sm"
+              className="cursor-pointer text-red-600 focus:text-red-600 text-xs"
               onClick={(e) => {
                 e.stopPropagation();
                 onDelete();
               }}
             >
-              <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+              <Trash2 className="h-3 w-3 mr-2" />
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
-        <div className="p-2 sm:p-3 rounded-lg bg-accent">
-          <div className="flex items-center gap-1 sm:gap-2 mb-1">
-            <Users className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">Instructor</span>
+      <div className="grid grid-cols-2 gap-2 mb-2">
+        <div className="p-2 rounded-md bg-accent">
+          <div className="flex items-center gap-1 mb-1">
+            <Users className="h-3 w-3 text-muted-foreground" />
+            <span className="text-[10px] text-muted-foreground">
+              Instructor
+            </span>
           </div>
-          <p className="text-xs sm:text-sm font-medium truncate">
+          <p className="text-xs font-medium truncate">
             {course.instructor || "Not assigned"}
           </p>
         </div>
 
-        <div className="p-2 sm:p-3 rounded-lg bg-accent">
-          <div className="flex items-center gap-1 sm:gap-2 mb-1">
-            <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">Next Class</span>
+        <div className="p-2 rounded-md bg-accent">
+          <div className="flex items-center gap-1 mb-1">
+            <Clock className="h-3 w-3 text-muted-foreground" />
+            <span className="text-[10px] text-muted-foreground">
+              Next Class
+            </span>
           </div>
-          <p className="text-xs sm:text-sm font-medium truncate">{nextClass}</p>
+          <p className="text-xs font-medium truncate">{nextClass}</p>
         </div>
       </div>
 
-      <div className="space-y-2 sm:space-y-3">
+      <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-xs sm:text-sm text-muted-foreground">Attendance</span>
-          <div className="flex items-center gap-2">
-            <span className="text-xs sm:text-sm font-semibold">
+          <span className="text-xs text-muted-foreground">Attendance</span>
+          <div className="flex items-center gap-1">
+            <span className="text-xs font-semibold">
               {attendance.attendance_percentage}%
             </span>
             {getAttendanceBadge(attendance.attendance_percentage, threshold)}
           </div>
         </div>
 
-        <div className="space-y-1 sm:space-y-2">
-          <div className="flex items-center justify-between text-xs sm:text-sm">
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground">Performance</span>
             <span className="font-medium">
               {attendance.attendance_percentage}%
             </span>
           </div>
-          <Progress value={attendance.attendance_percentage} className="h-1 sm:h-2" />
+          <Progress value={attendance.attendance_percentage} className="h-1" />
         </div>
 
         <div className="flex items-center justify-between pt-2 border-t border-border">
-          <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm">
-            <div className="flex items-center gap-1 sm:gap-2">
-              <CheckSquare className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+          <div className="flex items-center gap-2 text-xs">
+            <div className="flex items-center gap-1">
+              <CheckSquare className="h-3 w-3 text-muted-foreground" />
               <span className="text-muted-foreground">
                 {courseAssignments.length} pending
               </span>
             </div>
-            <div className="flex items-center gap-1 sm:gap-2">
-              <BookOpen className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+            <div className="flex items-center gap-1">
+              <BookOpen className="h-3 w-3 text-muted-foreground" />
               <span className="text-muted-foreground">
                 {attendance.total_classes} classes
               </span>
@@ -935,10 +970,10 @@ function CourseCard({
           </div>
           <Button
             variant="ghost"
-            className="text-xs sm:text-sm font-medium text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 h-8 sm:h-9"
+            className="text-xs font-medium text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 h-6 px-2"
             onClick={onView}
           >
-            View Details →
+            View →
           </Button>
         </div>
       </div>
@@ -957,57 +992,59 @@ function Sidebar({
   const quickStats = calculateQuickStats(classes, assignments);
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-4">
       <Card>
-        <CardHeader className="p-4 sm:p-6">
-          <CardTitle className="text-base sm:text-lg">Today's Schedule</CardTitle>
+        <CardHeader className="p-3">
+          <CardTitle className="text-base">Today's Schedule</CardTitle>
         </CardHeader>
-        <CardContent className="p-4 sm:p-6 pt-0 space-y-3 sm:space-y-4">
+        <CardContent className="p-3 pt-0 space-y-2">
           {upcomingClasses.length > 0 ? (
             upcomingClasses.map((cls, index) => (
               <div
                 key={index}
-                className="p-3 sm:p-4 rounded-lg border border-border bg-accent"
+                className="p-2 rounded border border-border bg-accent"
               >
-                <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-medium text-sm sm:text-base">{cls.course}</h3>
-                  <Badge variant="secondary" className="text-xs">{cls.type}</Badge>
+                <div className="flex items-start justify-between mb-1">
+                  <h3 className="font-medium text-xs">{cls.course}</h3>
+                  <Badge variant="secondary" className="text-[10px]">
+                    {cls.type}
+                  </Badge>
                 </div>
-                <div className="space-y-1 text-xs sm:text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
+                <div className="space-y-1 text-[10px] text-muted-foreground">
+                  <div className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
                     <span>{cls.time}</span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
-                    <span>{cls.room}</span>
+                    <span className="truncate">{cls.room}</span>
                   </div>
                 </div>
-                <div className="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-border text-xs font-medium text-purple-600 dark:text-purple-400">
+                <div className="mt-2 pt-2 border-t border-border text-[10px] font-medium text-purple-600 dark:text-purple-400">
                   Starts {cls.in}
                 </div>
               </div>
             ))
           ) : (
-            <div className="text-center py-6 sm:py-8 text-muted-foreground">
-              <Calendar className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 opacity-50" />
-              <p className="text-xs sm:text-sm">No classes today</p>
+            <div className="text-center py-4 text-muted-foreground">
+              <Calendar className="h-5 w-5 mx-auto mb-1 opacity-50" />
+              <p className="text-xs">No classes today</p>
             </div>
           )}
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader className="p-4 sm:p-6">
-          <CardTitle className="text-base sm:text-lg">Quick Stats</CardTitle>
+        <CardHeader className="p-3">
+          <CardTitle className="text-base">Quick Stats</CardTitle>
         </CardHeader>
-        <CardContent className="p-4 sm:p-6 pt-0 space-y-3 sm:space-y-4">
-          <div className="p-3 sm:p-4 rounded-lg bg-accent">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs sm:text-sm text-muted-foreground">
+        <CardContent className="p-3 pt-0 space-y-2">
+          <div className="p-2 rounded bg-accent">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs text-muted-foreground">
                 Classes Today
               </span>
-              <span className="font-semibold">
+              <span className="font-semibold text-sm">
                 {quickStats.classesThisWeek}
               </span>
             </div>
@@ -1015,30 +1052,36 @@ function Sidebar({
               value={
                 (quickStats.classesThisWeek / Math.max(classes.length, 1)) * 100
               }
-              className="h-1 sm:h-2"
+              className="h-1"
             />
           </div>
 
-          <div className="p-3 sm:p-4 rounded-lg bg-accent">
+          <div className="p-2 rounded bg-accent">
             <div className="flex items-center justify-between">
-              <span className="text-xs sm:text-sm text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 Assignments Due
               </span>
-              <span className="font-semibold text-purple-600 dark:text-purple-400">
+              <span className="font-semibold text-sm text-purple-600 dark:text-purple-400">
                 {quickStats.assignmentsDue}
               </span>
             </div>
-            <p className="text-xs mt-1 text-muted-foreground">This week</p>
+            <p className="text-[10px] mt-0.5 text-muted-foreground">
+              This week
+            </p>
           </div>
 
-          <div className="p-3 sm:p-4 rounded-lg bg-accent">
+          <div className="p-2 rounded bg-accent">
             <div className="flex items-center justify-between">
-              <span className="text-xs sm:text-sm text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 Recommended Study
               </span>
-              <span className="font-semibold">{quickStats.studyHours}h</span>
+              <span className="font-semibold text-sm">
+                {quickStats.studyHours}h
+              </span>
             </div>
-            <p className="text-xs mt-1 text-muted-foreground">This week</p>
+            <p className="text-[10px] mt-0.5 text-muted-foreground">
+              This week
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -1054,15 +1097,15 @@ function EmptyState({
   hasSearchQuery: boolean;
 }) {
   return (
-    <div className="text-center py-8 sm:py-12">
-      <BookOpen className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-muted-foreground opacity-50" />
-      <h3 className="text-base sm:text-lg font-medium mb-2">No courses found</h3>
-      <p className="text-xs sm:text-sm text-muted-foreground mb-4">
+    <div className="text-center py-6">
+      <BookOpen className="h-6 w-6 mx-auto mb-2 text-muted-foreground opacity-50" />
+      <h3 className="text-sm font-medium mb-1">No courses found</h3>
+      <p className="text-xs text-muted-foreground mb-3">
         {hasSearchQuery
           ? "Try adjusting your search terms"
           : "Get started by adding your first course"}
       </p>
-      <Button onClick={onAddCourse} className="px-4 py-2 cursor-pointer text-xs sm:text-sm h-9 sm:h-10">
+      <Button onClick={onAddCourse} className="cursor-pointer text-xs h-8">
         Add Your First Course
       </Button>
     </div>
@@ -1083,25 +1126,25 @@ function CourseModal({
   onChange: (course: any) => void;
 }) {
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-3 sm:p-4 z-50">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-3 z-50">
       <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <CardHeader className="p-4 sm:p-6">
+        <CardHeader className="p-4">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg sm:text-xl">{title}</CardTitle>
+            <CardTitle className="text-lg">{title}</CardTitle>
             <Button
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="cursor-pointer h-8 w-8 sm:h-9 sm:w-9 p-0"
+              className="cursor-pointer h-8 w-8 p-0"
             >
-              <X className="h-4 w-4 sm:h-5 sm:w-5" />
+              <X className="h-4 w-4" />
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="p-4 sm:p-6 pt-0">
-          <form onSubmit={onSubmit} className="space-y-3 sm:space-y-4">
+        <CardContent className="p-4 pt-0">
+          <form onSubmit={onSubmit} className="space-y-3">
             <div>
-              <Label className="mb-2 text-xs sm:text-sm">Course Code</Label>
+              <Label className="mb-2 text-xs">Course Code</Label>
               <Input
                 type="text"
                 required
@@ -1110,11 +1153,11 @@ function CourseModal({
                   onChange({ ...course, course_code: e.target.value })
                 }
                 placeholder="e.g., CS 301"
-                className="text-xs sm:text-sm"
+                className="text-xs"
               />
             </div>
             <div>
-              <Label className="mb-2 text-xs sm:text-sm">Course Name</Label>
+              <Label className="mb-2 text-xs">Course Name</Label>
               <Input
                 type="text"
                 required
@@ -1123,11 +1166,11 @@ function CourseModal({
                   onChange({ ...course, course_name: e.target.value })
                 }
                 placeholder="e.g., Data Structures & Algorithms"
-                className="text-xs sm:text-sm"
+                className="text-xs"
               />
             </div>
             <div>
-              <Label className="mb-2 text-xs sm:text-sm">Instructor</Label>
+              <Label className="mb-2 text-xs">Instructor</Label>
               <Input
                 type="text"
                 value={course.instructor}
@@ -1135,23 +1178,27 @@ function CourseModal({
                   onChange({ ...course, instructor: e.target.value })
                 }
                 placeholder="e.g., Dr. Sarah Johnson"
-                className="text-xs sm:text-sm"
+                className="text-xs"
               />
             </div>
             <div>
-              <Label className="mb-2 text-xs sm:text-sm">Credits</Label>
+              <Label className="mb-2 text-xs">Credits</Label>
               <Select
                 value={course.credits.toString()}
                 onValueChange={(value) =>
                   onChange({ ...course, credits: parseInt(value) })
                 }
               >
-                <SelectTrigger className="text-xs sm:text-sm h-9 sm:h-10">
+                <SelectTrigger className="text-xs h-9">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {[1, 2, 3, 4, 5].map((credit) => (
-                    <SelectItem key={credit} value={credit.toString()} className="text-xs sm:text-sm">
+                    <SelectItem
+                      key={credit}
+                      value={credit.toString()}
+                      className="text-xs"
+                    >
                       {credit} credit{credit !== 1 ? "s" : ""}
                     </SelectItem>
                   ))}
@@ -1159,37 +1206,56 @@ function CourseModal({
               </Select>
             </div>
             <div>
-              <Label className="mb-2 text-xs sm:text-sm">Color</Label>
+              <Label className="mb-2 text-xs">Color</Label>
               <Select
                 value={course.color}
                 onValueChange={(value) => onChange({ ...course, color: value })}
               >
-                <SelectTrigger className="text-xs sm:text-sm h-9 sm:h-10">
+                <SelectTrigger className="text-xs h-9">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="purple" className="text-xs sm:text-sm">Purple</SelectItem>
-                  <SelectItem value="blue" className="text-xs sm:text-sm">Blue</SelectItem>
-                  <SelectItem value="green" className="text-xs sm:text-sm">Green</SelectItem>
-                  <SelectItem value="yellow" className="text-xs sm:text-sm">Yellow</SelectItem>
-                  <SelectItem value="red" className="text-xs sm:text-sm">Red</SelectItem>
-                  <SelectItem value="indigo" className="text-xs sm:text-sm">Indigo</SelectItem>
-                  <SelectItem value="pink" className="text-xs sm:text-sm">Pink</SelectItem>
-                  <SelectItem value="orange" className="text-xs sm:text-sm">Orange</SelectItem>
+                  <SelectItem value="purple" className="text-xs">
+                    Purple
+                  </SelectItem>
+                  <SelectItem value="blue" className="text-xs">
+                    Blue
+                  </SelectItem>
+                  <SelectItem value="green" className="text-xs">
+                    Green
+                  </SelectItem>
+                  <SelectItem value="yellow" className="text-xs">
+                    Yellow
+                  </SelectItem>
+                  <SelectItem value="red" className="text-xs">
+                    Red
+                  </SelectItem>
+                  <SelectItem value="indigo" className="text-xs">
+                    Indigo
+                  </SelectItem>
+                  <SelectItem value="pink" className="text-xs">
+                    Pink
+                  </SelectItem>
+                  <SelectItem value="orange" className="text-xs">
+                    Orange
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </form>
         </CardContent>
-        <CardFooter className="p-4 sm:p-6 pt-0 flex gap-2">
+        <CardFooter className="p-4 pt-0 flex gap-2">
           <Button
             variant="outline"
-            className="flex-1 cursor-pointer text-xs sm:text-sm h-9 sm:h-10"
+            className="flex-1 cursor-pointer text-xs h-9"
             onClick={onClose}
           >
             Cancel
           </Button>
-          <Button className="flex-1 cursor-pointer text-xs sm:text-sm h-9 sm:h-10" onClick={onSubmit}>
+          <Button
+            className="flex-1 cursor-pointer text-xs h-9"
+            onClick={onSubmit}
+          >
             {title.includes("Add") ? "Add Course" : "Save Changes"}
           </Button>
         </CardFooter>
@@ -1218,104 +1284,106 @@ function CourseDetailsModal({
   const courseClasses = getCourseClasses(course.course_code, classes);
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-3 sm:p-4 z-50">
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <CardHeader className="p-4 sm:p-6">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-3 z-50">
+      <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <CardHeader className="p-4">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg sm:text-xl">Course Details</CardTitle>
+            <CardTitle className="text-lg">Course Details</CardTitle>
             <Button
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="cursor-pointer h-8 w-8 sm:h-9 sm:w-9 p-0"
+              className="cursor-pointer h-8 w-8 p-0"
             >
-              <X className="h-4 w-4 sm:h-5 sm:w-5" />
+              <X className="h-4 w-4" />
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="p-4 sm:p-6 pt-0 space-y-4 sm:space-y-6">
-          <div className="flex items-start gap-3 sm:gap-4">
-            <div className={`p-3 sm:p-4 rounded-lg ${getColorClass(course.color)}`}>
-              <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+        <CardContent className="p-4 pt-0 space-y-3">
+          <div className="flex items-start gap-3">
+            <div className={`p-3 rounded-lg ${getColorClass(course.color)}`}>
+              <BookOpen className="h-5 w-5 text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-xl sm:text-2xl font-bold mb-2 truncate">{course.course_name}</h3>
-              <p className="text-base sm:text-lg text-muted-foreground">
+              <h3 className="text-lg font-bold mb-1 truncate">
+                {course.course_name}
+              </h3>
+              <p className="text-sm text-muted-foreground">
                 {course.course_code}
               </p>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 {course.credits} Credits •{" "}
                 {course.instructor || "No instructor assigned"}
               </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-            <div className="p-3 sm:p-4 rounded-lg bg-accent text-center">
-              <BarChart3 className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-2 text-purple-600" />
-              <p className="text-xl sm:text-2xl font-bold">
+          <div className="grid grid-cols-2 gap-2">
+            <div className="p-2 rounded bg-accent text-center">
+              <BarChart3 className="h-4 w-4 mx-auto mb-1 text-purple-600" />
+              <p className="text-lg font-bold">
                 {attendance.attendance_percentage}%
               </p>
-              <p className="text-xs sm:text-sm text-muted-foreground">Attendance</p>
+              <p className="text-xs text-muted-foreground">Attendance</p>
             </div>
-            <div className="p-3 sm:p-4 rounded-lg bg-accent text-center">
-              <CheckSquare className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-2 text-purple-600" />
-              <p className="text-xl sm:text-2xl font-bold">{courseAssignments.length}</p>
-              <p className="text-xs sm:text-sm text-muted-foreground">Pending Tasks</p>
+            <div className="p-2 rounded bg-accent text-center">
+              <CheckSquare className="h-4 w-4 mx-auto mb-1 text-purple-600" />
+              <p className="text-lg font-bold">{courseAssignments.length}</p>
+              <p className="text-xs text-muted-foreground">Pending Tasks</p>
             </div>
-            <div className="p-3 sm:p-4 rounded-lg bg-accent text-center">
-              <Calendar className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-2 text-purple-600" />
-              <p className="text-xl sm:text-2xl font-bold">{courseClasses.length}</p>
-              <p className="text-xs sm:text-sm text-muted-foreground">Weekly Classes</p>
+            <div className="p-2 rounded bg-accent text-center">
+              <Calendar className="h-4 w-4 mx-auto mb-1 text-purple-600" />
+              <p className="text-lg font-bold">{courseClasses.length}</p>
+              <p className="text-xs text-muted-foreground">Weekly Classes</p>
             </div>
-            <div className="p-3 sm:p-4 rounded-lg bg-accent text-center">
-              <FileText className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-2 text-purple-600" />
-              <p className="text-xl sm:text-2xl font-bold">{attendance.total_classes}</p>
-              <p className="text-xs sm:text-sm text-muted-foreground">Total Classes</p>
+            <div className="p-2 rounded bg-accent text-center">
+              <FileText className="h-4 w-4 mx-auto mb-1 text-purple-600" />
+              <p className="text-lg font-bold">{attendance.total_classes}</p>
+              <p className="text-xs text-muted-foreground">Total Classes</p>
             </div>
           </div>
 
           <div>
-            <h4 className="font-semibold mb-2 sm:mb-3 text-sm sm:text-base">Attendance Breakdown</h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 text-center">
-              <div className="p-2 sm:p-3 rounded-lg bg-green-100 dark:bg-green-500/10">
-                <p className="text-lg sm:text-2xl font-bold text-green-600">
+            <h4 className="font-semibold mb-2 text-sm">Attendance Breakdown</h4>
+            <div className="grid grid-cols-2 gap-2 text-center">
+              <div className="p-2 rounded bg-green-100 dark:bg-green-500/10">
+                <p className="text-base font-bold text-green-600">
                   {attendance.present}
                 </p>
-                <p className="text-xs sm:text-sm text-muted-foreground">Present</p>
+                <p className="text-xs text-muted-foreground">Present</p>
               </div>
-              <div className="p-2 sm:p-3 rounded-lg bg-red-100 dark:bg-red-500/10">
-                <p className="text-lg sm:text-2xl font-bold text-red-600">
+              <div className="p-2 rounded bg-red-100 dark:bg-red-500/10">
+                <p className="text-base font-bold text-red-600">
                   {attendance.absent}
                 </p>
-                <p className="text-xs sm:text-sm text-muted-foreground">Absent</p>
+                <p className="text-xs text-muted-foreground">Absent</p>
               </div>
-              <div className="p-2 sm:p-3 rounded-lg bg-yellow-100 dark:bg-yellow-500/10">
-                <p className="text-lg sm:text-2xl font-bold text-yellow-600">
+              <div className="p-2 rounded bg-yellow-100 dark:bg-yellow-500/10">
+                <p className="text-base font-bold text-yellow-600">
                   {attendance.late}
                 </p>
-                <p className="text-xs sm:text-sm text-muted-foreground">Late</p>
+                <p className="text-xs text-muted-foreground">Late</p>
               </div>
-              <div className="p-2 sm:p-3 rounded-lg bg-blue-100 dark:bg-blue-500/10">
-                <p className="text-lg sm:text-2xl font-bold text-blue-600">
+              <div className="p-2 rounded bg-blue-100 dark:bg-blue-500/10">
+                <p className="text-base font-bold text-blue-600">
                   {attendance.excused}
                 </p>
-                <p className="text-xs sm:text-sm text-muted-foreground">Excused</p>
+                <p className="text-xs text-muted-foreground">Excused</p>
               </div>
             </div>
           </div>
 
           <div>
-            <h4 className="font-semibold mb-2 sm:mb-3 text-sm sm:text-base">Class Schedule</h4>
+            <h4 className="font-semibold mb-2 text-sm">Class Schedule</h4>
             <div className="space-y-2">
               {courseClasses.length > 0 ? (
                 courseClasses.map((cls, index) => (
                   <div
                     key={index}
-                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-2 sm:p-3 rounded-lg bg-accent gap-2 sm:gap-0"
+                    className="flex flex-col p-2 rounded bg-accent gap-1"
                   >
                     <div className="flex-1">
-                      <p className="font-medium text-sm sm:text-base">
+                      <p className="font-medium text-xs">
                         {
                           [
                             "Sunday",
@@ -1328,36 +1396,41 @@ function CourseDetailsModal({
                           ][cls.day_of_week]
                         }
                       </p>
-                      <p className="text-xs sm:text-sm text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         {formatTime(cls.start_time)} -{" "}
                         {formatTime(cls.end_time)}
                       </p>
                     </div>
-                    <div className="text-left sm:text-right">
-                      <Badge variant="secondary" className="text-xs">{cls.class_type}</Badge>
-                      <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                    <div className="text-left">
+                      <Badge variant="secondary" className="text-[10px]">
+                        {cls.class_type}
+                      </Badge>
+                      <p className="text-xs text-muted-foreground mt-0.5">
                         {cls.room}
                       </p>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="text-muted-foreground text-center py-4 text-xs sm:text-sm">
+                <p className="text-muted-foreground text-center py-3 text-xs">
                   No classes scheduled
                 </p>
               )}
             </div>
           </div>
         </CardContent>
-        <CardFooter className="p-4 sm:p-6 pt-0 flex gap-2">
+        <CardFooter className="p-4 pt-0 flex gap-2">
           <Button
             variant="outline"
-            className="flex-1 cursor-pointer text-xs sm:text-sm h-9 sm:h-10"
+            className="flex-1 cursor-pointer text-xs h-9"
             onClick={onClose}
           >
             Close
           </Button>
-          <Button className="flex-1 cursor-pointer text-xs sm:text-sm h-9 sm:h-10" onClick={onEdit}>
+          <Button
+            className="flex-1 cursor-pointer text-xs h-9"
+            onClick={onEdit}
+          >
             Edit Course
           </Button>
         </CardFooter>
@@ -1370,60 +1443,60 @@ function CoursesSkeleton() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-14 sm:h-16 items-center gap-4 px-4 sm:px-6">
+        <div className="flex h-14 items-center gap-3 px-4">
           <div className="lg:hidden">
-            <Skeleton className="w-7 h-7 sm:w-8 sm:h-8 rounded" />
+            <Skeleton className="w-7 h-7 rounded" />
           </div>
           <div className="hidden lg:block">
-            <Skeleton className="w-7 h-7 sm:w-8 sm:h-8 rounded" />
+            <Skeleton className="w-7 h-7 rounded" />
           </div>
           <div className="flex-1">
-            <Skeleton className="h-5 w-24 sm:h-6 sm:w-32 rounded" />
+            <Skeleton className="h-5 w-20 rounded" />
           </div>
-          <Skeleton className="h-9 w-16 sm:h-10 sm:w-32 rounded" />
+          <Skeleton className="h-8 w-16 rounded" />
         </div>
       </header>
-      <main className="p-4 sm:p-6 space-y-4 sm:space-y-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <main className="p-3 space-y-4">
+        <div className="grid grid-cols-2 xs:grid-cols-2 lg:grid-cols-4 gap-2">
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="rounded-xl border border-border bg-card p-3 sm:p-4"
+              className="rounded-lg border border-border bg-card p-3"
             >
-              <div className="flex items-center justify-between mb-3 sm:mb-4">
-                <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg" />
+              <div className="flex items-center justify-between mb-2">
+                <Skeleton className="w-6 h-6 rounded-md" />
               </div>
-              <div className="space-y-2">
-                <Skeleton className="h-3 w-20 sm:h-4 sm:w-24 rounded" />
-                <Skeleton className="h-6 w-12 sm:h-8 sm:w-16 rounded" />
-                <Skeleton className="h-2 w-24 sm:h-3 sm:w-32 rounded" />
+              <div className="space-y-1">
+                <Skeleton className="h-3 w-12 rounded" />
+                <Skeleton className="h-4 w-8 rounded" />
+                <Skeleton className="h-2 w-16 rounded" />
               </div>
             </div>
           ))}
         </div>
-        <Skeleton className="h-9 sm:h-10 w-full rounded-lg" />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-          <div className="lg:col-span-2 space-y-3 sm:space-y-4">
+        <Skeleton className="h-9 w-full rounded" />
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+          <div className="xl:col-span-2 space-y-3">
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="rounded-xl border border-border bg-card p-4 sm:p-6"
+                className="rounded-lg border border-border bg-card p-3"
               >
-                <div className="flex items-start justify-between mb-3 sm:mb-4">
-                  <div className="flex items-start gap-3 sm:gap-4">
-                    <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg" />
-                    <div className="flex-1 space-y-2 min-w-0">
-                      <Skeleton className="h-5 w-32 sm:h-6 sm:w-48 rounded" />
-                      <Skeleton className="h-3 w-24 sm:h-4 sm:w-32 rounded" />
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-start gap-2">
+                    <Skeleton className="w-8 h-8 rounded-md" />
+                    <div className="flex-1 space-y-1 min-w-0">
+                      <Skeleton className="h-4 w-24 rounded" />
+                      <Skeleton className="h-3 w-20 rounded" />
                     </div>
                   </div>
-                  <Skeleton className="w-7 h-7 sm:w-8 sm:h-8 rounded" />
+                  <Skeleton className="w-6 h-6 rounded" />
                 </div>
-                <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
-                  <Skeleton className="h-12 sm:h-16 rounded-lg" />
-                  <Skeleton className="h-12 sm:h-16 rounded-lg" />
+                <div className="grid grid-cols-2 gap-2 mb-2">
+                  <Skeleton className="h-10 rounded" />
+                  <Skeleton className="h-10 rounded" />
                 </div>
-                <div className="space-y-2 sm:space-y-3">
+                <div className="space-y-1">
                   <Skeleton className="h-3 w-full rounded" />
                   <Skeleton className="h-1 w-full rounded" />
                   <Skeleton className="h-3 w-3/4 rounded" />
@@ -1431,9 +1504,9 @@ function CoursesSkeleton() {
               </div>
             ))}
           </div>
-          <div className="space-y-4 sm:space-y-6">
-            <Skeleton className="h-48 sm:h-64 rounded-xl" />
-            <Skeleton className="h-48 sm:h-64 rounded-xl" />
+          <div className="space-y-4">
+            <Skeleton className="h-40 rounded-lg" />
+            <Skeleton className="h-40 rounded-lg" />
           </div>
         </div>
       </main>
@@ -1451,7 +1524,7 @@ function ErrorState({
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-14 sm:h-16 items-center gap-4 px-4 sm:px-6">
+        <div className="flex h-14 items-center gap-3 px-4">
           <div className="lg:hidden">
             <MobileSidebarTrigger />
           </div>
@@ -1459,19 +1532,19 @@ function ErrorState({
             <SidebarTrigger />
           </div>
           <div className="flex-1">
-            <h1 className="text-lg sm:text-xl font-semibold">Courses</h1>
+            <h1 className="text-lg font-semibold">Courses</h1>
           </div>
         </div>
       </header>
-      <main className="p-4 sm:p-6">
-        <div className="flex items-center justify-center h-64 sm:h-96">
+      <main className="p-4">
+        <div className="flex items-center justify-center h-48">
           <div className="text-center">
-            <AlertCircle className="h-8 w-8 sm:h-12 sm:w-12 text-destructive mx-auto mb-3 sm:mb-4" />
-            <h2 className="text-lg sm:text-xl font-semibold mb-2">Failed to load data</h2>
-            <p className="text-xs sm:text-sm text-muted-foreground mb-4">{error}</p>
+            <AlertCircle className="h-6 w-6 text-destructive mx-auto mb-2" />
+            <h2 className="text-sm font-semibold mb-1">Failed to load data</h2>
+            <p className="text-xs text-muted-foreground mb-3">{error}</p>
             <button
               onClick={onRetry}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 text-xs sm:text-sm h-9 sm:h-10"
+              className="px-3 py-1.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 text-xs h-8"
             >
               Retry
             </button>

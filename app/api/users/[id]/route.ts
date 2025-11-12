@@ -6,11 +6,12 @@ import redis from '@/lib/redis'
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const resolvedParams = await params
+  const targetUserId = resolvedParams.id
+  
   return withAuth(async (request, user) => {
-    const targetUserId = params.id
-    
     if (user.id !== targetUserId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }

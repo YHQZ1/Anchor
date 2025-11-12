@@ -159,8 +159,17 @@ export default function OnboardingWizard() {
 
   if (!mounted) return null;
 
-  const totalVisibleSteps = hasUploadedTimetable ? 3 : 5;
-  const progress = (currentStep / totalVisibleSteps) * 100;
+  const getTotalSteps = () => (hasUploadedTimetable ? 3 : 5);
+  const getCurrentStepNumber = () => {
+    if (hasUploadedTimetable) {
+      return currentStep === 5 ? 3 : currentStep;
+    }
+    return currentStep;
+  };
+
+  const totalSteps = getTotalSteps();
+  const currentStepNumber = getCurrentStepNumber();
+  const progress = (currentStepNumber / totalSteps) * 100;
 
   const steps = [
     { number: 1, title: "Academic Profile", icon: GraduationCap },
@@ -175,7 +184,7 @@ export default function OnboardingWizard() {
 
     if (currentStep === 2 && hasUploadedTimetable) {
       setCurrentStep(5);
-    } else {
+    } else if (currentStep < 5) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -185,7 +194,7 @@ export default function OnboardingWizard() {
 
     if (currentStep === 5 && hasUploadedTimetable) {
       setCurrentStep(2);
-    } else {
+    } else if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
   };
@@ -469,12 +478,18 @@ export default function OnboardingWizard() {
     return colors[Math.floor(Math.random() * colors.length)];
   };
 
-  const visibleSteps = steps.filter((step) => {
-    if (hasUploadedTimetable) {
-      return step.number === 1 || step.number === 2 || step.number === 5;
-    }
-    return true;
-  });
+  const visibleSteps = steps
+    .filter((step) => {
+      if (hasUploadedTimetable) {
+        return step.number === 1 || step.number === 2 || step.number === 5;
+      }
+      return true;
+    })
+    .map((step) => ({
+      ...step,
+      displayNumber:
+        hasUploadedTimetable && step.number === 5 ? 3 : step.number,
+    }));
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
@@ -489,7 +504,7 @@ export default function OnboardingWizard() {
             </p>
           </div>
           <Badge variant="secondary" className="text-xs sm:text-sm">
-            Step {currentStep} of {visibleSteps.length}
+            Step {currentStepNumber} of {totalSteps}
           </Badge>
         </div>
 
@@ -582,7 +597,7 @@ export default function OnboardingWizard() {
             Back
           </Button>
 
-          {currentStep < totalVisibleSteps ? (
+          {currentStepNumber < totalSteps ? (
             <Button
               onClick={handleNextStep}
               className="cursor-pointer text-xs sm:text-sm"

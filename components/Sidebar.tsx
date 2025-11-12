@@ -472,7 +472,7 @@ export function AppSidebar() {
       <aside
         className={`lg:hidden fixed left-0 top-0 z-50 h-screen bg-sidebar border-sidebar-border border-r transition-transform duration-300 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
-        } w-full max-w-[280px]`}
+        } w-full max-w-[280px] pb-[env(safe-area-inset-bottom)]`}
       >
         <div className="flex flex-col h-full">{sidebarContent}</div>
       </aside>

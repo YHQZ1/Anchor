@@ -123,11 +123,8 @@ export default function PagesLayout({ children }: { children: ReactNode }) {
       ) : (
         <SidebarLayout>
           {isLoading ? (
-            <div className="flex-1 flex items-center justify-center h-full">
-              <div className="flex flex-col items-center gap-4">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                <p className="text-foreground">Loading page...</p>
-              </div>
+            <div className="flex-1">
+              {/* Empty state - DashboardSkeleton will handle the loading UI */}
             </div>
           ) : (
             children

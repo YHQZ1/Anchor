@@ -364,11 +364,7 @@ export function AppSidebar() {
               }`}
             >
               <item.icon className="h-5 w-5 shrink-0" />
-              {open && (
-                <span className="truncate text-sm">
-                  {item.title}
-                </span>
-              )}
+              {open && <span className="truncate text-sm">{item.title}</span>}
             </Link>
           ))}
         </nav>
@@ -381,9 +377,7 @@ export function AppSidebar() {
               <User2 className="h-5 w-5 shrink-0" />
               {open && (
                 <div className="flex-1 truncate">
-                  <div className="font-medium text-sm">
-                    {userData.name}
-                  </div>
+                  <div className="font-medium text-sm">{userData.name}</div>
                   <div className="text-xs text-sidebar-foreground/60 truncate">
                     {userData.email}
                   </div>
@@ -396,17 +390,10 @@ export function AppSidebar() {
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="cursor-pointer transition-none text-sm"
-              onClick={() => router.push("/settings")}
+              onClick={() => router.push("/profile")}
             >
               <User className="h-4 w-4 mr-2" />
               View Profile
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="cursor-pointer transition-none text-sm"
-              onClick={() => router.push("/settings?section=account")}
-            >
-              <Settings className="h-4 w-4 mr-2" />
-              Profile Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
@@ -435,7 +422,10 @@ export function AppSidebar() {
               {open && <span className="text-sm">Logout</span>}
             </button>
           </AlertDialogTrigger>
-          <AlertDialogContent className="max-w-[95vw] w-[400px] mx-4" onOpenAutoFocus={(e) => e.preventDefault()}>
+          <AlertDialogContent
+            className="max-w-[95vw] w-[400px] mx-4"
+            onOpenAutoFocus={(e) => e.preventDefault()}
+          >
             <AlertDialogHeader>
               <AlertDialogTitle>
                 Are you sure you want to log out?
@@ -474,9 +464,7 @@ export function AppSidebar() {
           open ? "w-64" : "w-16"
         }`}
       >
-        <div className="flex flex-col h-full">
-          {sidebarContent}
-        </div>
+        <div className="flex flex-col h-full">{sidebarContent}</div>
       </aside>
 
       <aside
@@ -484,9 +472,7 @@ export function AppSidebar() {
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         } w-full max-w-[280px]`}
       >
-        <div className="flex flex-col h-full">
-          {sidebarContent}
-        </div>
+        <div className="flex flex-col h-full">{sidebarContent}</div>
       </aside>
     </>
   );
@@ -503,9 +489,7 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
           open ? "lg:ml-64" : "lg:ml-16"
         } ${mobileOpen ? "ml-0 lg:ml-0" : "ml-0"}`}
       >
-        <div className="px-2 sm:px-4 w-full">
-          {children}
-        </div>
+        <div className="px-2 sm:px-4 w-full">{children}</div>
       </main>
     </div>
   );

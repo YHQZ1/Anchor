@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -13,6 +14,7 @@ import {
   Upload,
   Plus,
   Trash2,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -53,11 +55,32 @@ interface ClassSchedule {
   type: string;
 }
 
+interface OnboardingData {
+  academicInfo: {
+    fullName: string;
+    studentId: string;
+    collegeName: string;
+    department: string;
+    currentSemester: string;
+    expectedGraduation: string | Date;
+  };
+  courses: Course[];
+  classSchedule: ClassSchedule[];
+  attendancePrefs: any;
+  hasUploadedTimetable: boolean;
+  timetableUploadId?: string;
+  currentStep: number;
+}
+
 export default function OnboardingWizard() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [hasUploadedTimetable, setHasUploadedTimetable] = useState(false);
+  const [timetableUploadId, setTimetableUploadId] = useState<
+    string | undefined
+  >();
 
   const [academicInfo, setAcademicInfo] = useState({
     fullName: "",
@@ -88,12 +111,82 @@ export default function OnboardingWizard() {
     enableWarnings: true,
   });
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    setMounted(true);
+    loadFromLocalStorage();
+  }, []);
+
+  const saveToLocalStorage = () => {
+    const onboardingData: OnboardingData = {
+      academicInfo,
+      courses,
+      classSchedule,
+      attendancePrefs,
+      hasUploadedTimetable,
+      timetableUploadId,
+      currentStep,
+    };
+    localStorage.setItem("onboarding_data", JSON.stringify(onboardingData));
+  };
+
+  const loadFromLocalStorage = () => {
+    const saved = localStorage.getItem("onboarding_data");
+    if (saved) {
+      const data: OnboardingData = JSON.parse(saved);
+      const onboardingData = {
+        ...data,
+        academicInfo: {
+          ...data.academicInfo,
+          expectedGraduation: new Date(data.academicInfo.expectedGraduation),
+        },
+      };
+
+      setAcademicInfo(onboardingData.academicInfo);
+      setCourses(onboardingData.courses);
+      setClassSchedule(onboardingData.classSchedule);
+      setAttendancePrefs(onboardingData.attendancePrefs);
+      setHasUploadedTimetable(onboardingData.hasUploadedTimetable);
+      setTimetableUploadId(onboardingData.timetableUploadId);
+      setCurrentStep(onboardingData.currentStep);
+    }
+  };
+
+  const clearLocalStorage = () => {
+    localStorage.removeItem("onboarding_data");
+  };
 
   if (!mounted) return null;
 
-  const totalSteps = 4;
-  const progress = (currentStep / totalSteps) * 100;
+  const totalVisibleSteps = hasUploadedTimetable ? 3 : 5;
+  const progress = (currentStep / totalVisibleSteps) * 100;
+
+  const steps = [
+    { number: 1, title: "Academic Profile", icon: GraduationCap },
+    { number: 2, title: "Timetable", icon: FileText },
+    { number: 3, title: "Courses", icon: BookOpen },
+    { number: 4, title: "Schedule", icon: CalendarIcon },
+    { number: 5, title: "Preferences", icon: Settings },
+  ];
+
+  const handleNextStep = () => {
+    saveToLocalStorage();
+
+    if (currentStep === 2 && hasUploadedTimetable) {
+      setCurrentStep(5);
+    } else {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const handleBackStep = () => {
+    saveToLocalStorage();
+
+    if (currentStep === 5 && hasUploadedTimetable) {
+      setCurrentStep(2);
+    } else {
+      setCurrentStep(currentStep - 1);
+    }
+  };
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -102,17 +195,23 @@ export default function OnboardingWizard() {
 
       const token = localStorage.getItem("jwtToken");
       if (!token) {
-        toast.error("Authentication required", {
-          description: "Please log in again",
-        });
+        toast.error("Authentication required");
         return;
       }
 
-      const loadingToast = toast.loading("Saving your profile and courses...");
+      const loadingToast = toast.loading("Saving your profile...");
 
       await saveProfile(token);
-      const successfulCourses = await saveCourses(token);
-      await saveClasses(token, successfulCourses);
+
+      let successfulCourses = [];
+      if (!hasUploadedTimetable) {
+        successfulCourses = await saveCourses(token);
+      }
+
+      const timetableUploadIdToUse = hasUploadedTimetable
+        ? timetableUploadId
+        : undefined;
+      await saveClasses(token, successfulCourses, timetableUploadIdToUse);
 
       toast.dismiss(loadingToast);
       showSuccessMessage(
@@ -120,15 +219,13 @@ export default function OnboardingWizard() {
         courses.length,
         classSchedule.length
       );
+      clearLocalStorage();
 
       setTimeout(() => router.push("/dashboard"), 2000);
     } catch (error) {
       toast.dismiss();
       console.error("Onboarding error:", error);
-      toast.error("Network error", {
-        description:
-          "An error occurred while saving your data. Please try again.",
-      });
+      toast.error("Network error");
     } finally {
       setLoading(false);
     }
@@ -136,57 +233,45 @@ export default function OnboardingWizard() {
 
   const validateForm = () => {
     if (!academicInfo.fullName.trim()) {
-      toast.error("Full name required", {
-        description: "Please enter your full name",
-      });
+      toast.error("Full name required");
       return false;
     }
     if (!academicInfo.studentId.trim()) {
-      toast.error("Student ID required", {
-        description: "Please enter your student ID",
-      });
+      toast.error("Student ID required");
       return false;
     }
     if (!academicInfo.collegeName.trim()) {
-      toast.error("College name required", {
-        description: "Please enter your college name",
-      });
+      toast.error("College name required");
       return false;
     }
     if (!academicInfo.department.trim()) {
-      toast.error("Department required", {
-        description: "Please enter your department",
-      });
+      toast.error("Department required");
       return false;
     }
     if (!academicInfo.currentSemester) {
-      toast.error("Semester required", {
-        description: "Please select your current semester",
-      });
+      toast.error("Semester required");
       return false;
     }
 
-    const hasEmptyCourses = courses.some(
-      (course) =>
-        !course.code.trim() || !course.name.trim() || !course.instructor.trim()
-    );
-    if (hasEmptyCourses) {
-      toast.error("Incomplete course details", {
-        description:
-          "Please fill in all course details (code, name, and instructor)",
-      });
-      return false;
-    }
+    if (!hasUploadedTimetable) {
+      const hasEmptyCourses = courses.some(
+        (course) =>
+          !course.code.trim() ||
+          !course.name.trim() ||
+          !course.instructor.trim()
+      );
+      if (hasEmptyCourses) {
+        toast.error("Incomplete course details");
+        return false;
+      }
 
-    const hasEmptyClasses = classSchedule.some(
-      (classItem) => !classItem.room.trim() || !classItem.course.trim()
-    );
-    if (hasEmptyClasses) {
-      toast.error("Incomplete class details", {
-        description:
-          "Please fill in all class details (room and course selection)",
-      });
-      return false;
+      const hasEmptyClasses = classSchedule.some(
+        (classItem) => !classItem.room.trim() || !classItem.course.trim()
+      );
+      if (hasEmptyClasses) {
+        toast.error("Incomplete class details");
+        return false;
+      }
     }
 
     return true;
@@ -256,7 +341,11 @@ export default function OnboardingWizard() {
       .map((result) => result.value.course);
   };
 
-  const saveClasses = async (token: string, successfulCourses: any[]) => {
+  const saveClasses = async (
+    token: string,
+    successfulCourses: any[],
+    timetableUploadId?: string
+  ) => {
     const courseCodeToIdMap: { [key: string]: string } = {};
     successfulCourses.forEach((course) => {
       courseCodeToIdMap[course.course_code] = course.id;
@@ -267,20 +356,29 @@ export default function OnboardingWizard() {
       if (!courseId)
         throw new Error(`Course not found for code: ${classItem.course}`);
 
+      const classData: any = {
+        course_id: courseId,
+        day_of_week: classItem.day,
+        start_time: classItem.startTime,
+        end_time: classItem.endTime,
+        room: classItem.room.trim(),
+        class_type: classItem.type,
+      };
+
+      if (timetableUploadId) {
+        classData.source = "upload";
+        classData.timetable_upload_id = timetableUploadId;
+      } else {
+        classData.source = "manual";
+      }
+
       const response = await fetch("/api/classes", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          course_id: courseId,
-          day_of_week: classItem.day,
-          start_time: classItem.startTime,
-          end_time: classItem.endTime,
-          room: classItem.room.trim(),
-          class_type: classItem.type,
-        }),
+        body: JSON.stringify(classData),
       });
 
       if (!response.ok) {
@@ -294,16 +392,58 @@ export default function OnboardingWizard() {
     await Promise.allSettled(classPromises);
   };
 
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      try {
+        const token = localStorage.getItem("jwtToken");
+        if (!token) throw new Error("No authentication token found");
+
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("fileName", file.name);
+
+        const response = await fetch("/api/profile/timetable", {
+          method: "PATCH",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to upload timetable");
+        }
+
+        const data = await response.json();
+
+        setHasUploadedTimetable(true);
+        setTimetableUploadId(data.timetable_upload?.id);
+        saveToLocalStorage();
+
+        toast.success(`Timetable ${file.name} uploaded successfully!`);
+      } catch (error: any) {
+        toast.error("Failed to upload timetable");
+      }
+    }
+  };
+
   const showSuccessMessage = (
     savedCourses: number,
     totalCourses: number,
     totalClasses: number
   ) => {
     let successMessage = "Setup completed! ";
-    if (savedCourses === totalCourses) {
-      successMessage += `All ${savedCourses} courses and ${totalClasses} classes saved successfully.`;
+
+    if (hasUploadedTimetable) {
+      successMessage += "Profile and timetable saved successfully.";
     } else {
-      successMessage += `Profile saved. ${savedCourses}/${totalCourses} courses and ${totalClasses} classes saved.`;
+      if (savedCourses === totalCourses) {
+        successMessage += `All ${savedCourses} courses and ${totalClasses} classes saved successfully.`;
+      } else {
+        successMessage += `Profile saved. ${savedCourses}/${totalCourses} courses and ${totalClasses} classes saved.`;
+      }
     }
 
     toast.success("Setup completed!", { description: successMessage });
@@ -323,12 +463,12 @@ export default function OnboardingWizard() {
     return colors[Math.floor(Math.random() * colors.length)];
   };
 
-  const steps = [
-    { number: 1, title: "Academic Profile", icon: GraduationCap },
-    { number: 2, title: "Courses", icon: BookOpen },
-    { number: 3, title: "Schedule", icon: CalendarIcon },
-    { number: 4, title: "Preferences", icon: Settings },
-  ];
+  const visibleSteps = steps.filter((step) => {
+    if (hasUploadedTimetable) {
+      return step.number === 1 || step.number === 2 || step.number === 5;
+    }
+    return true;
+  });
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
@@ -343,7 +483,7 @@ export default function OnboardingWizard() {
             </p>
           </div>
           <Badge variant="secondary" className="text-xs sm:text-sm">
-            Step {currentStep} of {totalSteps}
+            Step {currentStep} of {totalVisibleSteps}
           </Badge>
         </div>
 
@@ -353,7 +493,7 @@ export default function OnboardingWizard() {
 
         <div className="flex justify-center px-4 sm:px-6 py-4 flex-shrink-0">
           <div className="flex items-center gap-4 sm:gap-6 overflow-x-auto pb-2 w-full justify-center">
-            {steps.map((step, index) => (
+            {visibleSteps.map((step, index) => (
               <div
                 key={step.number}
                 className="flex items-center gap-2 sm:gap-3 flex-shrink-0"
@@ -380,7 +520,7 @@ export default function OnboardingWizard() {
                 >
                   {step.title}
                 </span>
-                {index < steps.length - 1 && (
+                {index < visibleSteps.length - 1 && (
                   <div
                     className={`w-4 sm:w-8 h-0.5 ${
                       currentStep > step.number ? "bg-primary" : "bg-muted"
@@ -400,16 +540,22 @@ export default function OnboardingWizard() {
             />
           )}
           {currentStep === 2 && (
-            <CoursesStep courses={courses} onChange={setCourses} />
+            <TimetableStep
+              hasUploadedTimetable={hasUploadedTimetable}
+              onFileUpload={handleFileUpload}
+            />
           )}
           {currentStep === 3 && (
+            <CoursesStep courses={courses} onChange={setCourses} />
+          )}
+          {currentStep === 4 && (
             <ScheduleStep
               classSchedule={classSchedule}
               courses={courses}
               onChange={setClassSchedule}
             />
           )}
-          {currentStep === 4 && (
+          {currentStep === 5 && (
             <PreferencesStep
               attendancePrefs={attendancePrefs}
               onChange={setAttendancePrefs}
@@ -421,16 +567,16 @@ export default function OnboardingWizard() {
           <Button
             variant="outline"
             className="cursor-pointer text-xs sm:text-sm"
-            onClick={() => setCurrentStep(currentStep - 1)}
+            onClick={handleBackStep}
             disabled={currentStep === 1}
           >
             <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
             Back
           </Button>
 
-          {currentStep < totalSteps ? (
+          {currentStep < totalVisibleSteps ? (
             <Button
-              onClick={() => setCurrentStep(currentStep + 1)}
+              onClick={handleNextStep}
               className="cursor-pointer text-xs sm:text-sm"
             >
               Continue
@@ -505,7 +651,6 @@ function AcademicProfileStep({
           placeholder="e.g., Computer Science"
           required
         />
-
         <SemesterSelect
           value={academicInfo.currentSemester}
           onChange={(value) => handleChange("currentSemester", value)}
@@ -515,6 +660,44 @@ function AcademicProfileStep({
           onChange={(value) => handleChange("expectedGraduation", value)}
         />
       </div>
+    </div>
+  );
+}
+
+function TimetableStep({
+  hasUploadedTimetable,
+  onFileUpload,
+}: {
+  hasUploadedTimetable: boolean;
+  onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
+}) {
+  if (hasUploadedTimetable) {
+    return (
+      <div className="space-y-4 sm:space-y-6">
+        <div className="text-center py-8">
+          <CheckCircle2 className="h-16 w-16 mx-auto mb-4 text-green-500" />
+          <h2 className="text-xl sm:text-2xl font-bold mb-2">
+            Timetable Uploaded
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Your timetable has been successfully uploaded. You can proceed to
+            preferences.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4 sm:space-y-6">
+      <div>
+        <h2 className="text-xl sm:text-2xl font-bold mb-2">Upload Timetable</h2>
+        <p className="text-xs sm:text-sm text-muted-foreground">
+          Upload your timetable to automatically import your schedule and skip
+          manual entry.
+        </p>
+      </div>
+      <FileUploadSection onFileUpload={onFileUpload} />
     </div>
   );
 }
@@ -544,9 +727,7 @@ function CoursesStep({
   };
 
   const removeCourse = (index: number) => {
-    if (courses.length > 1) {
-      onChange(courses.filter((_, i) => i !== index));
-    }
+    if (courses.length > 1) onChange(courses.filter((_, i) => i !== index));
   };
 
   return (
@@ -623,18 +804,8 @@ function ScheduleStep({
   };
 
   const removeClass = (index: number) => {
-    if (classSchedule.length > 1) {
+    if (classSchedule.length > 1)
       onChange(classSchedule.filter((_, i) => i !== index));
-    }
-  };
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      toast.success(`Timetable ${file.name} uploaded successfully!`, {
-        description: "You can now review and edit the imported classes below.",
-      });
-    }
   };
 
   return (
@@ -644,19 +815,6 @@ function ScheduleStep({
         <p className="text-xs sm:text-sm text-muted-foreground">
           Set up your weekly class schedule for attendance tracking
         </p>
-      </div>
-
-      <FileUploadSection onFileUpload={handleFileUpload} />
-
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-border" />
-        </div>
-        <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-background text-muted-foreground text-xs">
-            OR
-          </span>
-        </div>
       </div>
 
       <div>
@@ -722,6 +880,46 @@ function PreferencesStep({
             onChange({ ...attendancePrefs, enableWarnings: value })
           }
         />
+      </div>
+    </div>
+  );
+}
+
+function FileUploadSection({
+  onFileUpload,
+}: {
+  onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
+}) {
+  return (
+    <div className="p-4 sm:p-6 rounded-lg border border-border bg-card">
+      <div className="text-center">
+        <Upload className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-primary" />
+        <h3 className="text-base sm:text-lg font-semibold mb-2">
+          Upload Your Timetable
+        </h3>
+        <p className="text-xs sm:text-sm mb-3 sm:mb-4 text-muted-foreground">
+          Upload your Excel or PDF timetable to automatically import your
+          schedule
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Button
+            type="button"
+            variant="outline"
+            className="relative text-xs sm:text-sm"
+          >
+            <Upload className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+            Choose File
+            <Input
+              type="file"
+              accept=".xlsx,.xls,.pdf"
+              onChange={onFileUpload}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            />
+          </Button>
+          <Button variant="outline" disabled className="text-xs sm:text-sm">
+            Download Template
+          </Button>
+        </div>
       </div>
     </div>
   );
@@ -888,7 +1086,6 @@ function CourseForm({
           required
           id={""}
         />
-
         <div className="space-y-2">
           <Label className="text-xs sm:text-sm">Credits</Label>
           <Select
@@ -910,46 +1107,6 @@ function CourseForm({
               ))}
             </SelectContent>
           </Select>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function FileUploadSection({
-  onFileUpload,
-}: {
-  onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
-}) {
-  return (
-    <div className="p-4 sm:p-6 rounded-lg border border-border bg-card">
-      <div className="text-center">
-        <Upload className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-primary" />
-        <h3 className="text-base sm:text-lg font-semibold mb-2">
-          Upload Your Timetable
-        </h3>
-        <p className="text-xs sm:text-sm mb-3 sm:mb-4 text-muted-foreground">
-          Upload your Excel or PDF timetable to automatically import your
-          schedule
-        </p>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Button
-            type="button"
-            variant="outline"
-            className="relative text-xs sm:text-sm"
-          >
-            <Upload className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
-            Choose File
-            <Input
-              type="file"
-              accept=".xlsx,.xls,.pdf"
-              onChange={onFileUpload}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            />
-          </Button>
-          <Button variant="outline" disabled className="text-xs sm:text-sm">
-            Download Template
-          </Button>
         </div>
       </div>
     </div>
@@ -1140,7 +1297,6 @@ function AttendanceSlider({
             course
           </p>
         </div>
-
         <div className="space-y-4 sm:space-y-6">
           <div className="flex items-center justify-between">
             <span className="text-base sm:text-lg font-semibold text-foreground">

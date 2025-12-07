@@ -153,7 +153,7 @@ export default function Attendance() {
       setAttendanceSummary(summaryData.summary || []);
       setRecentActivity(activityData.attendance || []);
     } catch (err) {
-      setError("Failed to load attendance data");
+      setError("Failed to load attendance");
     } finally {
       setLoading(false);
     }
@@ -927,7 +927,7 @@ function ErrorState({
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-14 sm:h-16 items-center gap-3 px-4 sm:px-6">
+        <div className="flex h-14 items-center gap-3 px-4">
           <div className="lg:hidden">
             <MobileSidebarTrigger />
           </div>
@@ -935,31 +935,27 @@ function ErrorState({
             <SidebarTrigger />
           </div>
           <div className="flex-1">
-            <h1 className="text-lg sm:text-xl font-semibold">Attendance</h1>
+            <h1 className="text-lg font-semibold">Attendance</h1>
           </div>
         </div>
       </header>
-      <main className="p-4 sm:p-6">
-        <div className="flex items-center justify-center h-64 sm:h-80">
-          <Card className="w-full max-w-md">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-destructive text-base">
-                <AlertCircle className="h-4 w-4" />
-                Failed to load attendance data
-              </CardTitle>
-              <CardDescription className="text-xs sm:text-sm">
-                {error}
-              </CardDescription>
-            </CardHeader>
-            <CardFooter>
-              <Button
-                onClick={onRetry}
-                className="w-full text-xs sm:text-sm h-9"
-              >
-                Retry
-              </Button>
-            </CardFooter>
-          </Card>
+
+      <main className="p-4">
+        <div className="flex items-center justify-center h-48">
+          <div className="text-center">
+            <AlertCircle className="h-6 w-6 text-destructive mx-auto mb-2" />
+
+            <h2 className="text-sm font-semibold mb-1">Failed to load data</h2>
+
+            <p className="text-xs text-muted-foreground mb-3">{error}</p>
+
+            <button
+              onClick={onRetry}
+              className="px-3 py-1.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 text-xs h-8"
+            >
+              Retry
+            </button>
+          </div>
         </div>
       </main>
     </div>

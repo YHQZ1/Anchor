@@ -13,33 +13,38 @@ export async function GET(request: NextRequest) {
     const priority = searchParams.get("priority");
     const upcomingOnly = searchParams.get("upcoming_only");
 
-    const cacheKey = `assignments:${user.id}:${courseId || 'all'}:${status || 'all'}:${priority || 'all'}:${upcomingOnly || 'false'}`;
+    const cacheKey = `assignments:${user.id}:${courseId || "all"}:${
+      status || "all"
+    }:${priority || "all"}:${upcomingOnly || "false"}`;
 
-    const { data: assignments, cached } = await withCache(cacheKey, async () => {
-      const supabaseAdmin = getSupabaseAdmin();
-      
-      let query = supabaseAdmin
-        .from("assignments")
-        .select(
-          `*, courses!inner (id, course_code, course_name, color, archived)`
-        )
-        .eq("user_id", user.id)
-        .eq("courses.archived", false);
+    const { data: assignments, cached } = await withCache(
+      cacheKey,
+      async () => {
+        const supabaseAdmin = getSupabaseAdmin();
 
-      if (courseId) query = query.eq("course_id", courseId);
-      if (status) query = query.eq("status", status);
-      if (priority) query = query.eq("priority", priority);
-      if (upcomingOnly === "true")
-        query = query.gte("due_date", new Date().toISOString());
+        let query = supabaseAdmin
+          .from("assignments")
+          .select(
+            `*, courses!inner (id, course_code, course_name, color, archived)`
+          )
+          .eq("user_id", user.id)
+          .eq("courses.archived", false);
 
-      const { data, error } = await query.order("due_date", {
-        ascending: true,
-      });
+        if (courseId) query = query.eq("course_id", courseId);
+        if (status) query = query.eq("status", status);
+        if (priority) query = query.eq("priority", priority);
+        if (upcomingOnly === "true")
+          query = query.gte("due_date", new Date().toISOString());
 
-      if (error) throw new Error("Failed to fetch assignments");
+        const { data, error } = await query.order("due_date", {
+          ascending: true,
+        });
 
-      return data;
-    });
+        if (error) throw new Error("Failed to fetch assignments");
+
+        return data;
+      }
+    );
 
     return NextResponse.json({ assignments, cached }, { status: 200 });
   }, request);
@@ -217,7 +222,7 @@ export async function DELETE(request: NextRequest) {
 async function clearAssignmentsCache(userId: string) {
   const pattern = `assignments:${userId}:*`;
   const keys = await redis.keys(pattern);
-  
+
   if (keys.length > 0) {
     for (const key of keys) {
       await redis.del(key);

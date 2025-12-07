@@ -353,42 +353,7 @@ export default function Dashboard() {
 
   if (loading) return <DashboardSkeleton />;
 
-  if (error) {
-    return (
-      <div className="min-h-screen bg-background text-foreground">
-        <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="flex h-14 items-center gap-3 px-4">
-            <div className="lg:hidden">
-              <MobileSidebarTrigger />
-            </div>
-            <div className="hidden lg:block">
-              <SidebarTrigger />
-            </div>
-            <div className="flex-1">
-              <h1 className="text-lg font-semibold">Dashboard</h1>
-            </div>
-          </div>
-        </header>
-        <main className="p-4">
-          <div className="flex items-center justify-center h-48">
-            <div className="text-center">
-              <AlertCircle className="h-6 w-6 text-destructive mx-auto mb-2" />
-              <h2 className="text-sm font-semibold mb-1">
-                Failed to load data
-              </h2>
-              <p className="text-xs text-muted-foreground mb-3">{error}</p>
-              <button
-                onClick={fetchDashboardData}
-                className="px-3 py-1.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 text-xs h-8"
-              >
-                Retry
-              </button>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
-  }
+  if (error) return <ErrorState error={error} onRetry={fetchDashboardData} />;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -635,6 +600,51 @@ function DashboardSkeleton() {
                 <Skeleton className="h-2 w-24 rounded" />
               </div>
             ))}
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+function ErrorState({
+  error,
+  onRetry,
+  title = "Failed to load data",
+}: {
+  error: string;
+  onRetry: () => void;
+  title?: string;
+}) {
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex h-14 items-center gap-3 px-4">
+          <div className="lg:hidden">
+            <MobileSidebarTrigger />
+          </div>
+          <div className="hidden lg:block">
+            <SidebarTrigger />
+          </div>
+          <div className="flex-1">
+            <h1 className="text-lg font-semibold">{title}</h1>
+          </div>
+        </div>
+      </header>
+
+      <main className="p-4">
+        <div className="flex items-center justify-center h-48">
+          <div className="text-center">
+            <AlertCircle className="h-6 w-6 text-destructive mx-auto mb-2" />
+            <h2 className="text-sm font-semibold mb-1">{title}</h2>
+            <p className="text-xs text-muted-foreground mb-3">{error}</p>
+
+            <button
+              onClick={onRetry}
+              className="px-3 py-1.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 text-xs h-8"
+            >
+              Retry
+            </button>
           </div>
         </div>
       </main>

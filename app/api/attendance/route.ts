@@ -13,13 +13,16 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get("end_date");
     const summaryOnly = searchParams.get("summary_only");
 
-    if (summaryOnly === "true") return await getAttendanceSummary(user.id, courseId, startDate, endDate);
+    if (summaryOnly === "true")
+      return await getAttendanceSummary(user.id, courseId, startDate, endDate);
 
-    const cacheKey = `attendance:${user.id}:${courseId || 'all'}:${startDate || 'all'}:${endDate || 'all'}`;
+    const cacheKey = `attendance:${user.id}:${courseId || "all"}:${
+      startDate || "all"
+    }:${endDate || "all"}`;
 
     const { data: attendance, cached } = await withCache(cacheKey, async () => {
       const supabaseAdmin = getSupabaseAdmin();
-      
+
       let query = supabaseAdmin
         .from("attendance")
         .select(`*, courses!inner (course_code, course_name, color, archived)`)
@@ -43,14 +46,23 @@ export async function GET(request: NextRequest) {
   }, request);
 }
 
-async function getAttendanceSummary(userId: string, courseId?: string | null, startDate?: string | null, endDate?: string | null) {
-  const cacheKey = `attendance_summary:${userId}:${courseId || 'all'}:${startDate || 'all'}:${endDate || 'all'}`;
+async function getAttendanceSummary(
+  userId: string,
+  courseId?: string | null,
+  startDate?: string | null,
+  endDate?: string | null
+) {
+  const cacheKey = `attendance_summary:${userId}:${courseId || "all"}:${
+    startDate || "all"
+  }:${endDate || "all"}`;
 
   const { data: summary, cached } = await withCache(cacheKey, async () => {
     const supabaseAdmin = getSupabaseAdmin();
     let query = supabaseAdmin
       .from("attendance")
-      .select(`class_date, status, courses!inner (course_code, course_name, color, archived)`)
+      .select(
+        `class_date, status, courses!inner (course_code, course_name, color, archived)`
+      )
       .eq("user_id", userId)
       .eq("courses.archived", false);
 
@@ -82,9 +94,11 @@ async function getAttendanceSummary(userId: string, courseId?: string | null, st
       acc[courseCode][record.status]++;
 
       const attended = acc[courseCode].present + acc[courseCode].late;
-      const totalCounted = acc[courseCode].total_classes - acc[courseCode].excused;
+      const totalCounted =
+        acc[courseCode].total_classes - acc[courseCode].excused;
 
-      acc[courseCode].attendance_percentage = totalCounted > 0 ? Math.round((attended / totalCounted) * 100) : 100;
+      acc[courseCode].attendance_percentage =
+        totalCounted > 0 ? Math.round((attended / totalCounted) * 100) : 100;
 
       return acc;
     }, {});
@@ -238,7 +252,7 @@ export async function DELETE(request: NextRequest) {
 async function clearAttendanceCache(userId: string) {
   const pattern = `attendance*:${userId}:*`;
   const keys = await redis.keys(pattern);
-  
+
   if (keys.length > 0) {
     for (const key of keys) {
       await redis.del(key);

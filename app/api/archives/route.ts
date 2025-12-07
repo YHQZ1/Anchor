@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
 
     await Promise.all([
       redis.del(`courses:${user.id}`),
-      redis.del(`archives:${user.id}`)
+      redis.del(`archives:${user.id}`),
     ]);
 
     const supabaseAdmin = getSupabaseAdmin();
@@ -126,7 +126,7 @@ export async function DELETE(request: NextRequest) {
 
     await Promise.all([
       redis.del(`courses:${user.id}`),
-      redis.del(`archives:${user.id}`)
+      redis.del(`archives:${user.id}`),
     ]);
 
     let query = supabaseAdmin.from("archives").delete().eq("user_id", user.id);

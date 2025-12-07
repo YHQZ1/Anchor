@@ -148,7 +148,7 @@ export default function ProfilePage() {
         });
       }
     } catch (err) {
-      setError("Failed to load profile data");
+      setError("Failed to load profile");
       console.error("Profile fetch error:", err);
     } finally {
       setLoading(false);
@@ -326,40 +326,7 @@ export default function ProfilePage() {
   if (loading) return <ProfileSkeleton />;
 
   if (error && !profile) {
-    return (
-      <div className="min-h-screen bg-background text-foreground">
-        <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="flex h-14 items-center gap-3 px-4 sm:px-6">
-            <div className="lg:hidden">
-              <MobileSidebarTrigger />
-            </div>
-            <div className="hidden lg:block">
-              <SidebarTrigger />
-            </div>
-            <div className="flex-1">
-              <h1 className="text-lg font-semibold">Profile</h1>
-            </div>
-          </div>
-        </header>
-        <main className="p-4 sm:p-6">
-          <div className="flex items-center justify-center h-48 sm:h-64">
-            <div className="text-center">
-              <AlertCircle className="h-8 w-8 sm:h-10 sm:w-10 text-destructive mx-auto mb-3" />
-              <h2 className="text-lg font-semibold mb-2">
-                Failed to load profile
-              </h2>
-              <p className="text-muted-foreground mb-4 text-sm">{error}</p>
-              <button
-                onClick={fetchProfile}
-                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 text-sm"
-              >
-                Retry
-              </button>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
+    return <ErrorState error={error} onRetry={fetchProfile} />;
   }
 
   const hasUploadedTimetable = timetableData?.timetable_upload;
@@ -1030,6 +997,51 @@ function ProfileSkeleton() {
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+function ErrorState({
+  error,
+  onRetry,
+}: {
+  error: string;
+  onRetry: () => void;
+}) {
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex h-14 items-center gap-3 px-4">
+          <div className="lg:hidden">
+            <MobileSidebarTrigger />
+          </div>
+          <div className="hidden lg:block">
+            <SidebarTrigger />
+          </div>
+          <div className="flex-1">
+            <h1 className="text-lg font-semibold">Assignments</h1>
+          </div>
+        </div>
+      </header>
+
+      <main className="p-4">
+        <div className="flex items-center justify-center h-48">
+          <div className="text-center">
+            <AlertCircle className="h-6 w-6 text-destructive mx-auto mb-2" />
+
+            <h2 className="text-sm font-semibold mb-1">Failed to load data</h2>
+
+            <p className="text-xs text-muted-foreground mb-3">{error}</p>
+
+            <button
+              onClick={onRetry}
+              className="px-3 py-1.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 text-xs h-8"
+            >
+              Retry
+            </button>
           </div>
         </div>
       </main>

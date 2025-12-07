@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -15,6 +14,7 @@ import {
   Edit,
   Trash2,
   CheckCircle2,
+  AlertCircle,
 } from "lucide-react";
 import { SidebarTrigger, MobileSidebarTrigger } from "@/components/Sidebar";
 import { Badge } from "@/components/ui/badge";
@@ -121,7 +121,7 @@ export default function Assignments() {
 
       const data = await response.json();
       setAssignments(data.assignments || []);
-    } catch (err) {
+    } catch {
       setError("Failed to load assignments");
     } finally {
       setLoading(false);
@@ -970,24 +970,23 @@ function ErrorState({
           </div>
         </div>
       </header>
+
       <main className="p-4">
         <div className="flex items-center justify-center h-48">
-          <Card className="w-full max-w-md">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-destructive text-sm">
-                Failed to load assignments
-              </CardTitle>
-              <CardDescription className="text-xs">{error}</CardDescription>
-            </CardHeader>
-            <CardFooter>
-              <Button
-                onClick={onRetry}
-                className="w-full cursor-pointer text-xs h-8"
-              >
-                Retry
-              </Button>
-            </CardFooter>
-          </Card>
+          <div className="text-center">
+            <AlertCircle className="h-6 w-6 text-destructive mx-auto mb-2" />
+
+            <h2 className="text-sm font-semibold mb-1">Failed to load data</h2>
+
+            <p className="text-xs text-muted-foreground mb-3">{error}</p>
+
+            <button
+              onClick={onRetry}
+              className="px-3 py-1.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 text-xs h-8"
+            >
+              Retry
+            </button>
+          </div>
         </div>
       </main>
     </div>

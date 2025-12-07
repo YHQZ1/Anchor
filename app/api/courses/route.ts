@@ -26,7 +26,6 @@ export async function GET(request: NextRequest) {
   }, request);
 }
 
-
 export async function POST(request: NextRequest) {
   return withAuth(async (request, user) => {
     const supabaseAdmin = getSupabaseAdmin();

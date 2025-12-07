@@ -2,7 +2,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Archive, RotateCcw, Search, MoreVertical, Eye } from "lucide-react";
+import {
+  Archive,
+  RotateCcw,
+  Search,
+  MoreVertical,
+  Eye,
+  AlertCircle,
+} from "lucide-react";
 import { SidebarTrigger, MobileSidebarTrigger } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -395,14 +402,16 @@ function ArchivesSkeleton() {
 function ErrorState({
   error,
   onRetry,
+  title = "Failed to load data",
 }: {
   error: string;
   onRetry: () => void;
+  title?: string;
 }) {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-14 sm:h-16 items-center gap-4 px-4 sm:px-6">
+        <div className="flex h-14 items-center gap-3 px-4">
           <div className="lg:hidden">
             <MobileSidebarTrigger />
           </div>
@@ -410,28 +419,24 @@ function ErrorState({
             <SidebarTrigger />
           </div>
           <div className="flex-1">
-            <h1 className="text-lg sm:text-xl font-semibold">
-              Archived Courses
-            </h1>
+            <h1 className="text-lg font-semibold">{title}</h1>
           </div>
         </div>
       </header>
-      <main className="p-4 sm:p-6 md:p-8">
-        <div className="flex items-center justify-center h-64 sm:h-80 md:h-96">
-          <div className="text-center max-w-sm mx-auto">
-            <Archive className="h-8 w-8 sm:h-12 sm:w-12 text-destructive mx-auto mb-3 sm:mb-4" />
-            <h2 className="text-lg sm:text-xl font-semibold mb-2">
-              Failed to load archives
-            </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground mb-4 px-4">
-              {error}
-            </p>
-            <Button
+
+      <main className="p-4">
+        <div className="flex items-center justify-center h-48">
+          <div className="text-center">
+            <AlertCircle className="h-6 w-6 text-destructive mx-auto mb-2" />
+            <h2 className="text-sm font-semibold mb-1">{title}</h2>
+            <p className="text-xs text-muted-foreground mb-3">{error}</p>
+
+            <button
               onClick={onRetry}
-              className="cursor-pointer text-xs sm:text-sm h-9 sm:h-10 px-4 sm:px-6"
+              className="px-3 py-1.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 text-xs h-8"
             >
-              Try Again
-            </Button>
+              Retry
+            </button>
           </div>
         </div>
       </main>

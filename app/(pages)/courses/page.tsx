@@ -216,7 +216,7 @@ export default function Courses() {
       setAssignments(assignmentsData.assignments || []);
       setAttendanceSummary(attendanceData.summary || []);
     } catch (err) {
-      setError("Failed to load courses data");
+      setError("Failed to load courses");
     } finally {
       setLoading(false);
     }
@@ -1517,9 +1517,11 @@ function CoursesSkeleton() {
 function ErrorState({
   error,
   onRetry,
+  title = "Failed to load data",
 }: {
   error: string;
   onRetry: () => void;
+  title?: string;
 }) {
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -1532,16 +1534,18 @@ function ErrorState({
             <SidebarTrigger />
           </div>
           <div className="flex-1">
-            <h1 className="text-lg font-semibold">Courses</h1>
+            <h1 className="text-lg font-semibold">{title}</h1>
           </div>
         </div>
       </header>
+
       <main className="p-4">
         <div className="flex items-center justify-center h-48">
           <div className="text-center">
             <AlertCircle className="h-6 w-6 text-destructive mx-auto mb-2" />
-            <h2 className="text-sm font-semibold mb-1">Failed to load data</h2>
+            <h2 className="text-sm font-semibold mb-1">{title}</h2>
             <p className="text-xs text-muted-foreground mb-3">{error}</p>
+
             <button
               onClick={onRetry}
               className="px-3 py-1.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 text-xs h-8"

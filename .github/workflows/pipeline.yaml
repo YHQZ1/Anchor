@@ -1,4 +1,4 @@
-name: Project Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
@@ -34,6 +34,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Restore Next.js build cache
+        uses: actions/cache@v3
+        with:
+          path: .next/cache
+          key: next-cache-${{ github.ref }}-${{ github.sha }}
+          restore-keys: |
+            next-cache-
+
       - name: Lint code
         run: npm run lint --if-present
 
@@ -43,8 +51,15 @@ jobs:
       - name: Build Next.js app
         run: npm run build
 
-  deploy:
-    name: Deploy to Vercel
+      - name: Save Next.js cache
+        if: always()
+        uses: actions/cache@v3
+        with:
+          path: .next/cache
+          key: next-cache-${{ github.ref }}-${{ github.sha }}
+
+  cd:
+    name: Continuous Deployment
     needs: ci
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'

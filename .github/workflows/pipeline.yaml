@@ -53,8 +53,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Create Vercel project file
+        run: |
+          mkdir -p .vercel
+          echo '{ "projectId": "${{ secrets.VERCEL_PROJECT_ID }}", "orgId": "${{ secrets.VERCEL_ORG_ID }}" }' > .vercel/project.json
+
       - name: Install Vercel CLI
         run: npm install -g vercel
 
       - name: Deploy to Vercel
-        run: vercel --prod --yes --token ${{ secrets.VERCEL_TOKEN }} --project ${{ secrets.VERCEL_PROJECT_ID }}
+        run: vercel --prod --yes --token ${{ secrets.VERCEL_TOKEN }}

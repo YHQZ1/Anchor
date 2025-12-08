@@ -1,4 +1,4 @@
-name: Anchor Pipeline
+name: Project Pipeline
 
 on:
   push:
@@ -42,3 +42,22 @@ jobs:
 
       - name: Build Next.js app
         run: npm run build
+
+  deploy:
+    name: Deploy to Vercel
+    needs: ci
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+
+      - name: Deploy to Vercel
+        run: vercel --prod --yes \
+          --token ${{ secrets.VERCEL_TOKEN }} \
+          --org ${{ secrets.VERCEL_ORG_ID }} \
+          --project ${{ secrets.VERCEL_PROJECT_ID }}

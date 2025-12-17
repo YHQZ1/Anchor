@@ -1,61 +1,60 @@
-# Node dependencies
-/node_modules
-/.pnp
+# Node & Package Managers
+node_modules/
+.pnp
 .pnp.*
-
-# Yarn
 .yarn/*
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+.bun/
 
-# Bun
-.bun
+# Build / Output
+.next/
+out/
+build/
+dist/
 
-# Output / build
-/.next
-/out
-/build
-/dist
-
-# Environment variables (DO NOT COMMIT SECRETS)
+# Environment Variables
 .env
 .env.*
 !.env.example
 
-# Logs & debugging
+# Logs & Debugging
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 *.log
 
-# Coverage reports
-/coverage
+# Test Coverage
+coverage/
 
-# OS / editor junk
+# OS / Editor Junk
 .DS_Store
 Thumbs.db
-.idea
-.vscode/*
-!.vscode/settings.json
-!.vscode/extensions.json
+.idea/
+.vscode/
 
-# TypeScript artifacts
+# TypeScript
 *.tsbuildinfo
 next-env.d.ts
 
-# Vercel deployment
-.vercel
+# Deployment / Hosting
+.vercel/
 
-# Supabase (local configs)
-.supabase
+# Supabase (local only)
+.supabase/
 
-# Redis / cache dumps (in case redis saves locally)
-/dump.rdb
-/redis-data
+# Redis / Cache Dumps
+dump.rdb
+redis-data/
 
 # Prisma
-/prisma/migrations/*
-!prisma/migrations/.keep
+
+# (Keep migrations if working in a team)
+# Remove the next line if you want migrations committed
+# prisma/migrations/
+
+# Security Keys
+*.pem
